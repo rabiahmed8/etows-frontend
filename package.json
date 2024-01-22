@@ -1,0 +1,102 @@
+{
+  "name": "argon-dashboard-react",
+  "version": "1.1.0",
+  "description": "React version of Argon Dashboard by Creative Tim",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/creativetimofficial/argon-dashboard-react.git"
+  },
+  "keywords": [
+    "react",
+    "reactjs",
+    "argon",
+    "argon-react",
+    "dashboard",
+    "dashboard-react",
+    "argon-dashboard",
+    "argon-dashboard-react"
+  ],
+  "author": "Creative Tim",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/creativetimofficial/argon-dashboard-react/issues"
+  },
+  "homepage": "http://52.60.126.36/",
+  "scripts": {
+    "start": "set HTTPS=true&&react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
+    "compile-sass": "node-sass src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.css",
+    "minify-sass": "node-sass src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.min.css --output-style compressed",
+    "map-sass": "node-sass src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.css --source-map true"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "5.12.1",
+    "@hookform/resolvers": "^2.9.8",
+    "@material-ui/core": "^4.12.4",
+    "axios": "0.26.1",
+    "chart.js": "2.9.3",
+    "classnames": "2.2.6",
+    "expo-auth-session": "^3.7.1",
+    "moment": "^2.29.4",
+    "nouislider": "14.1.1",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-app-rewired": "^2.2.1",
+    "react-bootstrap": "^2.6.0",
+    "react-chartjs-2": "2.9.0",
+    "react-copy-to-clipboard": "5.0.2",
+    "react-csv-to-table": "^0.0.4",
+    "react-datepicker": "^4.8.0",
+    "react-datetime": "2.16.3",
+    "react-datetime-picker": "^4.0.1",
+    "react-dom": "^18.2.0",
+    "react-form-input-validation": "^2.1.0",
+    "react-google-maps": "9.4.5",
+    "react-google-places-autocomplete": "^3.4.0",
+    "react-hook-form": "^7.37.0",
+    "react-hot-toast": "^2.4.0",
+    "react-icons": "^4.4.0",
+    "react-intl": "^6.1.1",
+    "react-minimal-pie-chart": "^8.3.0",
+    "react-minimal-side-navigation": "^1.9.2",
+    "react-oauth2-code-pkce": "^1.8.2",
+    "react-pdf": "^5.7.2",
+    "react-pro-sidebar": "^0.7.1",
+    "react-router-dom": "5.1.2",
+    "react-scripts": "^3.4.1",
+    "react-select": "^5.4.0",
+    "react-sidebar-ui": "^1.2.1",
+    "react-simple-oauth2-login": "^0.5.3",
+    "react-toastify": "^9.0.8",
+    "react-toggle-button": "^2.2.0",
+    "react-usestateref": "^1.0.8",
+    "reactstrap": "8.4.1",
+    "reactstrap-date-picker": "^1.0.2",
+    "sass-loader": "^13.0.2",
+    "webpack": "^5.74.0",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@types/googlemaps": "3.39.2",
+    "@types/markerclustererplus": "2.1.33",
+    "@types/react": "16.9.19",
+    "eslint-plugin-flowtype": "3.13.0",
+    "gulp": "4.0.2",
+    "gulp-append-prepend": "1.0.8",
+    "sass": "^1.54.5",
+    "typescript": "3.7.5"
+  }
+}

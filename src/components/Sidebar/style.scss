@@ -1,0 +1,53 @@
+.navbar-vertical.navbar-expand-md .navbar-collapse {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: unset !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+.navbar-vertical.navbar-expand-md {
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 270px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    overflow-y: auto;
+    z-index: 9999 !important;
+}
+
+.pro-sidebar {
+    color: #fff !important;
+    height: 100%;
+    width: 100% !important;
+    min-width: 270px;
+    text-align: left;
+    transition: width, left, right, 0.3s;
+    position: relative;
+    z-index: 1009;
+}
+.pro-sidebar > .pro-sidebar-inner {
+    background: #000 !important;
+    height: 100%;
+    position: relative;
+    z-index: 101;
+}
+.pro-sidebar .pro-menu {
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+}
+// .input-group {
+//     padding: 6px !important;
+// }
+.pro-sidebar .pro-menu a {
+    color: #fff !important;
+}
+.pro-sidebar .pro-menu > ul > .pro-sub-menu > .pro-inner-list-item > div > ul {
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+}
