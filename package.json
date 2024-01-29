@@ -24,7 +24,7 @@
   },
   "homepage": "",
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
+    "start": "set HTTPS=true && env-cmd -f .env.dev react-scripts start",
     "start:dev": "env-cmd -f .env.dev react-scripts start",
     "start:stage": "env-cmd -f .env.stage react-scripts start",
     "start:prod": "env-cmd -f .env.prod react-scripts start",
