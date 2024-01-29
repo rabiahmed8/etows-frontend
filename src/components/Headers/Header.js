@@ -62,7 +62,7 @@ class Header extends React.Component {
             <span  style={{ color: "#fff" }}><IoArrowBackSharp /> Exit</span>
           </div> */}
         {/* )} */}
-        <div className="header pb-8 pt-5 pt-md-8" style={{ background: 'green' }}>
+        <div className="header pb-5 pt-5 pt-md-8" style={{ background: 'green' }}>
           <Container fluid>
             <div className="header-body">
               {/* Card stats */}

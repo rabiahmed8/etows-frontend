@@ -112,5 +112,4 @@ class AdminNavbar extends React.Component {
     );
   }
 }
-
 export default AdminNavbar;

@@ -13621,11 +13621,11 @@ textarea[resize="horizontal"] {
         padding-left: 1rem;
         padding-right: 1rem;
     }
-    .navbar-vertical .navbar-collapse:before {
+    /* .navbar-vertical .navbar-collapse:before {
         content: "";
         display: block;
         margin: 1rem -1rem;
-    }
+    } */
 }
 .navbar-vertical .navbar-nav {
     margin-left: -1rem;

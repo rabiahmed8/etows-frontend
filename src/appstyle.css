@@ -98,6 +98,11 @@
         padding-right: 1.5rem !important;
     }
 } */
+.navbar-collapse:before {
+    content: "";
+    display: block;
+    margin: 0rem 0rem !important
+}
 .side-navigation-panel
     .side-navigation-panel-select
     .side-navigation-panel-select-wrap
@@ -340,7 +345,7 @@
 }
 
 .card-footer {
-    display: none !important;
+    display: unset !important;
 }
 
 .additional {
