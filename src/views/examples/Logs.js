@@ -270,7 +270,7 @@ function Logs(props) {
         <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={mapModal} toggle={() => { toggleMap() }} className={props.className}>
           <ModalHeader>{config.towRequestLocation}</ModalHeader>
           <ModalBody>
-            <Maps lat={43.648390} lng={-79.876260} />
+            <Maps lat={43.648390} lng={-79.876260} data={'hide'}/>
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={() => { toggleMap() }}>{config.close}</Button>

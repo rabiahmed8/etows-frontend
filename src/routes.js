@@ -1,9 +1,6 @@
 import Index from "views/Index.js";
 import Profile from "views/examples/Profile.js";
 import Maps from "views/examples/Maps.js";
-import Register from "views/examples/Register.js";
-import Login from "views/examples/Login.js";
-import Tables from "views/examples/Tables.js";
 import AllUsers from "views/examples/AllUsers.js";
 import ActiveUsers from "views/examples/ActiveUsers.js";
 import AllJobs from "views/examples/AllJobs.js";
@@ -20,6 +17,8 @@ import config from "config";
 import Company from "views/examples/Company";
 import Logs from "views/examples/Logs";
 import CompanyDetail from "views/examples/CompanyDetail";
+import LEManagementArea from "views/examples/le-admin-management-area/LEManagementArea";
+import LECompany from "views/examples/le-admin-management-area/LECompany";
 import CourtProceedings from "views/examples/CourtProceedings";
 import Jurisdiction from "views/examples/Jurisdiction";
 import Fleet from "views/examples/ManagmentArea/Fleet";
@@ -84,6 +83,34 @@ var routes = [
     name: 'Company',
     icon: "ni ni-single-02 text-yellow",
     component: Company,
+    layout: "/admin"
+  },
+  {
+    path: "/company",
+    name: 'Company',
+    icon: "ni ni-single-02 text-yellow",
+    component: Company,
+    layout: "/admin"
+  },
+  {
+    path: "/le-assigned-company-management",
+    name: 'Tow/Impound/Storage Company',
+    icon: "ni ni-single-02 text-yellow",
+    component: LECompany,
+    layout: "/admin"
+  },
+  {
+    path: "/le-assigned-company-services",
+    name: '',
+    icon: "ni ni-single-02 text-yellow",
+    component: LECompany,
+    layout: "/admin"
+  },
+  {
+    path: "/le-assigned-company-details",
+    name: '',
+    icon: "ni ni-single-02 text-yellow",
+    component: LEManagementArea,
     layout: "/admin"
   },
   {

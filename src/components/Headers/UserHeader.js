@@ -10,16 +10,12 @@ function UserHeader() {
       // alert(JSON.parse(getAccess));
       let filterData = JSON.parse(getAccess)
       if (filterData) {
-        // this.setState({ data: filterData }, () => {
-        //   console.log(this.state.data)
-        // })
         setData(filterData)
       }
       else {
         try {
           getLoggedinApi('', async (res) => {
             if (res.sucess) {
-              console.log("res.sucess", res.sucess)
               setData(res.sucess)
             } else {
               console.log("errrrr")
@@ -35,7 +31,7 @@ function UserHeader() {
   return (
     <>
       <div
-        className="header pb-8 pt-5 pt-lg-8 d-flex align-items-center"
+        className="header pb-5 pt-5 pt-lg-8 d-flex align-items-center"
         style={{
           minHeight: "400px",
           backgroundImage:

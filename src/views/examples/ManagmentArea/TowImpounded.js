@@ -58,7 +58,7 @@ function TowImpounded(props) {
   const [ViewImagemodal, setViewImageModal] = useState(false);
   const [setItem, setItemData] = useState('');
   const [modalUpdate, setModalUpdate] = useState(false);
-  const [sampleData, setsampleData] = useState('https://api.etows.app:9000/file/files/9/Police/users-list%20(1).xlsx');
+  const [sampleData, setsampleData] = useState('process.env.REACT_APP_API_URL/file/files/9/Police/users-list%20(1).xlsx');
   const [statusData, setStatusData] = useState([]);
   const [imageLink, setImageLink] = useState('');
   const [typeAgency, setAgencyType] = useState('')
@@ -435,7 +435,7 @@ function TowImpounded(props) {
               tableClassName="table table-striped table-hover"
             /> */}
             <h3>{imageLink ? imageLink : 'Please Upload image'}</h3>
-            <Document file="https://api.etows.app:9000/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
+            <Document file="process.env.REACT_APP_API_URL/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
               <Page pageNumber={pageNumber} />
             </Document>
             <p>

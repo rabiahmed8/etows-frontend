@@ -1,23 +1,22 @@
 import React from "react";
 // react plugin used to create google maps
-import {
-  withScriptjs,
-  withGoogleMap,
-  GoogleMap,
-  Marker
-} from "react-google-maps";
-
+import {withScriptjs,withGoogleMap,GoogleMap,Marker,InfoWindow} from "react-google-maps";
+import config from 'config';
 // reactstrap components
-import { Card, Container, Row } from "reactstrap";
+import { Card, Row } from "reactstrap";
 
 // core components
 import Header from "components/Headers/Header.js";
-// mapTypeId={google.maps.MapTypeId.ROADMAP}
+import { getOndutyLocations } from "APIstore/apiCalls";
+import { errorAlert } from "Theme/utils";
+
+let timerId;
+let mapUrl="https://maps.googleapis.com/maps/api/js?key="+config.GOOGLE_MAP_API_KEY;
 const MapWrapper = withScriptjs(
   withGoogleMap(props => (
     <GoogleMap
-      defaultZoom={12}
-      defaultCenter={{ lat: props.lat ? props.lat : '43.653225', lng: props.lng ? props.lng : '-79.383186' }}
+      defaultZoom={props.hidenShow !== 'hide' && props.hidenShow!=='uShow'? 5 : 12}
+      defaultCenter={{ lat: props?.lat ? props?.lat : 56.120220, lng: props.lng ? props.lng : -106.338832 }}
       defaultOptions={{
         scrollwheel: false,
         styles: [
@@ -64,32 +63,102 @@ const MapWrapper = withScriptjs(
         ]
       }}
     >
-      <Marker position={{ lat: props.lat ? props.lat : '43.653225', lng: props.lng ? props.lng : '-79.383186' }} />
+      {(props.hidenShow !== 'hide' || props.hidenShow=='uShow') ? (
+        <>
+          {
+            props?.markers?.map(({ id, name, position }) => (
+              <Marker
+                key={id}
+                position={{ lat: position?.lat ? props?.lat : '43.653225', lng: position?.lng ? position?.lng : '-79.383186' }}
+              >
+                <InfoWindow onCloseClick={() => { }}>
+                  <div>{name}</div>
+                </InfoWindow>
+              </Marker>
+            ))
+          }
+        </>
+      ):(props.showTruck == 'towtruck'? (
+        <Marker
+          position={{ lat: props?.lat ? props?.lat : '43.653225', lng: props?.lng ? props?.lng : '-79.383186' }}
+          icon={{
+            url: require('assets/img/brand/towtruck.jpeg'),
+            scaledSize: { width: 40, height: 40 }
+          }}
+        />
+      ) : (
+        <Marker
+          position={{ lat: props?.lat ? props?.lat : '43.653225', lng: props?.lng ? props?.lng : '-79.383186' }}
+        />
+      ))}
     </GoogleMap>
   ))
 );
 
 class Maps extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    
+    this.state = {
+      hideShow: 'show',
+      uHideShow: null,
+      accessUserData:localStorage.getItem('accessData')!=null && localStorage.getItem('accessData')!=undefined?JSON.parse(localStorage.getItem('accessData')):null,
+      // loggedUserData:localStorage.getItem('loggedData')!=null && localStorage.getItem('loggedData')!=undefined?JSON.parse(localStorage.getItem('loggedData')):null
+    };
+  }
+  loadData = () => {
+    try {
+      getOndutyLocations(this.state?.accessUserData!=null?this.state.accessUserData?.companyId:'', async (res) => {
+        if (res.sucess) {
+          this.setState({ markers: res.sucess })
+        } else {
+          // if(this.stage.loggedUserData!=null && this.stage.loggedUserData.role!="ADMIN") errorAlert('Something went wrong 1');
+        }
+      });
+    } catch (error) {
+      errorAlert(error)
+    }
+  }
   componentDidMount() {
-    // alert(this.props.dataFromParent)
+    this.setState({ hideShow: this.props.data })
+    if(this.props.dataU) this.setState({ uHideShow: this.props.dataU })
+    if (this.props.data !== 'hide' || this.props.dataU == 'a') {
+      this.loadData()
+      timerId = setInterval(this.loadData, 5000);
+    }
+    else {
+      clearTimeout(timerId)
+    }
+  }
+  componentWillUnmount() {
+    clearTimeout(timerId)
   }
   render() {
+    const { lat, lng ,show} = this.props;
+    
+    const { hideShow, uHideShow,markers } = this.state;
     return (
       <>
-        <Row>
+        {hideShow !== 'hide' && (
+          <Header />
+        )}
+        <Row className={hideShow !== 'hide' ? "map-main" : ""}>
           <div className="col">
             <Card className="shadow border-0">
               <MapWrapper
-                // googleMapURL="https://maps.googleapis.com/maps/api/js?key="
-                lat={this.props.lat}
-                lng={this.props.lng}
-                googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-dt2M9mfh_6qyZ4yBguLU1zau5UiAetU"
+                showTruck={show}
+                markers={markers}
+                hidenShow={uHideShow==null?hideShow:'uShow'}
+                lat={lat ? lat : 43.648390}
+                lng={lng ? lng : -79.876260}
+                googleMapURL={mapUrl}
                 loadingElement={<div style={{ height: `100%` }} />}
                 containerElement={
                   <div
                     style={{ height: `600px` }}
-                    className="map-canvas"
-                    id="map-canvas"
+                    className={hideShow !== 'hide' ? "map-height" : "map-canvas"}
+                    id={hideShow !== 'hide' ? "map-height" : "map-canvas"}
                   />
                 }
                 mapElement={

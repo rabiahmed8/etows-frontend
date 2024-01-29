@@ -39,7 +39,7 @@ function ViewImageModal(props) {
     const [comment, setComments] = useState('');
     const [paidnUnpaid, setPaidnUnpaid] = useState('');
     const [files, setFiles] = useState('');
-    const [imageType, setType] = useState('');
+    const [imageType, setType] = useState(props?.dataType != null || props?.dataType != undefined ? props?.dataType : '');
     const [dateTimepickerIssueDate, onChangeIssueDate] = useState('');
     const [dateTimepickerExpiryDate, onChangeExpiryDate] = useState('');
     useEffect(() => {
@@ -61,7 +61,7 @@ function ViewImageModal(props) {
         const expDate = dateTimepickerExpiryDate ? dateTimepickerExpiryDate : '';
         const comments = comment ? comment : '';
         multipleImages.push(...multipleImages, { files, imageType, issueDate, expDate, comments })
-        console.log("multiImages", multipleImages);
+        
         setData({})
         onChangeIssueDate('');
         onChangeExpiryDate('')
@@ -107,111 +107,168 @@ function ViewImageModal(props) {
                                                 {/* {config.govtAgency} */}
                                             </h6>
                                             <div className="pl-lg-3">
-                                                {title == 'Invoice Upload' && (
-                                                    <Row>
-                                                        <Col lg="12">
-                                                            <FormGroup>
-                                                                <Label for="exampleSelect">Select Type</Label>
+                                                {title == 'Invoices' && (
+                                                    <>
+                                                        <Row>
+                                                            <Col lg="12">
+                                                                <FormGroup>
+                                                                    <Label for="exampleSelect">Select Status</Label>
 
-                                                                <Select
-                                                                    name="form-field-name"
-                                                                    // value={this.state.value}
-                                                                    // defaultValue={setItem?.agencyType}
-                                                                    // defaultInputValue={setItem?.agencyType}
-                                                                    // val={setItem?.agencyType}
-                                                                    onChange={(val) => {
-                                                                        setPaidnUnpaid(val.label)
-                                                                    }}
-                                                                    labelKey='name'
-                                                                    valueKey='countryCode'
-                                                                    options={[
-                                                                        { value: 'paid', label: 'Paid' },
-                                                                        { value: 'unpaid', label: 'Unpaid' }
-                                                                    ]}
-                                                                />
-                                                            </FormGroup>
-                                                        </Col>
-                                                    </Row>
+                                                                    <Select
+                                                                        name="form-field-name"
+                                                                        onChange={(val) => {
+                                                                            setPaidnUnpaid(val.label)
+                                                                        }}
+                                                                        labelKey='name'
+                                                                        defaultValue={'Unpaid'}
+                                                                        valueKey='countryCode'
+                                                                        options={[
+                                                                            { value: 'Paid', label: 'Paid' },
+                                                                            { value: 'Unpaid', label: 'Unpaid' }
+                                                                        ]}
+                                                                    />
+                                                                </FormGroup>
+                                                            </Col>
+                                                        </Row>
+
+                                                        <Row>
+                                                            <Col lg="12">
+                                                                <FormGroup>
+                                                                    <div className="flex-class">
+
+                                                                        <input
+                                                                            // accept="image/*"
+                                                                            // className={classes.input}
+                                                                            // id="contained-button-file-1"
+                                                                            // defaultValue={files?.name}
+                                                                            type="file"
+                                                                            onChange={(e) => {
+                                                                                uploadImages(e, title.split(" ").join(""))
+                                                                            }}
+                                                                        />
+                                                                        {/* <label htmlFor="contained-button-file-1">
+                                                                            <Button variant="contained" component="span" className='p-btm'>
+                                                                                Upload
+                                                                            </Button>
+                                                                        </label> */}
+                                                                    </div>
+                                                                </FormGroup>
+
+                                                            </Col>
+                                                        </Row>
+                                                        <Row>
+                                                            <Col lg="6">
+                                                                <FormGroup>
+                                                                    <label
+                                                                        className="form-control-label"
+                                                                        htmlFor="input-username"
+                                                                    >
+                                                                        Issued Date
+                                                                    </label>
+                                                                    <Input
+                                                                        className="form-control-alternative"
+                                                                        defaultValue={openData?.issueDate}
+                                                                        id="input-username"
+                                                                        placeholder="YYYY-MM-DD"
+                                                                        type="text"
+                                                                        onChange={text => onChangeIssueDate(text.target.value)}
+                                                                    />
+                                                                </FormGroup>
+                                                            </Col>
+                                                            <Col lg="6">
+                                                                <FormGroup>
+                                                                    <label
+                                                                        className="form-control-label"
+                                                                        htmlFor="input-username"
+                                                                    >
+                                                                        Paid Date
+                                                                    </label>
+                                                                    <Input
+                                                                        className="form-control-alternative"
+                                                                        defaultValue={openData?.expiryDate}
+                                                                        id="input-username"
+                                                                        placeholder="YYYY-MM-DD"
+                                                                        type="text"
+                                                                        onChange={text => onChangeExpiryDate(text.target.value)}
+                                                                    />
+                                                                </FormGroup>
+                                                            </Col>
+                                                        </Row>
+                                                    </>
                                                 )}
-                                                <Row>
-                                                    <Col lg="2">
-                                                        <FormGroup>
-                                                            <div className="flex-class">
-                                                                <label
-                                                                    className="form-control-label"
-                                                                    htmlFor="input-username"
-                                                                >
-                                                                    {title}
-                                                                </label>
-                                                                <input
-                                                                    // accept="image/*"
-                                                                    className={classes.input}
-                                                                    id="contained-button-file-1"
-                                                                    // defaultValue={openData?.name}
-                                                                    type="file"
-                                                                    onChange={(e) => {
-                                                                        uploadImages(e, title.split(" ").join(""))
-                                                                    }}
-                                                                />
-                                                                <label htmlFor="contained-button-file-1">
-                                                                    <Button variant="contained" component="span" className='p-btm'>
-                                                                        Upload
-                                                                    </Button>
-                                                                </label>
-                                                            </div>
-                                                        </FormGroup>
+                                                <>
+                                                    {title != 'Invoices' && (
+                                                        <Row>
+                                                            <Col lg="12">
+                                                                <FormGroup>
+                                                                    <div className="flex-class">
 
-                                                    </Col>
-                                                    {/* <Col lg="5">
-                                                        <FormGroup>
-                                                            <Label>Issue Date</Label>
-                                                            <DateTimePicker onChange={onChangeIssueDate} value={dateTimepickerIssueDate} />
-                                                        </FormGroup>
-                                                    </Col>
-                                                    <Col lg="5">
-                                                        <FormGroup>
-                                                            <Label>Expiry Date</Label>
-                                                            <DateTimePicker onChange={onChangeExpiryDate} value={dateTimepickerExpiryDate} />
-                                                        </FormGroup>
-                                                    </Col> */}
-                                                    <Col lg="5">
-                                                        <FormGroup>
-                                                            <label
-                                                                className="form-control-label"
-                                                                htmlFor="input-username"
-                                                            >
-                                                                Issued Date
-                                                            </label>
-                                                            <Input
-                                                                className="form-control-alternative"
-                                                                defaultValue={openData?.issueDate}
-                                                                id="input-username"
-                                                                placeholder="YYYY-MM-DD"
-                                                                type="text"
-                                                                onChange={text => onChangeIssueDate(text.target.value)}
-                                                            />
-                                                        </FormGroup>
-                                                    </Col>
-                                                    <Col lg="5">
-                                                        <FormGroup>
-                                                            <label
-                                                                className="form-control-label"
-                                                                htmlFor="input-username"
-                                                            >
-                                                                Paid Date
-                                                            </label>
-                                                            <Input
-                                                                className="form-control-alternative"
-                                                                defaultValue={openData?.expiryDate}
-                                                                id="input-username"
-                                                                placeholder="YYYY-MM-DD"
-                                                                type="text"
-                                                                onChange={text => onChangeExpiryDate(text.target.value)}
-                                                            />
-                                                        </FormGroup>
-                                                    </Col>
-                                                </Row>
+                                                                        <input
+                                                                            // accept="image/*"
+                                                                            // className={classes.input}
+                                                                            // id="contained-button-file-1"
+                                                                            // defaultValue={files?.name}
+                                                                            type="file"
+                                                                            onChange={(e) => {
+                                                                                uploadImages(e, title.split(" ").join(""))
+                                                                            }}
+                                                                        />
+                                                                        {/* <label htmlFor="contained-button-file-1">
+                                                                            <Button variant="contained" component="span" className='p-btm'>
+                                                                                Upload
+                                                                            </Button>
+                                                                        </label> */}
+                                                                    </div>
+                                                                </FormGroup>
 
+                                                            </Col>
+
+                                                        </Row>
+
+                                                    )}
+                                                </>
+                                                <>
+                                                    {title != 'Invoices' && (
+                                                        <Row>
+                                                            <Col lg="6">
+                                                                <FormGroup>
+                                                                    <label
+                                                                        className="form-control-label"
+                                                                        htmlFor="input-username"
+                                                                    >
+                                                                        Issued Date
+                                                                    </label>
+                                                                    <Input
+                                                                        className="form-control-alternative"
+                                                                        defaultValue={openData?.issueDate}
+                                                                        id="input-username"
+                                                                        placeholder="YYYY-MM-DD"
+                                                                        type="text"
+                                                                        onChange={text => onChangeIssueDate(text.target.value)}
+                                                                    />
+                                                                </FormGroup>
+                                                            </Col>
+                                                            <Col lg="6">
+                                                                <FormGroup>
+                                                                    <label
+                                                                        className="form-control-label"
+                                                                        htmlFor="input-username"
+                                                                    >
+                                                                        Expiry Date
+                                                                    </label>
+                                                                    <Input
+                                                                        className="form-control-alternative"
+                                                                        defaultValue={openData?.expiryDate}
+                                                                        id="input-username"
+                                                                        placeholder="YYYY-MM-DD"
+                                                                        type="text"
+                                                                        onChange={text => onChangeExpiryDate(text.target.value)}
+                                                                    />
+                                                                </FormGroup>
+                                                            </Col>
+                                                        </Row>
+                                                    )}
+                                                </>
                                                 <Row>
                                                     <Col lg="12">
                                                         <FormGroup>

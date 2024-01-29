@@ -52,19 +52,22 @@ const styles = (theme) => ({
     display: "none"
   }
 });
+var localAccessData = null
+var logData1 = {}
 function InsuranceInformation(props) {
   const { classes } = props;
   const [data, setData] = useState([]);
   const [ViewImagemodal, setViewImageModal] = useState(false);
   const [setItem, setItemData] = useState('');
   const [modalUpdate, setModalUpdate] = useState(false);
-  const [sampleData, setsampleData] = useState('https://api.etows.app:9000/file/files/9/Police/users-list%20(1).xlsx');
+  const [sampleData, setsampleData] = useState('process.env.REACT_APP_API_URL/file/files/9/Police/users-list%20(1).xlsx');
   const [statusData, setStatusData] = useState([]);
   const [imageLink, setImageLink] = useState('');
   const [typeAgency, setAgencyType] = useState('')
   const [userDetail, setUserDetail] = useState({});
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [logInfo, setLogInfo] = useState('');
   const [dateTimepickerIssueDate, onChangeIssueDate] = useState(new Date());
   const [dateTimepickerExpiryDate, onChangeExpiryDate] = useState(new Date());
 
@@ -107,7 +110,27 @@ function InsuranceInformation(props) {
     }
   }
 
+  const getLoggedData = async () => {
+    let logData;
+    const storedData = await localStorage.getItem('accessData')
+    if (storedData) {
+      const getdata = await localStorage.getItem('accessData')
+      logData = JSON.parse(getdata)
+      localAccessData = logData
+
+    }
+    else {
+      const getdata = await localStorage.getItem('loggedData')
+      logData = JSON.parse(getdata)
+    }
+    console.log("parsedDataparsedData", localAccessData);
+    setLogInfo(logData)
+    setLogInfo((state) => {
+      logData1 = state;
+    });
+  }
   useEffect(() => {
+    getLoggedData()
     try {
       getAgencies('', async (res) => {
         console.log("adasdasd", res)
@@ -144,7 +167,7 @@ function InsuranceInformation(props) {
       }
     }
     else {
-     
+
     }
 
   };
@@ -282,7 +305,7 @@ function InsuranceInformation(props) {
                       return (
                         <tr>
                           <td className="text-sm">{item?.id}</td>
-                         
+
                           <td className="text-sm">
                             <Button onClick={() => { ViewImage(item) }} className="my-4 p-btm" color="primary" type="button">
                               View
@@ -404,14 +427,14 @@ function InsuranceInformation(props) {
         </Row>
         <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={ViewImagemodal} toggle={() => { ViewImagetoggle() }} className={props.className}>
           <ModalBody>
-           
+
             {/* <CsvToHtmlTable
               data={sampleData}
               csvDelimiter=","
               tableClassName="table table-striped table-hover"
             /> */}
             <h3>{imageLink ? imageLink : 'Please Upload image'}</h3>
-            <Document file="https://api.etows.app:9000/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
+            <Document file="process.env.REACT_APP_API_URL/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
               <Page pageNumber={pageNumber} />
             </Document>
             <p>
@@ -452,7 +475,7 @@ function InsuranceInformation(props) {
                         {config.InsuranceInformation}
                       </h6>
                       <div className="pl-lg-3">
-                       
+
                         <Row>
                           <Col lg="6">
                             <FormGroup>
@@ -511,7 +534,7 @@ function InsuranceInformation(props) {
                               </div>
                             </FormGroup>
                           </Col>
-                        
+
                         </Row>
                         <Row>
                           <Col lg="6">

@@ -42,6 +42,7 @@ import { UploadGetContractsApi } from "APIstore/apiCalls";
 import { successAlert } from "Theme/utils";
 import { errorAlert } from "Theme/utils";
 import { singleDeleteFile } from "APIstore/apiCalls";
+import ViewImageModal from "component/ViewImageModal";
 // export default class OtherStaff extends React.Component {
 var logData1 = {}
 function OtherStaff(props) {
@@ -58,6 +59,8 @@ function OtherStaff(props) {
   const [dataALI, setDataALI] = useState([]);
   const [dataGLI, setDataGLI] = useState([]);
   const [dataWSIB, setDataWSIB] = useState([]);
+  const [openViewImageModal, setViewImageModal] = useState(false);
+  const [imageData, setDataImage] = useState();
   const [dataCGLIUpdate, setDataCGLIUpdate] = useState([]);
   const [dataALIUpdate, setDataALIUpdate] = useState([]);
   const [dataGLIUpdate, setDataGLIUpdate] = useState([]);
@@ -66,7 +69,7 @@ function OtherStaff(props) {
   const [logInfo, setLogInfo] = useState('');
   const [isLoader, setIsLoader] = useState(false);
   const setItem = location.state;
-  console.log("location", location);
+  
   const Deletetoggle = (item) => {
     setFileData(item)
     setDeletToggle(!deleteModal)
@@ -79,22 +82,7 @@ function OtherStaff(props) {
         console.log("adasdasd", res)
         if (res.sucess) {
           setDeletToggle(!deleteModal)
-          // try {
-          //     singleAllAgency('', async (res) => {
-          //         console.log("singleAllAgency", res)
-          //         if (res.sucess) {
-          //             setData(res.sucess.list);
-          //             console.log("res.sucess.list", res.sucess.list);
-          //             setDeletToggle(!deleteModal)
-          //         } else {
-          //             console.log("errrrr")
-          //             setDeletToggle(!deleteModal)
-          //         }
-          //     });
-          // } catch (error) {
-          //     console.log("error", error)
-          //     setDeletToggle(!deleteModal)
-          // }
+          
           setIsLoader(false)
           successAlert(res.sucess.messages[0].message)
         } else {
@@ -109,10 +97,20 @@ function OtherStaff(props) {
       setDeletToggle(!deleteModal)
     }
   }
-  const getDataFiles = (type) => {
+  const getDataFiles = async (type) => {
+    let logData;
+    const storedData = await localStorage.getItem('accessData')
+    if (storedData) {
+      const getdata = await localStorage.getItem('accessData')
+      logData = JSON.parse(getdata)
+    }
+    else {
+      const getdata = await localStorage.getItem('loggedData')
+      logData = JSON.parse(getdata)
+    }
     setIsLoader(true)
     const obj = {
-      id: logData1?.companyId,
+      id: logData?.companyId,
       subType: type,
       type: type
     }
@@ -129,7 +127,7 @@ function OtherStaff(props) {
             setIsLoader(false)
             return
           }
-          if (type == "TrainingRequirements") {
+          if (type == "TrainingRequirementsStaff") {
             setDataGLI(res.sucess.list);
             setIsLoader(false)
             return
@@ -147,7 +145,7 @@ function OtherStaff(props) {
   useEffect(() => {
     getLoggedData()
     if (activeTab == '4') {
-      getDataFiles("TrainingRequirements")
+      getDataFiles("TrainingRequirementsStaff")
     }
     if (activeTab == '3') {
       getDataFiles("PersonalHistoryChecks")
@@ -245,25 +243,8 @@ function OtherStaff(props) {
     }
   }
   const ViewImage = (item) => {
-    // const obj = {
-    //   type: item?.agencyType,
-    //   id: item?.id
-    // }
-    // try {
-    //   getUploadData(obj, async (res) => {
-    //     console.log("adasdasd", res)
-    //     if (res.sucess) {
-    //       console.log("res.sucess.fileInfoList[0].url", res.sucess.fileInfoList[0].url)
-    //       setImageLink(res.sucess.fileInfoList[0].url);
-    //       ViewImagetoggle();
-    //     } else {
-    //       console.log("errrrr");
-    //       // ViewImagetoggle();
-    //     }
-    //   });
-    // } catch (error) {
-    //   console.log("error", error)
-    // }
+    setDataImage(item)
+    setViewImageModal(!openViewImageModal)
   }
   const CGLICallback = (feeAgrementData) => {
     setIsLoader(true)
@@ -362,8 +343,8 @@ function OtherStaff(props) {
       if (feeAgrementData) {
         for (let i = 0; i < feeAgrementData.length; i++) {
           formData.append(`file`, feeAgrementData[i].files);
-          formData.append('type', feeAgrementData[i].imageType);
-          formData.append('subType', feeAgrementData[i].imageType);
+          formData.append('type', feeAgrementData[i].imageType+"Staff");
+          formData.append('subType', feeAgrementData[i].imageType+"Staff");
           formData.append('issueDate', feeAgrementData[i].issueDate);
           formData.append('expiryDate', feeAgrementData[i].expDate);
           formData.append('comments', feeAgrementData[i].comments ? feeAgrementData[i].comments : '');
@@ -444,7 +425,7 @@ function OtherStaff(props) {
   return (
     <>
       {/* {activeTab === '1' && ()} */}
-      <div className="header pb-8 pt-5 pt-md-8" style={{ background: 'green' }}>
+      {/* <div className="header pb-8 pt-5 pt-md-8" style={{ background: 'green' }}>
 
         <Container fluid>
           <div className="header-body">
@@ -453,7 +434,18 @@ function OtherStaff(props) {
             </span>
           </div>
         </Container>
-      </div>
+      </div> */}
+      {logData1.role != "POLICE_ADMIN" && (
+        <div className="header pb-8 pt-5 pt-md-8" style={{ background: 'green' }}>
+          <Container fluid>
+            <div className="header-body">
+              <span style={{ position: "absolute", top: 35, fontSize: 16, fontWeight: 600, color: "#fff" }}>
+                {setItem?.corporateName}
+              </span>
+            </div>
+          </Container>
+        </div>
+      )}
       <div >
         <Nav tabs className="nav--links" style={{}} >
 
@@ -481,7 +473,6 @@ function OtherStaff(props) {
               Training Requirements
             </NavLink>
           </NavItem>
-
         </Nav>
         <TabContent activeTab={activeTab}>
 
@@ -506,28 +497,34 @@ function OtherStaff(props) {
                         <DropdownMenu className="dropdown-menu-arrow" right>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('All') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            All
+                            {config.all}
                           </DropdownItem>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('Police') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            {config.police}
+                            Issued Date
                           </DropdownItem>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('By Law') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            {config.byLaw}
+                            Expiry Date
                           </DropdownItem>
+
                         </DropdownMenu>
                       </UncontrolledDropdown>
                       {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                      <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenCGLIModal(!openCGLIModal) }} className="my-4 p-btm" color="primary" type="button">
-                        Add New
-                      </Button>
+                      {logData1.role !== 'POLICE_ADMIN' && (
+                        <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => {
+                          setDataCGLIUpdate([])
+                          setOpenCGLIModal(!openCGLIModal)
+                        }} className="my-4 p-btm" color="primary" type="button">
+                          Add New
+                        </Button>
+                      )}
                     </Row>
 
                   </CardHeader>
@@ -543,10 +540,10 @@ function OtherStaff(props) {
                             <tr>
                               <th scope="col">ID</th>
                               <th scope="col">Name</th>
-                              <th scope="col">Status</th>
+                              {/* <th scope="col">Status</th> */}
                               <th scope="col">Comments</th>
                               <th scope="col">Issued Date</th>
-                              <th scope="col">Paid Date</th>
+                              <th scope="col">Expiry Date</th>
                               {/* <th>
                                                     <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                                         Add
@@ -577,36 +574,38 @@ function OtherStaff(props) {
                                     {item?.expiryDate}
                                   </td>
                                   <td className="text-right">
-                                    <UncontrolledDropdown>
-                                      <DropdownToggle
-                                        className="btn-icon-only text-light"
-                                        href="#pablo"
-                                        role="button"
-                                        size="sm"
-                                        color=""
-                                        onClick={e => e.preventDefault()}
-                                      >
-                                        <i className="fas fa-ellipsis-v" />
-                                      </DropdownToggle>
-                                      <DropdownMenu className="dropdown-menu-arrow" right>
-                                        {/* <DropdownItem
+                                    {logData1.role !== 'POLICE_ADMIN' && (
+                                      <UncontrolledDropdown>
+                                        <DropdownToggle
+                                          className="btn-icon-only text-light"
+                                          href="#pablo"
+                                          role="button"
+                                          size="sm"
+                                          color=""
+                                          onClick={e => e.preventDefault()}
+                                        >
+                                          <i className="fas fa-ellipsis-v" />
+                                        </DropdownToggle>
+                                        <DropdownMenu className="dropdown-menu-arrow" right>
+                                          {/* <DropdownItem
 
                                   onClick={() => { toggleUpdate() }}
                                 >
                                   Add
                                 </DropdownItem> */}
-                                        <DropdownItem
-                                          onClick={() => { toggleUpdateCGLI(item) }}
-                                        >
-                                          Update
-                                        </DropdownItem>
-                                        <DropdownItem
-                                          onClick={() => { Deletetoggle(item) }}
-                                        >
-                                          Delete
-                                        </DropdownItem>
-                                      </DropdownMenu>
-                                    </UncontrolledDropdown>
+                                          <DropdownItem
+                                            onClick={() => { toggleUpdateCGLI(item) }}
+                                          >
+                                            Update
+                                          </DropdownItem>
+                                          <DropdownItem
+                                            onClick={() => { Deletetoggle(item) }}
+                                          >
+                                            Delete
+                                          </DropdownItem>
+                                        </DropdownMenu>
+                                      </UncontrolledDropdown>
+                                    )}
                                   </td>
                                 </tr>
                               )
@@ -699,28 +698,34 @@ function OtherStaff(props) {
                         <DropdownMenu className="dropdown-menu-arrow" right>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('All') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            All
+                            {config.all}
                           </DropdownItem>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('Police') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            {config.police}
+                            Issued Date
                           </DropdownItem>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('By Law') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            {config.byLaw}
+                            Expiry Date
                           </DropdownItem>
+
                         </DropdownMenu>
                       </UncontrolledDropdown>
                       {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                      <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenALIModal(!openALIModal) }} className="my-4 p-btm" color="primary" type="button">
-                        Add New
-                      </Button>
+                      {logData1.role !== 'POLICE_ADMIN' && (
+                        <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => {
+                          setDataALIUpdate([])
+                          setOpenALIModal(!openALIModal)
+                        }} className="my-4 p-btm" color="primary" type="button">
+                          Add New
+                        </Button>
+                      )}
                     </Row>
 
                   </CardHeader>
@@ -738,7 +743,7 @@ function OtherStaff(props) {
                               <th scope="col">Name</th>
                               <th scope="col">Comments</th>
                               <th scope="col">Issued Date</th>
-                              <th scope="col">Paid Date</th>
+                              <th scope="col">Expiry Date</th>
                               {/* <th>
                                                     <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                                         Add
@@ -769,36 +774,38 @@ function OtherStaff(props) {
                                     {item?.expiryDate}
                                   </td>
                                   <td className="text-right">
-                                    <UncontrolledDropdown>
-                                      <DropdownToggle
-                                        className="btn-icon-only text-light"
-                                        href="#pablo"
-                                        role="button"
-                                        size="sm"
-                                        color=""
-                                        onClick={e => e.preventDefault()}
-                                      >
-                                        <i className="fas fa-ellipsis-v" />
-                                      </DropdownToggle>
-                                      <DropdownMenu className="dropdown-menu-arrow" right>
-                                        {/* <DropdownItem
+                                    {logData1.role !== 'POLICE_ADMIN' && (
+                                      <UncontrolledDropdown>
+                                        <DropdownToggle
+                                          className="btn-icon-only text-light"
+                                          href="#pablo"
+                                          role="button"
+                                          size="sm"
+                                          color=""
+                                          onClick={e => e.preventDefault()}
+                                        >
+                                          <i className="fas fa-ellipsis-v" />
+                                        </DropdownToggle>
+                                        <DropdownMenu className="dropdown-menu-arrow" right>
+                                          {/* <DropdownItem
 
                                   onClick={() => { toggleUpdate() }}
                                 >
                                   Add
                                 </DropdownItem> */}
-                                        <DropdownItem
-                                          onClick={() => { toggleUpdateALI(item) }}
-                                        >
-                                          Update
-                                        </DropdownItem>
-                                        <DropdownItem
-                                          onClick={() => { Deletetoggle(item) }}
-                                        >
-                                          Delete
-                                        </DropdownItem>
-                                      </DropdownMenu>
-                                    </UncontrolledDropdown>
+                                          <DropdownItem
+                                            onClick={() => { toggleUpdateALI(item) }}
+                                          >
+                                            Update
+                                          </DropdownItem>
+                                          <DropdownItem
+                                            onClick={() => { Deletetoggle(item) }}
+                                          >
+                                            Delete
+                                          </DropdownItem>
+                                        </DropdownMenu>
+                                      </UncontrolledDropdown>
+                                    )}
                                   </td>
                                 </tr>
                               )
@@ -890,28 +897,34 @@ function OtherStaff(props) {
                         <DropdownMenu className="dropdown-menu-arrow" right>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('All') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            All
+                            {config.all}
                           </DropdownItem>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('Police') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            {config.police}
+                            Issued Date
                           </DropdownItem>
                           <DropdownItem
 
-                            onClick={() => { ChangeStatusJob('By Law') }}
+                            onClick={() => { ChangeStatusJob('') }}
                           >
-                            {config.byLaw}
+                            Expiry Date
                           </DropdownItem>
+
                         </DropdownMenu>
                       </UncontrolledDropdown>
                       {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                      <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenGLIModal(!openGLIModal) }} className="my-4 p-btm" color="primary" type="button">
-                        Add New
-                      </Button>
+                      {logData1.role !== 'POLICE_ADMIN' && (
+                        <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => {
+                          setDataGLIUpdate([])
+                          setOpenGLIModal(!openGLIModal)
+                        }} className="my-4 p-btm" color="primary" type="button">
+                          Add New
+                        </Button>
+                      )}
                     </Row>
 
                   </CardHeader>
@@ -929,7 +942,7 @@ function OtherStaff(props) {
                               <th scope="col">Name</th>
                               <th scope="col">Comments</th>
                               <th scope="col">Issued Date</th>
-                              <th scope="col">Paid Date</th>
+                              <th scope="col">Expiry Date</th>
                               {/* <th>
                                                     <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                                         Add
@@ -960,36 +973,38 @@ function OtherStaff(props) {
                                     {item?.expiryDate}
                                   </td>
                                   <td className="text-right">
-                                    <UncontrolledDropdown>
-                                      <DropdownToggle
-                                        className="btn-icon-only text-light"
-                                        href="#pablo"
-                                        role="button"
-                                        size="sm"
-                                        color=""
-                                        onClick={e => e.preventDefault()}
-                                      >
-                                        <i className="fas fa-ellipsis-v" />
-                                      </DropdownToggle>
-                                      <DropdownMenu className="dropdown-menu-arrow" right>
-                                        {/* <DropdownItem
+                                    {logData1.role !== 'POLICE_ADMIN' && (
+                                      <UncontrolledDropdown>
+                                        <DropdownToggle
+                                          className="btn-icon-only text-light"
+                                          href="#pablo"
+                                          role="button"
+                                          size="sm"
+                                          color=""
+                                          onClick={e => e.preventDefault()}
+                                        >
+                                          <i className="fas fa-ellipsis-v" />
+                                        </DropdownToggle>
+                                        <DropdownMenu className="dropdown-menu-arrow" right>
+                                          {/* <DropdownItem
 
                                   onClick={() => { toggleUpdate() }}
                                 >
                                   Add
                                 </DropdownItem> */}
-                                        <DropdownItem
-                                          onClick={() => { toggleUpdateGLI(item) }}
-                                        >
-                                          Update
-                                        </DropdownItem>
-                                        <DropdownItem
-                                          onClick={() => { Deletetoggle(item) }}
-                                        >
-                                          Delete
-                                        </DropdownItem>
-                                      </DropdownMenu>
-                                    </UncontrolledDropdown>
+                                          <DropdownItem
+                                            onClick={() => { toggleUpdateGLI(item) }}
+                                          >
+                                            Update
+                                          </DropdownItem>
+                                          <DropdownItem
+                                            onClick={() => { Deletetoggle(item) }}
+                                          >
+                                            Delete
+                                          </DropdownItem>
+                                        </DropdownMenu>
+                                      </UncontrolledDropdown>
+                                    )}
                                   </td>
                                 </tr>
                               )
@@ -1077,6 +1092,7 @@ function OtherStaff(props) {
         <UploadModal modal={openCGLIModal} data={dataCGLIUpdate} title='Contractor Service Provider' parentCallback={CGLICallback} />
         <UploadModal modal={openALIModal} data={dataALIUpdate} title='Personal History Checks' parentCallback={ALICallback} />
         <UploadModal modal={openGLIModal} data={dataGLIUpdate} title='Training Requirements' parentCallback={GLICallback} />
+        <ViewImageModal modal={openViewImageModal} itemData={imageData} />
       </div>
     </>
   );

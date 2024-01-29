@@ -553,7 +553,7 @@ function AllUsers(props) {
 
       officerUnit: userDetail.officerUnit === undefined ? setItem?.officerUnit : userDetail.officerUnit,
       officerBadge: userDetail.officerBadge === undefined ? setItem?.officerBadge : userDetail.officerBadge,
-      province: userDetail?.lawEnforcementAgencyOccurrence === undefined ? setItem?.lawEnforcementAgencyOccurrence : userDetail.lawEnforcementAgencyOccurrence,
+      // province: userDetail?.lawEnforcementAgencyOccurrence === undefined ? setItem?.lawEnforcementAgencyOccurrence : userDetail.lawEnforcementAgencyOccurrence,
       enabled: true,
       accountNonLocked: false,
       accountNonExpired: false,
@@ -908,34 +908,18 @@ function AllUsers(props) {
                       >
                         Inactive Users
                       </DropdownItem>
+                      {loggingData?.roles == 'ADMIN'?
                       <DropdownItem
-
-                        onClick={() => { ChangeStatusJob('ADMIN') }}
-                      >
+                        onClick={() => { ChangeStatusJob('ADMIN') }}>
                         Super Admin
-                      </DropdownItem>
-                      <DropdownItem
-
-                        onClick={() => { ChangeStatusJob('TOW_ADMIN') }}
-                      >
+                      </DropdownItem>:""}
+                      {loggingData?.roles == 'ADMIN' || loggingData?.roles == 'TOW_ADMIN'?
+                      <><DropdownItem
+                        onClick={() => { ChangeStatusJob('TOW_ADMIN') }}>
                         Tow Admin
                       </DropdownItem>
                       <DropdownItem
-
-                        onClick={() => { ChangeStatusJob('POLICE_ADMIN') }}
-                      >
-                        LE Admin
-                      </DropdownItem>
-                      <DropdownItem
-
-                        onClick={() => { ChangeStatusJob('POLICE') }}
-                      >
-                        LE
-                      </DropdownItem>
-                      <DropdownItem
-
-                        onClick={() => { ChangeStatusJob('STAFF') }}
-                      >
+                        onClick={() => { ChangeStatusJob('STAFF') }}>
                         Staff
                       </DropdownItem>
                       <DropdownItem
@@ -943,7 +927,17 @@ function AllUsers(props) {
                         onClick={() => { ChangeStatusJob('DRIVER') }}
                       >
                         Driver
+                      </DropdownItem></>:""}
+                      {loggingData?.roles == 'ADMIN' || loggingData?.roles == 'POLICE_ADMIN'?
+                      <><DropdownItem
+                        onClick={() => { ChangeStatusJob('POLICE_ADMIN') }}>
+                        LE Admin
                       </DropdownItem>
+                      
+                      <DropdownItem
+                        onClick={() => { ChangeStatusJob('POLICE') }}>
+                        LE
+                      </DropdownItem></>:""}
                     </DropdownMenu>
                   </UncontrolledDropdown>
                   <button
@@ -1007,10 +1001,10 @@ function AllUsers(props) {
                     <tbody>
                       {data.map((item) => {
                         return (
-                          <tr style={{ borderWidth: 1, borderColor: 'black' }}>
+                          <tr style={{ borderWidth: 1, borderColor: 'black' }} >
 
                             <td style={{ textDecoration: 'underline black', cursor: "pointer" }} onClick={() => { toggleUpdate(item) }} className="text-sm">{item?.userName}</td>
-                            <td className="text-sm">{item?.title} {item?.firstName} {item?.lastName}</td>
+                            <td onClick={() => { toggleUpdate(item) }} className="text-sm">{item?.title} {item?.firstName} {item?.lastName}</td>
                             {/* <td className="text-sm">
                             {item?.address}, {item?.city}, {item?.country}
                           </td> */}
@@ -1019,30 +1013,30 @@ function AllUsers(props) {
                             {props?.data == '2' ? (
                               <></>
                             ) : (
-                              <td className="text-sm">
+                              <td onClick={() => { toggleUpdate(item) }} className="text-sm">
                                 {item?.companyName}
                               </td>
                             )}
-                            <td className="text-sm">
+                            <td onClick={() => { toggleUpdate(item) }} className="text-sm">
                               {item?.phone}
 
                             </td>
                             {item.roles && item?.roles[0] === 'POLICE' && (
-                              <td className="text-sm">
+                              <td onClick={() => { toggleUpdate(item) }} className="text-sm">
                                 LE
                               </td>
                             )}
                             {!item.roles && (
-                              <td className="text-sm">
+                              <td onClick={() => { toggleUpdate(item) }} className="text-sm">
                                 ---
                               </td>
                             )}
                             {item.roles && item?.roles[0] != 'POLICE' && (
-                              <td className="text-sm">
+                              <td onClick={() => { toggleUpdate(item) }} className="text-sm">
                                 {item?.roles[0] === 'POLICE_ADMIN' ? 'LE ADMIN' : item?.roles}
                               </td>
                             )}
-                            <td className="text-sm">
+                            <td onClick={() => { toggleUpdate(item) }} className="text-sm">
                               {item?.enabled ? 'Active' : 'Inactive'}
 
                             </td>
@@ -1054,7 +1048,7 @@ function AllUsers(props) {
                                   </Button>
                                 ) : (
                                   <Button onClick={() => {
-                                    window.open('https://etows.app/', '_blank', 'noopener,noreferrer');
+                                    window.open('https://web.etows.app/', '_blank', 'noopener,noreferrer');
                                   }} className="my-4" color="primary" type="button">
                                     Access Profile
                                   </Button>
@@ -1506,7 +1500,7 @@ function AllUsers(props) {
                                 Company Name
                               </label>
                               <Input
-                              disabled="true"
+                                disabled="true"
                                 className="form-control-alternative"
                                 defaultValue={setItem?.companyName}
                                 id="input-username"

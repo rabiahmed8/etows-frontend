@@ -43,7 +43,10 @@ import { errorAlert } from "Theme/utils";
 import { successAlert } from "Theme/utils";
 import { UploadGetContractsApi } from "APIstore/apiCalls";
 import { singleDeleteFile } from "APIstore/apiCalls";
+import ViewImageModal from "component/ViewImageModal";
 // export default class GovtAgencyDetail extends React.Component {
+var localAccessData = null
+var logData1 = {}
 function GovtAgencyDetail(props) {
 
     const [key, setKey] = useState('home');
@@ -62,6 +65,9 @@ function GovtAgencyDetail(props) {
     const [dataUpdateContract, setDataUpdateContract] = useState([]);
     const [dataUpdateAgrement, setDataUpdateAgrement] = useState([]);
     const [isLoader, setIsLoader] = useState(false);
+    const [openViewImageModal, setViewImageModal] = useState(false);
+    const [imageData, setDataImage] = useState();
+    const [logInfo, setLogInfo] = useState('');
     const setItem = location.state;
     console.log("location", location);
     const [deleteModal, setDeletToggle] = useState(false);
@@ -78,6 +84,15 @@ function GovtAgencyDetail(props) {
                 console.log("adasdasd", res)
                 if (res.sucess) {
                     setDeletToggle(!deleteModal)
+                    if (activeTab == '2') {
+                        getDataFiles("Invoices")
+                    }
+                    if (activeTab == '3') {
+                        getDataFiles("Contracts")
+                    }
+                    if (activeTab == '4') {
+                        getDataFiles("FeesAgreement")
+                    }
                     // try {
                     //     singleAllAgency('', async (res) => {
                     //         console.log("singleAllAgency", res)
@@ -182,25 +197,8 @@ function GovtAgencyDetail(props) {
         }
     }
     const ViewImage = (item) => {
-        // const obj = {
-        //   type: item?.agencyType,
-        //   id: item?.id
-        // }
-        // try {
-        //   getUploadData(obj, async (res) => {
-        //     console.log("adasdasd", res)
-        //     if (res.sucess) {
-        //       console.log("res.sucess.fileInfoList[0].url", res.sucess.fileInfoList[0].url)
-        //       setImageLink(res.sucess.fileInfoList[0].url);
-        //       ViewImagetoggle();
-        //     } else {
-        //       console.log("errrrr");
-        //       // ViewImagetoggle();
-        //     }
-        //   });
-        // } catch (error) {
-        //   console.log("error", error)
-        // }
+        setDataImage(item)
+        setViewImageModal(!openViewImageModal)
     }
     const invoiceCallback = (InvoiceData) => {
         console.log("InvoiceDataInvoiceData", InvoiceData);
@@ -324,7 +322,7 @@ function GovtAgencyDetail(props) {
             UploadContractsApi(formData, async (res) => {
                 if (res.sucess) {
                     console.log("UPP", res.sucess)
-                    await getDataFiles("FeesAgrement")
+                    await getDataFiles("FeesAgreement")
                     setOpenFeeAgrementModal(false)
                     setIsLoader(false)
                     successAlert(res.sucess.response.messages[0].message)
@@ -347,11 +345,23 @@ function GovtAgencyDetail(props) {
     }
     const getDataFiles = (type) => {
         setIsLoader(true)
-        const obj = {
-            id: setItem.id,
-            subType: type,
-            type: type
+        let obj
+        if (localAccessData == null) {
+            obj = {
+                id: setItem.id,
+                subType: type,
+                type: type
+            }
         }
+        else {
+            obj = {
+                id: logData1.role == 'POLICE_ADMIN' ? setItem?.id : logData1?.companyId,
+                subType: type,
+                type: type,
+                comId: logData1.role == 'POLICE_ADMIN' ? setItem?.id : logData1?.companyId
+            }
+        }
+
         try {
             UploadGetContractsApi(obj, async (res) => {
                 console.log("adasdasd", res)
@@ -366,7 +376,7 @@ function GovtAgencyDetail(props) {
                         setIsLoader(false)
                         return
                     }
-                    if (type == "FeesAgrement") {
+                    if (type == "FeesAgreement") {
                         setDataAgrement(res.sucess.list);
                         setIsLoader(false)
                         return
@@ -381,7 +391,27 @@ function GovtAgencyDetail(props) {
             setIsLoader(false)
         }
     }
+    const getLoggedData = async () => {
+        let logData;
+        const storedData = await localStorage.getItem('accessData')
+        if (storedData) {
+            const getdata = await localStorage.getItem('accessData')
+            logData = JSON.parse(getdata)
+            localAccessData = logData
+
+        }
+        else {
+            const getdata = await localStorage.getItem('loggedData')
+            logData = JSON.parse(getdata)
+        }
+        console.log("parsedDataparsedData", localAccessData);
+        setLogInfo(logData)
+        setLogInfo((state) => {
+            logData1 = state;
+        });
+    }
     useEffect(() => {
+        getLoggedData()
         if (activeTab == '2') {
             getDataFiles("Invoices")
         }
@@ -389,7 +419,7 @@ function GovtAgencyDetail(props) {
             getDataFiles("Contracts")
         }
         if (activeTab == '4') {
-            getDataFiles("FeesAgrement")
+            getDataFiles("FeesAgreement")
         }
     }, [activeTab])
     return (
@@ -412,7 +442,7 @@ function GovtAgencyDetail(props) {
                             className={classnames({ active: activeTab === '1' })}
                             onClick={() => { toggle('1'); }}
                         >
-                            Agency Information
+                            Agency/Corp
                         </NavLink>
                     </NavItem>
                     <NavItem>
@@ -436,7 +466,7 @@ function GovtAgencyDetail(props) {
                             className={classnames({ active: activeTab === '4' })}
                             onClick={() => { toggle('4'); }}
                         >
-                            Fees Agrement
+                            Fees Agreement
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -447,73 +477,80 @@ function GovtAgencyDetail(props) {
                                 <div style={{ display: "flex", flexDirection: "column" }}>
                                     {setItem?.id ? (
                                         <div className="listUi">
-                                            <span className="text-sm">ID</span>
+                                            <span className="text-sm listUiItem">ID</span>
                                             <span className="text-sm">{setItem?.id}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.companyId ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Company Id</span>
+                                            <span className="text-sm listUiItem">Company ID</span>
                                             <span className="text-sm">{setItem?.companyId}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.agencyName ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Agency Name</span>
+                                            <span className="text-sm listUiItem">Agency Name</span>
                                             <span className="text-sm">{setItem?.agencyName}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.agencyType ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Agency Type</span>
+                                            <span className="text-sm listUiItem">Agency Type</span>
                                             <span className="text-sm">{setItem?.agencyType}</span>
                                         </div>
                                     ) : null}
+                                    {/* <>
+                                        {(setItem?.primaryName || setItem?.primaryPhone) || (setItem?.secondaryName || setItem?.secondaryPhone) ? (
+                                            <div style={{ width: "100%" }}>
+                                                <h3 style={{ marginTop: 7 }}>Contact Information</h3>
+                                            </div>
+                                        ):null}
+                                    </> */}
                                     {setItem?.primaryName ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Primary Name</span>
+                                            <span className="text-sm listUiItem">Contact Primary Name</span>
                                             <span className="text-sm">{setItem?.primaryName}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.primaryPosition ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Primary Position</span>
+                                            <span className="text-sm listUiItem">Contact Primary Position</span>
                                             <span className="text-sm">{setItem?.primaryPosition}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.primaryPhone ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Primary Phone</span>
+                                            <span className="text-sm listUiItem">Contact Primary Phone</span>
                                             <span className="text-sm">{setItem?.primaryPhone}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.primaryAddress ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Primary Address</span>
+                                            <span className="text-sm listUiItem">Contact Primary Address</span>
                                             <span className="text-sm">{setItem?.primaryAddress}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.secondaryName ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Secondary Name</span>
+                                            <span className="text-sm listUiItem">Contact Secondary Name</span>
                                             <span className="text-sm">{setItem?.secondaryName}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.secondaryPosition ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Secondary Position</span>
+                                            <span className="text-sm listUiItem">Contact Secondary Position</span>
                                             <span className="text-sm">{setItem?.secondaryPosition}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.secondaryPhone ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Cecondary Phone</span>
+                                            <span className="text-sm listUiItem">Contact Secondary Phone</span>
                                             <span className="text-sm">{setItem?.secondaryPhone}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.secondaryAddress ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Secondary Address</span>
+                                            <span className="text-sm listUiItem">Contact Secondary Address</span>
                                             <span className="text-sm">{setItem?.secondaryAddress}</span>
                                         </div>
                                     ) : null}
@@ -552,20 +589,30 @@ function GovtAgencyDetail(props) {
                                                     </DropdownItem>
                                                     <DropdownItem
 
-                                                        onClick={() => { ChangeStatusJob('Police') }}
+                                                        onClick={() => { ChangeStatusJob('IssuedDate') }}
                                                     >
-                                                        {config.police}
+                                                        {config.IssuedDate}
                                                     </DropdownItem>
                                                     <DropdownItem
 
-                                                        onClick={() => { ChangeStatusJob('By Law') }}
+                                                        onClick={() => { ChangeStatusJob('PaidDate') }}
                                                     >
-                                                        {config.byLaw}
+                                                        {config.PaidDate}
                                                     </DropdownItem>
+                                                    <DropdownItem
+
+                                                        onClick={() => { ChangeStatusJob('Outstanding') }}
+                                                    >
+                                                        {config.Outstanding}
+                                                    </DropdownItem>
+
                                                 </DropdownMenu>
                                             </UncontrolledDropdown>
                                             {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenInvoiceModal(!openInvoiceModal) }} className="my-4 p-btm" color="primary" type="button">
+                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => {
+                                                setDataUpdate([])
+                                                setOpenInvoiceModal(!openInvoiceModal)
+                                            }} className="my-4 p-btm" color="primary" type="button">
                                                 Add New
                                             </Button>
                                         </Row>
@@ -582,8 +629,9 @@ function GovtAgencyDetail(props) {
                                                     <thead className="thead-light">
                                                         <tr>
                                                             <th scope="col">ID</th>
-                                                            <th scope="col">Name</th>
+                                                            {/* <th scope="col">Name</th> */}
                                                             <th scope="col">File</th>
+                                                            <th scope="col">Status</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
                                                             <th scope="col">Paid Date</th>
@@ -601,15 +649,18 @@ function GovtAgencyDetail(props) {
                                                             return (
                                                                 <tr>
                                                                     <td className="text-sm">{item?.id}</td>
-                                                                    <td className="text-sm">{item.name.length > 20 ?
+                                                                    {/* <td className="text-sm">{item.name.length > 20 ?
                                                                         `${item.name.substring(0, 20)}...` : item.name
-                                                                    }</td>
+                                                                    }</td> */}
                                                                     <td className="text-sm">
                                                                         <Button onClick={() => { ViewImage(item) }} className="my-4 p-btm" color="primary" type="button">
                                                                             View
                                                                         </Button>
                                                                     </td>
 
+                                                                    <td className="text-sm">
+                                                                        {item?.issueDate && item?.expiryDate ? "Paid" : "Unpaid"}
+                                                                    </td>
                                                                     <td className="text-sm">
                                                                         {item?.comments}
                                                                     </td>
@@ -757,10 +808,19 @@ function GovtAgencyDetail(props) {
                                                     >
                                                         {config.byLaw}
                                                     </DropdownItem>
+                                                    <DropdownItem
+
+                                                        onClick={() => { ChangeStatusJob('others') }}
+                                                    >
+                                                        {config.others}
+                                                    </DropdownItem>
                                                 </DropdownMenu>
                                             </UncontrolledDropdown>
                                             {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenContractModal(!openContractModal) }} className="my-4 p-btm" color="primary" type="button">
+                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => {
+                                                setDataUpdateContract([])
+                                                setOpenContractModal(!openContractModal)
+                                            }} className="my-4 p-btm" color="primary" type="button">
                                                 Add New
                                             </Button>
                                         </Row>
@@ -781,7 +841,7 @@ function GovtAgencyDetail(props) {
                                                             <th scope="col">File</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
+                                                            <th scope="col">Expiry Date</th>
                                                             {/* <th>
                                         <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                             Add
@@ -921,7 +981,7 @@ function GovtAgencyDetail(props) {
                                 <Card className="shadow">
                                     <CardHeader className="border-0">
                                         <Row>
-                                            <h3 className="mb-0">Fees Agrement</h3>
+                                            <h3 className="mb-0">Fees Agreement</h3>
                                             <UncontrolledDropdown style={{ marginLeft: 10 }}>
                                                 <DropdownToggle
                                                     className="btn-icon-only text-light"
@@ -952,10 +1012,19 @@ function GovtAgencyDetail(props) {
                                                     >
                                                         {config.byLaw}
                                                     </DropdownItem>
+                                                    <DropdownItem
+
+                                                        onClick={() => { ChangeStatusJob('others') }}
+                                                    >
+                                                        {config.others}
+                                                    </DropdownItem>
                                                 </DropdownMenu>
                                             </UncontrolledDropdown>
                                             {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenFeeAgrementModal(!openfeeAgrementModal) }} className="my-4 p-btm" color="primary" type="button">
+                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => {
+                                                setDataUpdateAgrement([])
+                                                setOpenFeeAgrementModal(!openfeeAgrementModal)
+                                            }} className="my-4 p-btm" color="primary" type="button">
                                                 Add New
                                             </Button>
                                         </Row>
@@ -976,7 +1045,7 @@ function GovtAgencyDetail(props) {
                                                             <th scope="col">File</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
+                                                            <th scope="col">Expiry Date</th>
                                                             {/* <th>
                                           <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                               Add
@@ -1125,7 +1194,8 @@ function GovtAgencyDetail(props) {
                 </Modal>
                 <UploadModal modal={openInvoiceModal} data={dataUpdate} title='Invoices' parentCallback={invoiceCallback} />
                 <UploadModal modal={openContractModal} data={dataUpdateContract} title='Contracts' parentCallback={contractCallback} />
-                <UploadModal modal={openfeeAgrementModal} data={dataUpdateAgrement} title='Fees Agrement' parentCallback={feeAgrementCallback} />
+                <UploadModal modal={openfeeAgrementModal} data={dataUpdateAgrement} title='Fees Agreement' parentCallback={feeAgrementCallback} />
+                <ViewImageModal modal={openViewImageModal} itemData={imageData} />
             </div>
             <Toaster
                 toastOptions={{

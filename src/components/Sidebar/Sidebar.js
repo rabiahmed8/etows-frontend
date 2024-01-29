@@ -63,13 +63,18 @@ class Sidebar extends React.Component {
 
   state = {
     collapseOpen: false,
-    data: []
+    data: [],
+
   };
   constructor(props) {
     super(props);
     this.activeRoute.bind(this);
-    this.state = { data: [], modal: false };
+    this.state = { data: [], modal: false, show: false };
     this.toggle = this.toggle.bind(this);
+    // this.handler = this.handler.bind(this)
+  }
+  handlers() {
+    this.setState({ show: true })
   }
   toggle() {
     this.setState({
@@ -87,7 +92,7 @@ class Sidebar extends React.Component {
       });
     });
     this.setState({ modal: false })
-    window.open(`${Constants.endpointUrl8443}/api/action/logout`, '1366002941508', 'width=50,height=50')
+    window.open(`${Constants.authUrl}/api/action/logout`, '1366002941508', 'width=50,height=50')
     window.location.replace(Constants.url);
     // window.location.reload(true);
   }
@@ -125,12 +130,17 @@ class Sidebar extends React.Component {
       );
     });
   };
+  componentWillUnmount() {
+    this.closeMenu();
+  }
+  closeMenu() {
+    this.setState({ show: false })
+  }
   async componentDidMount() {
     let getAccess
     setTimeout(async () => {
       getAccess = await localStorage.getItem('accessData');
 
-      console.log("asd", JSON.parse(getAccess));
       let filterData = JSON.parse(getAccess)
       if (filterData) {
         // alert(filterData.roles[0])
@@ -141,7 +151,7 @@ class Sidebar extends React.Component {
         try {
           getLoggedinApi('', async (res) => {
             if (res.sucess) {
-              console.log("res.dsgdf", res.sucess.roles[0])
+              await localStorage.setItem('loggedData', JSON.stringify(res.sucess))
               this.setState({ data: res.sucess.roles[0] })
             } else {
               console.log("errrrr")
@@ -152,10 +162,18 @@ class Sidebar extends React.Component {
         }
       }
     }, 1000)
+    this.getNotification()
+  }
+
+  async getNotification() {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      console.log("event", event);
+      this.handlers()
+    });
   }
   render() {
     const { bgColor, routes, logo } = this.props;
-
+    const { show } = this.state;
     let navbarBrandProps;
     if (logo && logo.innerLink) {
       navbarBrandProps = {
@@ -211,16 +229,16 @@ class Sidebar extends React.Component {
               </DropdownMenu>
             </UncontrolledDropdown>
             <UncontrolledDropdown nav>
-              <DropdownToggle nav>
+              {/* <DropdownToggle nav>
                 <Media className="align-items-center">
                   <span className="avatar avatar-sm rounded-circle">
                     <img
                       alt="..."
-                      src={require("assets/img/theme/team-1-800x800.jpg")}
+                      src={require("assets/img/theme/logo_transparent.png")}
                     />
                   </span>
                 </Media>
-              </DropdownToggle>
+              </DropdownToggle> */}
               <DropdownMenu className="dropdown-menu-arrow" right>
                 <DropdownItem className="noti-title" header tag="div">
                   <h6 className="text-overflow m-0">Welcome!</h6>
@@ -379,7 +397,7 @@ class Sidebar extends React.Component {
                         title='Settings'
                         icon={<AiFillSetting />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
                       </SubMenu>
                       <MenuItem onClick={() => {
                         // await localStorage.removeItem('token');
@@ -400,7 +418,7 @@ class Sidebar extends React.Component {
                         title='Settings'
                         icon={<AiFillSetting />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
                       </SubMenu>
                       <MenuItem onClick={() => {
                         // await localStorage.removeItem('token');
@@ -416,75 +434,98 @@ class Sidebar extends React.Component {
                   )}
                   {this.state.data == 'POLICE_ADMIN' && (
                     <>
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/index' ? '#485368' : '' }}
+                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/index' ? 'green' : '' }}
                         icon={<FaDelicious />}>
                         <Link to={"/admin/index"}>
                           {config.dashbaord}
+                        </Link>
+                      </MenuItem>
+                      <MenuItem style={{
+                        backgroundColor: window.location.pathname === '/admin/le-assigned-company-services' ||
+                          window.location.pathname === '/admin/alljobs'
+                          ? 'green' : ''
+                      }}
+                        icon={<FaDelicious />}>
+                        <Link to={"/admin/le-assigned-company-services"} params={{ get: "all-service-requests" }}>
+                          All Service Requests
+                        </Link>
+                      </MenuItem>
+                      <MenuItem style={{
+                        backgroundColor: window.location.pathname === '/admin/le-assigned-company-management' ||
+                          window.location.pathname === '/admin/le-assigned-company-details'
+                          ? 'green' : ''
+                      }}
+                        icon={<FaDelicious />}>
+                        <Link to={"/admin/le-assigned-company-management"} params={{ get: "management-area" }}>
+                          {config.leCompany}
                         </Link>
                       </MenuItem>
                       <SubMenu
                         suffix={<span className="badge yellow">3</span>}
                         title='Users'
-                        icon={<FiUserCheck />}
-                      >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/allusers' ? '#485368' : '' }}
+                        icon={<FiUserCheck />}>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/allusers' ? 'green' : '' }}
                           icon={<FaUserCog />}>
                           <Link to={"/admin/allusers"}>
                             {config.allUsers}
                           </Link>
                         </MenuItem>
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/activeusers' ? '#485368' : '' }}
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/activeusers' ? 'green' : '' }}
                           icon={<VscLayersActive />}>
                           <Link to={"/admin/activeusers"}>{config.activeUsers}</Link>
                         </MenuItem>
                         {this.state.data != 'ADMIN' && (
-                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/create-user' ? '#485368' : '' }}
+                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/create-user' ? 'green' : '' }}
                             icon={<FiUserCheck />}>
                             <Link to={"/admin/create-user"}>{config.createUsers}</Link>
                           </MenuItem>
                         )}
                       </SubMenu>
+                      <MenuItem onClick={() => {
+                        // this.toggle()
+
+                      }}
+                        icon={<FaDelicious />}>
+                        Notifications
+                      </MenuItem>
                       <SubMenu
                         suffix={<span className="badge yellow">1</span>}
                         title='Settings'
                         icon={<AiFillSetting />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
                       </SubMenu>
-                      <MenuItem onClick={() => {
-                        // await localStorage.removeItem('token');
+                      {/* <MenuItem onClick={() => {
                         this.toggle()
-                        // navigate.push('/')
+                        
                       }}
                         icon={<FaDelicious />}>
-                        {/* <Link to={"/admin/index"}> */}
                         Logout
-                        {/* </Link> */}
-                      </MenuItem>
+                      </MenuItem> */}
                     </>
                   )}
                   {(this.state.data == 'ADMIN' || this.state.data == 'LE_ADMIN') && (
                     <>
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/index' ? '#485368' : '' }}
+                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/index' ? 'green' : '' }}
                         icon={<FaDelicious />}>
                         <Link to={"/admin/index"}>
                           {config.dashbaord}
                         </Link>
                       </MenuItem>
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/company' ? '#485368' : '' }}
+                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/company' || window.location.pathname === '/admin/company-detail' ? 'green' : '' }}
                         icon={<FaDelicious />}>
                         <Link to={"/admin/company"}>
                           Company
                         </Link>
                       </MenuItem>
 
-                      {/* <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/logs' ? '#485368' : '' }}
+                      {/* <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/logs' ? 'green' : '' }}
                         icon={<FaDelicious />}>
                         <Link to={"/admin/logs"}>
                           Logs
                         </Link>
                       </MenuItem> */}
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/jurisdiction' ? '#485368' : '' }}
+                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/jurisdiction' ? 'green' : '' }}
                         icon={<FaDelicious />}>
                         <Link to={"/admin/jurisdiction"}>
                           Jurisdiction
@@ -495,18 +536,18 @@ class Sidebar extends React.Component {
                         title='Users'
                         icon={<FiUserCheck />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/allusers' ? '#485368' : '' }}
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/allusers' ? 'green' : '' }}
                           icon={<FaUserCog />}>
                           <Link to={"/admin/allusers"}>
                             {config.allUsers}
                           </Link>
                         </MenuItem>
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/activeusers' ? '#485368' : '' }}
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/activeusers' ? 'green' : '' }}
                           icon={<VscLayersActive />}>
                           <Link to={"/admin/activeusers"}>{config.activeUsers}</Link>
                         </MenuItem>
                         {this.state.data != 'ADMIN' && (
-                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/create-user' ? '#485368' : '' }}
+                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/create-user' ? 'green' : '' }}
                             icon={<FiUserCheck />}>
                             <Link to={"/admin/create-user"}>{config.createUsers}</Link>
                           </MenuItem>
@@ -517,7 +558,7 @@ class Sidebar extends React.Component {
                         title='Settings'
                         icon={<AiFillSetting />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
                       </SubMenu>
                       <MenuItem onClick={() => {
                         // await localStorage.removeItem('token');
@@ -532,7 +573,7 @@ class Sidebar extends React.Component {
                     </>
                   )}
                   {/* {(this.state.data == 'TOW_ADMIN') && (
-                    <MenuItem style={{ backgroundColor: window.location.pathname === '/court-proceeding' ? '#485368' : '' }}
+                    <MenuItem style={{ backgroundColor: window.location.pathname === '/court-proceeding' ? 'green' : '' }}
                       icon={<FaDelicious />}>
                       <Link to={"/admin/court-proceeding"}>
                         Court Proceeding
@@ -546,7 +587,7 @@ class Sidebar extends React.Component {
                         title='Settings'
                         icon={<AiFillSetting />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
                       </SubMenu>
                       <MenuItem onClick={() => {
                         // await localStorage.removeItem('token');
@@ -560,20 +601,20 @@ class Sidebar extends React.Component {
                       </MenuItem>
                     </>
                   )}
-
                   {this.state.data == 'TOW_ADMIN' && (
                     <>
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/index' ? '#485368' : '' }}
+                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/index' ? 'green' : '' }}
                         icon={<FaDelicious />}>
                         <Link to={"/admin/index"}>
                           {config.dashbaord}
                         </Link>
                       </MenuItem>
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/alljobs' ? '#485368' : '' }}
+                      <MenuItem onClick={() => { this.setState({ show: false }) }} className={show == true ? "badge2" : ''} style={{ backgroundColor: window.location.pathname === '/admin/alljobs' ? 'green' : '' }}
+                        suffix={<span className={show == true ? "badge yellow badge1" : ''}>{show == true ? 1 : ''}</span>}
                         icon={<GiMedallist />}>
                         <Link to={"/admin/alljobs"}>{config.allJobs}</Link>
                       </MenuItem>
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/availabledrivers' ? '#485368' : '' }}
+                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/availabledrivers' ? 'green' : '' }}
                         icon={<BsTruck />}>
                         <Link to={"/admin/availabledrivers"}>{config.availableDrivers}</Link>
                       </MenuItem>
@@ -582,40 +623,43 @@ class Sidebar extends React.Component {
                         title={config.staff}
                         icon={<FaDelicious />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/driver-detail' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/driver-detail"}>Tow Driver</Link></MenuItem>
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/other-staff' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/other-staff"}>Other Staff</Link></MenuItem>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/driver-detail' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/driver-detail"}>Tow Driver</Link></MenuItem>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/other-staff' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/other-staff"}>Other Staff</Link></MenuItem>
                       </SubMenu>
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/fleet' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/fleet"}>{config.fleet}</Link></MenuItem>
+                      <MenuItem style={{
+                        backgroundColor: window.location.pathname === '/admin/fleet' ||
+                          window.location.pathname === '/admin/fleet-detail' ? 'green' : ''
+                      }} icon={<ImProfile />}><Link to={"/admin/fleet"}>{config.fleet}</Link></MenuItem>
                       <SubMenu
                         suffix={<span className="badge yellow">3</span>}
                         title='Management Area'
                         icon={<SiGoogletagmanager />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/govt-agency' ? '#485368' : '' }}> <Link to={"/admin/govt-agency"}>{config.govtAgency} </Link></MenuItem>
-                        {/* <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/corporate-details' ? '#485368' : '' }}> <Link to={"/admin/corporate-details"}>{config.CorporateDetails} </Link></MenuItem> */}
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/govt-agency' || window.location.pathname === '/admin/agency-detail' ? 'green' : '' }}> <Link to={"/admin/govt-agency"}>{config.govtAgency} </Link></MenuItem>
+                        {/* <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/corporate-details' ? 'green' : '' }}> <Link to={"/admin/corporate-details"}>{config.CorporateDetails} </Link></MenuItem> */}
 
                         <SubMenu
                           suffix={<span className="badge yellow">1</span>}
                           title='Corporate Detail'
 
                         >
-                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/corp-documents-detail' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/corp-documents-detail"}>{config.CorporateDetails}</Link></MenuItem>
+                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/corp-documents-detail' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/corp-documents-detail"}>{config.CorporateDetails}</Link></MenuItem>
 
                         </SubMenu>
 
 
-                        {/* <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/fleet' ? '#485368' : '' }}> <Link to={"/admin/fleet"}>{config.fleet} </Link></MenuItem> */}
+                        {/* <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/fleet' ? 'green' : '' }}> <Link to={"/admin/fleet"}>{config.fleet} </Link></MenuItem> */}
 
 
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/insurance-detail' ? '#485368' : '' }}> <Link to={"/admin/insurance-detail"}>{config.InsuranceInformation} </Link></MenuItem>
-                        {/* <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/impounded-vehicle' ? '#485368' : '' }}> <Link to={"/admin/impounded-vehicle"}>{config.TowImpoundedVehicle} </Link></MenuItem> */}
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/insurance-detail' ? 'green' : '' }}> <Link to={"/admin/insurance-detail"}>{config.InsuranceInformation} </Link></MenuItem>
+                        {/* <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/impounded-vehicle' ? 'green' : '' }}> <Link to={"/admin/impounded-vehicle"}>{config.TowImpoundedVehicle} </Link></MenuItem> */}
                         {/* <SubMenu
                           suffix={<span className="badge yellow">2</span>}
                           title={config.TowImpoundedVehicle}
 
                         >
-                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/impounded-vehicle' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/impounded-vehicle"}>Tow driver</Link></MenuItem>
-                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/impounded-vehicle' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/impounded-vehicle"}>By Pound Admin</Link></MenuItem>
+                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/impounded-vehicle' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/impounded-vehicle"}>Tow driver</Link></MenuItem>
+                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/impounded-vehicle' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/impounded-vehicle"}>By Pound Admin</Link></MenuItem>
                         </SubMenu> */}
                       </SubMenu>
 
@@ -624,25 +668,25 @@ class Sidebar extends React.Component {
                         title='Users'
                         icon={<FiUserCheck />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/allusers' ? '#485368' : '' }}
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/allusers' ? 'green' : '' }}
                           icon={<FaUserCog />}>
                           <Link to={"/admin/allusers"}>
                             {config.allUsers}
                           </Link>
                         </MenuItem>
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/activeusers' ? '#485368' : '' }}
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/activeusers' ? 'green' : '' }}
                           icon={<VscLayersActive />}>
                           <Link to={"/admin/activeusers"}>{config.activeUsers}</Link>
                         </MenuItem>
                         {this.state.data != 'ADMIN' && (
-                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/create-user' ? '#485368' : '' }}
+                          <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/create-user' ? 'green' : '' }}
                             icon={<FiUserCheck />}>
                             <Link to={"/admin/create-user"}>{config.createUsers}</Link>
                           </MenuItem>
                         )}
                       </SubMenu>
 
-                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/maps' ? '#485368' : '' }}
+                      <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/maps' ? 'green' : '' }}
                         icon={<BsFillPinMapFill />}>
                         <Link to={"/admin/maps"}>
                           {config.map}
@@ -655,7 +699,7 @@ class Sidebar extends React.Component {
                         title='Settings'
                         icon={<AiFillSetting />}
                       >
-                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? '#485368' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
+                        <MenuItem style={{ backgroundColor: window.location.pathname === '/admin/user-profile' ? 'green' : '' }} icon={<ImProfile />}><Link to={"/admin/user-profile"}>{config.userprofile}</Link></MenuItem>
                       </SubMenu>
                     </>
                   )}

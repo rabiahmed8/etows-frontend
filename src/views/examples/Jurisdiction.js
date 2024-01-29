@@ -699,7 +699,7 @@ function Jurisdiction(props) {
                   <CardHeader className="bg-white border-0">
                     <Row className="align-items-center">
                       <Col xs="8">
-                        <h3 className="mb-0">Update Juridiction</h3>
+                        <h3 className="mb-0">Update Jurisdiction</h3>
                       </Col>
 
                     </Row>
@@ -707,7 +707,7 @@ function Jurisdiction(props) {
                   <CardBody>
                     <Form>
                       <h6 className="heading-small text-muted mb-4">
-                        Juridiction information
+                        Jurisdiction information
                       </h6>
                       <div className="pl-lg-3">
                         <Row>
@@ -717,7 +717,7 @@ function Jurisdiction(props) {
                                 className="form-control-label"
                                 htmlFor="input-username"
                               >
-                                Juridiction
+                                Jurisdiction
                               </label>
                               <Input
                                 className="form-control-alternative"
@@ -793,7 +793,7 @@ function Jurisdiction(props) {
                   <CardHeader className="bg-white border-0">
                     <Row className="align-items-center">
                       <Col xs="8">
-                        <h3 className="mb-0">Add Juridiction</h3>
+                        <h3 className="mb-0">Add Jurisdiction</h3>
                       </Col>
 
                     </Row>
@@ -801,7 +801,7 @@ function Jurisdiction(props) {
                   <CardBody>
                     <Form>
                       <h6 className="heading-small text-muted mb-4">
-                        Juridiction information
+                        Jurisdiction information
                       </h6>
                       <div className="pl-lg-3">
                         <Row>
@@ -811,13 +811,13 @@ function Jurisdiction(props) {
                                 className="form-control-label"
                                 htmlFor="input-username"
                               >
-                                Juridiction
+                                Jurisdiction
                               </label>
                               <Input
                                 className="form-control-alternative"
                                 // defaultValue={setItem?.jurisdiction}
                                 id="input-username"
-                                placeholder="Juridiction"
+                                placeholder="Jurisdiction"
                                 onChange={text => textOnchange(text, 'jurisdiction')}
                                 type="text"
                               />

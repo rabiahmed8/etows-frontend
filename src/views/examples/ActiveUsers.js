@@ -22,25 +22,47 @@ import {
 } from "reactstrap";
 // core components
 import Header from "components/Headers/Header.js";
-import { ActiveUserApi } from "../../APIstore/apiCalls";
+import { ActiveUserApi,GetAllUsersApi } from "../../APIstore/apiCalls";
 import config from "config";
 function ActiveUsers() {
   const [data, setData] = useState([]);
   useEffect(() => {
     try {
-      ActiveUserApi('', async (res) => {
-        if (res.sucess) {
-          console.log("res.sucess.userAccountDtoList", res.sucess.list)
-          setData(res.sucess.list)
-        } else {
-          console.log("errrrr")
-        }
-      });
+      let parsedstoredloggedData;
+      const storedData = localStorage.getItem('accessData')
+      if (storedData) {
+        const getdata = localStorage.getItem('accessData')
+        parsedstoredloggedData = JSON.parse(getdata)
+      }
+      else {
+        const getdata = localStorage.getItem('loggedData')
+        parsedstoredloggedData = JSON.parse(getdata)
+      }
+      
+      if(parsedstoredloggedData.role!="ADMIN"){
+        ActiveUserApi(parsedstoredloggedData.companyId, async (res) => {
+          if (res.sucess) {
+            console.log("res.sucess.userAccountDtoList", res.sucess.list)
+            setData(res.sucess.list.filter((v)=>{return v.enabled==true;}))
+          } else {
+            console.log("errrrr")
+          }
+        });
+      }else{
+        GetAllUsersApi('', async (res) => {
+          if (res.sucess) {
+            console.log("res.sucess.list", res.sucess.list)
+            setData(res.sucess.list.filter((v)=>{return v.enabled==true;}));
+          } else {
+            console.log("errrrr")
+          }
+        });
+      }
     } catch (error) {
       console.log("error", error)
     }
-  // }
-  // fetchData()
+    // }
+    // fetchData()
   }, [])
 
   return (
@@ -102,7 +124,7 @@ function ActiveUsers() {
                           </td>
                           <td className="text-sm">
                             {item?.phone}
-                          
+
                           </td>
                           {/* <td className="text-sm">
                             <div className="d-flex align-items-center">
@@ -145,7 +167,7 @@ function ActiveUsers() {
                                 </DropdownItem>
                               </DropdownMenu>
                             </UncontrolledDropdown>
-                          </td> */}
+                          </td>  */}
                         </tr>
                       )
                     })}

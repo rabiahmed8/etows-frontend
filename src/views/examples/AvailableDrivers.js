@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 // reactstrap components
 import {
@@ -26,17 +26,89 @@ import '../../appstyle.css'
 import Maps from "./Maps";
 // core components
 import Header from "components/Headers/Header.js";
-import { AvailableDriversApi } from "../../APIstore/apiCalls";
+import { getOnDutyDrivers, getLocationDriver } from "../../APIstore/apiCalls";
 import config from "config";
+let timerId;
 function AvailableDrivers(props) {
   const [data, setData] = useState([]);
+  const [dataLatLng, setDataLatLng] = useState([]);
   const [mapModal, setMapModal] = useState(false);
+  const [itemsData, setItemData] = useState();
+  // const timerId = useRef(null)
+  const movies = React.useRef(null);
+
+  const init = async () => {
+    let logData;
+    let localAccessData = null
+    const storedData = await localStorage.getItem('accessData')
+    if (storedData) {
+      const getdata = await localStorage.getItem('accessData')
+      logData = JSON.parse(getdata)
+      localAccessData = logData
+    }
+    else {
+      const getdata = await localStorage.getItem('loggedData')
+      logData = JSON.parse(getdata)
+    }
+    if (localAccessData == null) {
+      try {
+        getOnDutyDrivers('', async (res) => {
+          if (res.sucess) {
+            setData(res.sucess?.usersOnJobList)
+          } else {
+            console.log("errrrr")
+          }
+        });
+      } catch (error) {
+        console.log("error", error)
+      }
+    }
+    else {
+      try {
+        getOnDutyDrivers(logData?.companyId, async (res) => {
+          if (res.sucess) {
+            setData(res.sucess?.usersOnJobList)
+          } else {
+            console.log("errrrr")
+          }
+        });
+      } catch (error) {
+        console.log("error", error)
+      }
+    }
+  }
   useEffect(() => {
+    init()
+    if (mapModal) {
+      callagain(itemsData)
+    }
+    else {
+      clearTimeout(timerId)
+    }
+  }, [mapModal])
+  const callagain = (item) => {
+    timerId = setInterval(function () {
+      try {
+        getLocationDriver(item?.id ? item?.id : '', async (res) => {
+          if (res.sucess) {
+            setDataLatLng(res.sucess);
+          } else {
+            console.log("errrrr")
+          }
+        });
+      } catch (error) {
+        console.log("error", error)
+      }
+    }, 5000);
+
+  }
+  const toggleMap = (item) => {
+    setItemData(item)
     try {
-      AvailableDriversApi('', async (res) => {
+      getLocationDriver(item.id ? item.id : '', async (res) => {
         if (res.sucess) {
-          console.log("res.sucess.usersOnJobList", res.sucess?.usersOnJobList)
-          setData(res.sucess?.usersOnJobList)
+          setDataLatLng(res.sucess);
+          setMapModal(true);
         } else {
           console.log("errrrr")
         }
@@ -44,9 +116,7 @@ function AvailableDrivers(props) {
     } catch (error) {
       console.log("error", error)
     }
-  }, [])
-  const toggleMap = () => {
-    setMapModal(!mapModal)
+
   }
   return (
     <>
@@ -62,21 +132,21 @@ function AvailableDrivers(props) {
                 {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
               </CardHeader>
               {data.length > 0 ? (
-              <Table className="align-items-center table-flush" responsive>
-                <thead className="thead-light">
-                  <tr>
-                    <th scope="col">Email</th>
-                    <th scope="col">Name</th>
-                    {/* <th scope="col">Address</th> */}
-                    {/* <th scope="col">City</th> */}
-                    <th scope="col">Phone</th>
-                    <th scope="col">Location</th>
-                    {/* <th scope="col">Role</th> */}
-                    {/* <th scope="col">Gender</th> */}
-                    <th scope="col" />
-                  </tr>
-                </thead>
-               
+                <Table className="align-items-center table-flush" responsive>
+                  <thead className="thead-light">
+                    <tr>
+                      <th scope="col">Email</th>
+                      <th scope="col">Name</th>
+                      {/* <th scope="col">Address</th> */}
+                      {/* <th scope="col">City</th> */}
+                      <th scope="col">Phone</th>
+                      <th scope="col">Location</th>
+                      {/* <th scope="col">Role</th> */}
+                      {/* <th scope="col">Gender</th> */}
+                      <th scope="col" />
+                    </tr>
+                  </thead>
+
                   <tbody>
                     {data.map((item) => {
                       return (
@@ -112,10 +182,10 @@ function AvailableDrivers(props) {
                             {item?.phone}
                           </td>
                           <td>
-                            <Button onClick={() => { toggleMap() }} className="my-4" color="primary" type="button">
+                            <Button onClick={() => { toggleMap(item) }} className="my-4" color="primary" type="button">
                               {config.goToLocation}
                             </Button>
-                          </td> 
+                          </td>
                           {/* <td className="text-sm">
                             {item?.roles}
                           </td> */}
@@ -165,12 +235,12 @@ function AvailableDrivers(props) {
                       )
                     })}
                   </tbody>
-              </Table>
+                </Table>
               ) : (
-                  <div className="text-center">
-                    <h3>No Record Found</h3>
-                  </div>
-                )}
+                <div className="text-center">
+                  <h3>No Record Found</h3>
+                </div>
+              )}
               <CardFooter className="py-4">
                 <nav aria-label="...">
                   <Pagination
@@ -229,10 +299,10 @@ function AvailableDrivers(props) {
         <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={mapModal} toggle={() => { toggleMap() }} className={props.className}>
           <ModalHeader>{config.towRequestLocation}</ModalHeader>
           <ModalBody>
-            <Maps lat = {43.648390} lng = {-79.876260}/>
+            <Maps lat={dataLatLng.lat} lng={dataLatLng.lon} data={'hide'} show={'towtruck'} />
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={() => { toggleMap() }}>{config.close}</Button>
+            <Button color="primary" onClick={() => { setMapModal(false) }}>{config.close}</Button>
           </ModalFooter>
         </Modal>
       </Container>

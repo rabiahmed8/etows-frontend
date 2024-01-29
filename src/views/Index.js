@@ -1,3 +1,5 @@
+import { initializeApp } from "firebase/app";
+import { getMessaging } from "firebase/messaging/sw";
 import React from "react";
 // node.js library that concatenates classes (strings)
 import classnames from "classnames";
@@ -18,12 +20,16 @@ import {
   Table,
   Container,
   Row,
-  Col
+  Col,
+  Input,
+  FormGroup,
+  Spinner,
+  Modal, ModalHeader, ModalBody, ModalFooter,
 } from "reactstrap";
 import { useLocation, useHistory, Link } from 'react-router-dom';
 import { PieChart } from 'react-minimal-pie-chart';
 // core components
-
+import toast, { Toaster } from 'react-hot-toast';
 import {
   chartOptions,
   parseOptions,
@@ -33,49 +39,158 @@ import {
 import { Redirect } from 'react-router-dom';
 import Header from "components/Headers/Header.js";
 import Maps from "./examples/Maps";
-import { getLoggedinApi, getUserData } from "../APIstore/apiCalls";
-const data = {
-  labels: ["Pending Calls", "Service", "Active",],
-  datasets: [
-    {
-      label: "# of Votes",
-      data: [45, 30, 25],
-      backgroundColor: [
-        "#007D9C",
-        "#244D70",
-        "#FE452A",
-      ],
-      borderColor: [
-        "rgba(255,99,132,1)",
-        "rgba(54, 162, 235, 1)",
-        "rgba(255, 159, 64, 1)",
-      ],
-      borderWidth: 1,
-    },
-  ],
-};
+import { getDashboard, getLoggedinApi, getUserData, UpdatePassword } from "../APIstore/apiCalls";
+import config from "config";
+import moment from "moment";
+import { onMessageListener, fetchToken } from '../Service/firebase';
+import Notifications, { notify } from 'react-notify-toast';
+import { successAlert, errorAlert } from "Theme/utils";
 class Index extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       activeNav: 1,
       da: '',
+      modal: false,
+      currentPass: '',
+      newPass: '',
+      confirmPass: '',
       data: [],
-      chartExample1Data: "data1"
+      EPdata: [],
+      checkTempPassword: '',
+      pieData: {
+        labels: ["Pending Calls", "Service", "Active",],
+        datasets: [
+          {
+            label: "# of Votes",
+            data: [35, 40, 25],
+            backgroundColor: [
+              "#007D9C",
+              "#244D70",
+              "#FE452A",
+            ],
+            borderColor: [
+              "rgba(255,99,132,1)",
+              "rgba(54, 162, 235, 1)",
+              "rgba(255, 159, 64, 1)",
+            ],
+            borderWidth: 1,
+          },
+        ],
+      },
+      isLoader: false,
+      chartExample1Data: "data1",
+      value: window.localStorage.getItem("notificationsData")
     };
     if (window.Chart) {
       parseOptions(Chart, chartOptions());
     }
+
+  }
+  handleChanges = e => {
+    // only subscribe to changes to the key specified
+    if (e.key === this.props.key) {
+      this.setState({ value: e.newValue })
+    }
+    console.log("valuevalue", this.state.value);
+  }
+
+  getLoggedData = async () => {
+    const storedData = await localStorage.getItem('accessData')
+    if (storedData) {
+      const getdata = await localStorage.getItem('accessData')
+      let logData = JSON.parse(getdata)
+      fetchToken(logData)
+    }
+    else {
+      const getdata = await localStorage.getItem('loggedData')
+      let logData = JSON.parse(getdata)
+      fetchToken(logData)
+    }
+  }
+  OnChangePassword = () => {
+    const { currentPass, newPass, confirmPass } = this.state;
+    if (!currentPass) {
+      errorAlert('Please enter Current Password');
+      return;
+    }
+    if (!newPass) {
+      errorAlert('Please enter New Password');
+      return;
+    }
+
+    if (!confirmPass) {
+      errorAlert('Please enter Confirm Password');
+      return;
+    }
+    if (confirmPass != newPass) {
+      errorAlert('Your New Password and Confirm Password is not matched');
+      return;
+    }
+
+    let obj = {
+      currentPassword: currentPass,
+      newPassword: newPass,
+      reTypePassword: confirmPass
+    }
+    try {
+      UpdatePassword(obj, async (res) => {
+        if (res.sucess) {
+          successAlert(res.sucess.messages[0].message)
+          this.setState({ modal: !this.state.modal })
+          await localStorage.setItem('checkTempVar', false)
+        } else {
+          errorAlert('Something went wrong')
+        }
+      });
+    } catch (error) {
+      errorAlert(error)
+    }
+  }
+  async onClose() {
+    this.setState({ modal: !this.state.modal })
+    await localStorage.setItem('checkTempVar', false)
   }
   async componentDidMount() {
-    // alert(JSON.stringify(this.props.location))
-    // const reloadCount = localStorage.getItem('token');
-    // if (reloadCount < 2) {
-    //   localStorage.setItem('token', String(reloadCount + 1));
-    //   window.location.reload();
-    // } else {
-    //   localStorage.removeItem('token');
-    // }
+    this.getLoggedData()
+    
+    try {
+      getDashboard('', async (res) => {
+        if (res.sucess) {
+          this.setState({ EPdata: res.sucess })
+          this.setState({
+            pieData: {
+              labels: ["Pending Calls", "Service", "Active",],
+              datasets: [
+                {
+                  label: "# of Votes",
+                  data: [res.sucess?.activeReq, res.sucess?.serviceReq, res.sucess?.pendingReq],
+                  backgroundColor: [
+                    "#007D9C",
+                    "#244D70",
+                    "#FE452A",
+                  ],
+                  borderColor: [
+                    "rgba(255,99,132,1)",
+                    "rgba(54, 162, 235, 1)",
+                    "rgba(255, 159, 64, 1)",
+                  ],
+                  borderWidth: 1,
+                },
+              ],
+            }
+          })
+          this.setState({ isLoader: false })
+        } else {
+          console.log("errrrr")
+          this.setState({ isLoader: false })
+        }
+      });
+    } catch (error) {
+      console.log("error", error)
+      this.setState({ isLoader: false })
+    }
+    console.log("pp0", this.state.EPdata?.activeReq);
 
     const id = await localStorage.getItem('access');
     if (id) {
@@ -96,19 +211,26 @@ class Index extends React.Component {
 
     const token = await localStorage.getItem('token');
 
-    // alert(token)
-    // alert(token)
     if (!token) {
-
       await localStorage.clear();
       await window.localStorage.clear();
-      window.location.replace('https://api.etows.app:8443/login');
+      window.location.replace('process.env.REACT_APP_AUTH_URL/login');
     }
     try {
       getLoggedinApi('', async (res) => {
         if (res.sucess) {
           console.log("res.dsgdf", res.sucess.roles[0])
-          this.setState({ data: res.sucess.roles[0] })
+          this.setState({ data: res.sucess.roles[0], modal: res.sucess.isTemporaryPassword })
+          const tempVar = await localStorage.getItem('checkTempVar')
+          if (tempVar === null) {
+            this.setState({ modal: res.sucess.isTemporaryPassword })
+          }
+          else if (tempVar == true) {
+            this.setState({ modal: tempVar })
+          }
+          else {
+            this.setState({ modal: false })
+          }
           let role = res.sucess.roles[0];
           if (role == 'DRIVER') {
             window.location = '/admin/user-profile';
@@ -151,6 +273,7 @@ class Index extends React.Component {
     });
   };
   render() {
+    const { isLoader, pieData, EPdata } = this.state;
     return (
       <>
         <Header />
@@ -162,98 +285,83 @@ class Index extends React.Component {
             alert('done')
           }}><span style={{color:"#000",}}>lkjflkkjkllkj</span></div>
         )} */}
-        {(this.state.data == 'ADMIN' || this.state.data == 'POLICE_ADMIN' || this.state.data == 'TOW_ADMIN') && (
-          <Container className="mt--7" fluid>
-            <Row className="addSome">
-              <Col className="mb-5 mb-xl-0" xl="8">
-                <Card className="bg-gradient-default shadow">
-                  <CardHeader className="bg-transparent">
-                    <Row className="align-items-center">
-                      <div className="col">
-                        <h6 className="text-uppercase text-light ls-1 mb-1">
-                          Overview
-                        </h6>
-                        <h2 className="text-white mb-0">Show Tracker & Drivers On Duty</h2>
-                      </div>
-                      {/* <div className="col">
-                        <Nav className="justify-content-end" pills>
-                          <NavItem>
-                            <NavLink
-                              className={classnames("py-2 px-3", {
-                                active: this.state.activeNav === 1
-                              })}
-                              href="#pablo"
-                              onClick={e => this.toggleNavs(e, 1)}
-                            >
-                              <span className="d-none d-md-block">Month</span>
-                              <span className="d-md-none">M</span>
-                            </NavLink>
-                          </NavItem>
-                          <NavItem>
-                            <NavLink
-                              className={classnames("py-2 px-3", {
-                                active: this.state.activeNav === 2
-                              })}
-                              data-toggle="tab"
-                              href="#pablo"
-                              onClick={e => this.toggleNavs(e, 2)}
-                            >
-                              <span className="d-none d-md-block">Week</span>
-                              <span className="d-md-none">W</span>
-                            </NavLink>
-                          </NavItem>
-                        </Nav>
-                      </div> */}
-                    </Row>
-                  </CardHeader>
-                  <CardBody className="addHeight">
-                    <Maps lat={43.648390} lng={-79.876260} />
-                    {/* Chart */}
-                    {/* <div className="chart">
-                    <Line
-                      data={chartExample1[this.state.chartExample1Data]}
-                      options={chartExample1.options}
-                      getDatasetAtEvent={e => console.log(e)}
-                    />
-                    <Maps lat = {43.648390} lng = {-79.876260}/>
-                  </div> */}
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col xl="4">
-                <Card className="shadow">
-                  <CardHeader className="bg-transparent">
-                    <Row className="align-items-center">
-                      <div className="col">
-                        <h6 className="text-uppercase text-muted ls-1 mb-1">
-                          Performance
-                        </h6>
-                        <h2 className="mb-0">Pending Calls</h2>
-                      </div>
-                    </Row>
-                  </CardHeader>
-                  <CardBody className="heightSet">
-                    {/* Chart */}
-                    <div className="chart">
-                      {/* <Bar
-                      data={chartExample2.data}
-                      options={chartExample2.options}
-                    /> */}
-                      <Pie data={data} />
-                    </div>
-                  </CardBody>
-                </Card>
-              </Col>
-            </Row>
-            <Row className="mt-5">
-              <Col className="mb-5 mb-xl-0" xl="8">
-                <Card className="shadow">
-                  <CardHeader className="border-0">
-                    <Row className="align-items-center">
-                      <div className="col">
-                        <h3 className="mb-0">List of Impounded Cars</h3>
-                      </div>
-                      {/* <div className="col text-right">
+        <>
+          {isLoader ? (
+            <div className="SpinnerClass">
+              <Spinner className="loader" children={true} />
+            </div>
+          ) : (
+            <>
+              {this.state.data == 'POLICE_ADMIN' && (
+                <Container className="mt--7" fluid>
+                  <Row className="addSome">
+                    <Col xl="6">
+                      <Card className="shadow">
+                        <CardHeader className="bg-transparent">
+                          <Row className="align-items-center">
+                            <div className="col">
+                              <h2 className="mb-0">Pending Calls</h2>
+                            </div>
+                          </Row>
+                        </CardHeader>
+                        <CardBody className="heightSet">
+                          {/* Chart */}
+                          <div className="chart">
+                            <Pie data={pieData} />
+                          </div>
+                        </CardBody>
+                      </Card>
+                    </Col>
+                    <Col xl="6">
+                      <Card className="shadow">
+                        <CardHeader className="border-0">
+                          <Row className="align-items-center">
+                            <div className="col">
+                              <h3 className="mb-0">Invoices Not Paid</h3>
+                            </div>
+                          </Row>
+                        </CardHeader>
+                        <div id="overlay">
+                          <div id="text">Under Development Version 2</div>
+                        </div>
+                        <Table className="align-items-center table-flush additionalLE opacityset">
+                          <thead className="thead-light">
+                            <tr>
+                              <th scope="col">Agency/Company</th>
+                              <th scope="col">Date Issued</th>
+                              <th scope="col">Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th scope="row"></th>
+                              <th></th>
+                              <td>$3358.22</td>
+                            </tr>
+                            <tr>
+                              <th scope="row"></th>
+                              <th></th>
+                              <td>$450.00</td>
+                            </tr>
+                            <tr>
+                              <th scope="row"></th>
+                              <th></th>
+                              <td>$566.25</td>
+                            </tr>
+                          </tbody>
+                        </Table>
+                      </Card>
+                    </Col>
+                  </Row>
+                  <Row className="mt-5">
+                    <Col className="mb-5 mb-xl-0" xl="12">
+                      <Card className="shadow">
+                        <CardHeader className="border-0">
+                          <Row className="align-items-center">
+                            <div className="col">
+                              <h3 className="mb-0">List of Impounded Items</h3>
+                            </div>
+                            {/* <div className="col text-right">
                         <Button
                           color="primary"
                           href="#pablo"
@@ -263,46 +371,143 @@ class Index extends React.Component {
                           See all
                         </Button>
                       </div> */}
-                    </Row>
-                  </CardHeader>
-                  <Table className="align-items-center table-flush additional" responsive>
-                    <thead className="thead-light">
-                      <tr>
-                        <th scope="col">Date In</th>
-                        <th scope="col">License</th>
-                        <th scope="col">Make, Model</th>
-                        <th scope="col">Release Y/N</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">2022-11-25</th>
-                        <td>AABK-789</td>
-                        <td>Dodge, Ram</td>
-                        <td>
-                          {/* <i className="fas fa-arrow-up text-success mr-3" />{" "} */}
-                          YES
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">2022-10-30</th>
-                        <td>ABMY-442</td>
-                        <td>Toyota, Corolla</td>
-                        <td>
-                          {/* <i className="fas fa-arrow-down text-warning mr-3" />{" "} */}
-                          NO
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">2022-10-29</th>
-                        <td>BMMF-256</td>
-                        <td>Ford, Mustang</td>
-                        <td>
-                          {/* <i className="fas fa-arrow-down text-warning mr-3" />{" "} */}
-                          NO
-                        </td>
-                      </tr>
-                      {/* <tr>
+                          </Row>
+                        </CardHeader>
+                        <Table className="align-items-center table-flush additional">
+                          <thead className="thead-light">
+                            <tr>
+                              <th scope="col">Date In</th>
+                              <th scope="col">Licence</th>
+                              <th scope="col">Make, Model</th>
+                              <th scope="col">Release Y/N</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td scope="row">2022-11-25</td>
+                              <td>AABK-789</td>
+                              <td>Dodge, Ram</td>
+                              <td>
+                                {/* <i className="fas fa-arrow-up text-success mr-3" />{" "} */}
+                                YES
+                              </td>
+                            </tr>
+
+                            {EPdata?.requests?.map((item) => {
+                              return (
+                                <tr>
+                                  <>
+                                    <td>{moment(item?.startDate).format('YYYY-MM-DD')}</td>
+                                    <td scope="row">{item?.licensePlateNumber}</td>
+                                    <td>{item.vinBasicData?.make}, {item.vinBasicData?.model}</td>
+                                    <td>{item?.isRelease === true ? 'YES' : 'NO'}</td>
+                                  </>
+                                </tr>
+                              )
+                            })}
+
+                          </tbody>
+                        </Table>
+                      </Card>
+                    </Col>
+
+                  </Row>
+                </Container>
+              )}
+              {(this.state.data == 'ADMIN' || this.state.data == 'TOW_ADMIN') && (
+                <Container className="mt--7" fluid>
+                  <Row className="addSome">
+                    <Col className="mb-5 mb-xl-0" xl="8">
+                      <Card className="bg-gradient-default shadow">
+                        <CardHeader className="bg-transparent">
+                          <Row className="align-items-center">
+                            <div className="col">
+                              <h6 className="text-uppercase text-light ls-1 mb-1">
+                                Overview
+                              </h6>
+                              <h2 className="text-white mb-0">Show Tracker & Drivers On Duty</h2>
+                            </div>
+                           
+                          </Row>
+                        </CardHeader>
+                        <CardBody className="addHeight">
+                          <Maps lat={43.648390} lng={-79.876260} data={'hide'} dataU={"a"}/>
+                        </CardBody>
+                      </Card>
+                    </Col>
+                    <Col xl="4">
+                      <Card className="shadow">
+                        <CardHeader className="bg-transparent">
+                          <Row className="align-items-center">
+                            <div className="col">
+                              <h6 className="text-uppercase text-muted ls-1 mb-1">
+                                Performance
+                              </h6>
+                              <h2 className="mb-0">Service Request</h2>
+                            </div>
+                          </Row>
+                        </CardHeader>
+                        <CardBody className="heightSet">
+                          {/* Chart */}
+                          <div className="chart">
+                            {/* <Bar
+                      data={chartExample2.data}
+                      options={chartExample2.options}
+                    /> */}
+                            <Pie data={pieData} />
+                          </div>
+                        </CardBody>
+                      </Card>
+                    </Col>
+                  </Row>
+                  <Row className="mt-5">
+                    <Col className="mb-5 mb-xl-0" xl="8">
+                      <Card className="shadow">
+                        <CardHeader className="border-0">
+                          <Row className="align-items-center">
+                            <div className="col">
+                              <h3 className="mb-0">List of Impounded Items</h3>
+                            </div>
+                            {/* <div className="col text-right">
+                        <Button
+                          color="primary"
+                          href="#pablo"
+                          onClick={e => e.preventDefault()}
+                          size="sm"
+                        >
+                          See all
+                        </Button>
+                      </div> */}
+                          </Row>
+                        </CardHeader>
+                        <Table className="align-items-center table-flush additional" >
+                          <thead className="thead-light">
+                            <tr>
+                              <th scope="col">Date In</th>
+                              <th scope="col">VIN</th>
+                              <th scope="col">Make/Model</th>
+                              <th scope="col">Release Status</th>
+                              <th scope="col">Owner Notified</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {EPdata?.requests?.map((item) => {
+                              return (
+                                <tr>
+                                  <>
+                                    <td scope="row" className="text-sm">{moment(item?.towOrImpoundDate).format('YYYY-MM-DD')}</td>
+                                    <td className="text-sm">{item?.vin}</td>
+                                    <td className="text-sm">{item.vinBasicData?.make}, {item.vinBasicData?.model}</td>
+                                    <td className="text-sm">{item?.releaseStatus}</td>
+                                    <td className="text-sm">
+                                      {/* <i className="fas fa-arrow-up text-success mr-3" />{" "} */}
+                                      YES
+                                    </td>
+                                  </>
+                                </tr>
+                              )
+                            })}
+                            {/* <tr>
                         <th scope="row">/all-jobs.html</th>
                         <td>2,050</td>
                         <td>147</td>
@@ -320,18 +525,18 @@ class Index extends React.Component {
                           46,53%
                         </td>
                       </tr> */}
-                    </tbody>
-                  </Table>
-                </Card>
-              </Col>
-              <Col xl="4">
-                <Card className="shadow">
-                  <CardHeader className="border-0">
-                    <Row className="align-items-center">
-                      <div className="col">
-                        <h3 className="mb-0">List of Invoices</h3>
-                      </div>
-                      {/* <div className="col text-right">
+                          </tbody>
+                        </Table>
+                      </Card>
+                    </Col>
+                    <Col xl="4">
+                      <Card className="shadow">
+                        <CardHeader className="border-0">
+                          <Row className="align-items-center">
+                            <div className="col">
+                              <h3 className="mb-0">Invoices Not Paid</h3>
+                            </div>
+                            {/* <div className="col text-right">
                         <Button
                           color="primary"
                           href="#pablo"
@@ -341,100 +546,127 @@ class Index extends React.Component {
                           See all
                         </Button>
                       </div> */}
-                    </Row>
-                  </CardHeader>
-                  <Table className="align-items-center table-flush additional" responsive>
-                    <thead className="thead-light">
-                      <tr>
-                        <th scope="col">Company</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">York Regional Police</th>
-                        <td>$3358.22</td>
-                        {/* <td>
-                          <div className="d-flex align-items-center">
-                            <span className="mr-2">60%</span>
-                            <div>
-                              <Progress
-                                max="100"
-                                value="60"
-                                barClassName="bg-gradient-danger"
-                              />
-                            </div>
-                          </div>
-                        </td> */}
-                      </tr>
-                      <tr>
-                        <th scope="row">York Regional Police</th>
-                        <td>$450.00</td>
-                        {/* <td>
-                          <div className="d-flex align-items-center">
-                            <span className="mr-2">70%</span>
-                            <div>
-                              <Progress
-                                max="100"
-                                value="70"
-                                barClassName="bg-gradient-success"
-                              />
-                            </div>
-                          </div>
-                        </td> */}
-                      </tr>
-                      <tr>
-                        <th scope="row">York Region By-Law</th>
-                        <td>$566.25</td>
-                        {/* <td>
-                          <div className="d-flex align-items-center">
-                            <span className="mr-2">80%</span>
-                            <div>
-                              <Progress max="100" value="80" />
-                            </div>
-                          </div>
-                        </td> */}
-                      </tr>
-                      {/* <tr>
-                        <th scope="row">Instagram</th>
-                        <td>3,678</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <span className="mr-2">75%</span>
-                            <div>
-                              <Progress
-                                max="100"
-                                value="75"
-                                barClassName="bg-gradient-info"
-                              />
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">twitter</th>
-                        <td>2,645</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <span className="mr-2">30%</span>
-                            <div>
-                              <Progress
-                                max="100"
-                                value="30"
-                                barClassName="bg-gradient-warning"
-                              />
-                            </div>
-                          </div>
-                        </td>
-                      </tr> */}
-                    </tbody>
-                  </Table>
-                </Card>
-              </Col>
-            </Row>
-          </Container>
-        )}
+                          </Row>
+                        </CardHeader>
+                        <Table className="align-items-center table-flush additional">
+                          <thead className="thead-light">
+                            <tr>
+                              <th scope="col">Agency/Company</th>
+                              <th scope="col">Date Issued</th>
+                              <th scope="col">Amount</th>
+                              <th scope="col" />
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {EPdata?.requests?.map((item) => {
+                              return (
+                                <tr>
+                                  <>
+                                    <td scope="row">{item?.policeService}</td>
+                                    <td>{moment(item?.startDate).format('YYYY-MM-DD')}</td>
+                                    <td>$566.25</td>
+                                  </>
+                                </tr>
+                              )
+                            })}
+
+
+                          </tbody>
+                        </Table>
+                      </Card>
+                    </Col>
+                  </Row>
+                  <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={this.state.modal} toggle={() => { this.setState({ modal: !this.state.modal }) }}>
+
+                    <ModalHeader>Update Password </ModalHeader>
+                    <ModalBody>
+                      <Row>
+                        <Col lg="4">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-city"
+                            >
+                              Current Password
+                            </label>
+                            <Input
+                              type="password"
+                              className="form-control-alternative"
+                              // defaultValue={data?.city}
+                              id="input-city"
+                              placeholder="Current Password"
+                              // type="text"
+                              onChange={text => this.setState({ currentPass: text.target.value })}
+                            />
+                          </FormGroup>
+                        </Col>
+                        <Col lg="4">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-country"
+                            >
+                              New Password
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              // defaultValue={data?.country}
+                              id="input-country"
+                              placeholder="New Password"
+                              type="password"
+                              onChange={text => this.setState({ newPass: text.target.value })}
+                            />
+                          </FormGroup>
+                        </Col>
+                        <Col lg="4">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-country"
+                            >
+                              Confirm Password
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              id="input-postal-code"
+                              placeholder="Confirm Password"
+                              type="password"
+                              // defaultValue={data?.postalCode}
+                              onChange={text => this.setState({ confirmPass: text.target.value })}
+                            />
+                          </FormGroup>
+
+
+                        </Col>
+
+                      </Row>
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button color="bg-white" onClick={() => { this.OnChangePassword() }}>Save</Button>{' '}
+                      <Button color="primary" onClick={() => { this.onClose() }}>Continue</Button>{' '}
+                      <Button color="primary" onClick={() => { this.onClose() }}>Close</Button>{' '}
+                    </ModalFooter>
+                  </Modal>
+                </Container>
+
+              )}
+              <Toaster
+                toastOptions={{
+                  success: {
+                    style: {
+                      background: 'green',
+                    },
+                  },
+                  error: {
+                    style: {
+                      background: 'red',
+                    },
+                  },
+                }}
+              />
+            </>
+          )}
+        </>
       </>
     );
   }

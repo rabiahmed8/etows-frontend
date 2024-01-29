@@ -33,7 +33,6 @@ class Admin extends React.Component {
       try {
         getUserData(id, async (res) => {
           if (res.sucess) {
-
             console.log("errrrr", res.sucess)
             this.setState({ data: res.sucess })
           } else {
@@ -98,8 +97,8 @@ class Admin extends React.Component {
               onClick={async () => {
                 await localStorage.removeItem('access')
                 await localStorage.removeItem('accessData')
-                window.location.reload(false);
                 this.props.history.push('admin/index');
+                window.location.reload(false);
               }}
               className="TopHeadText"><IoArrowBackSharp size={25} style={{ marginTop: -3 }} /> Exit</span>
           </div>

@@ -50,7 +50,7 @@ class AdminNavbar extends React.Component {
     this.setState({ modal: false })
 
     // window.opener = null;
-    window.open(`${Constants.endpointUrl8443}/api/action/logout`, '1366002941508', 'width=50,height=50')
+    window.open(`${Constants.authUrl}/api/action/logout`, '1366002941508', 'width=50,height=50')
     window.location.replace(Constants.url);
     // window.location.reload(true);
 
@@ -65,22 +65,16 @@ class AdminNavbar extends React.Component {
     setTimeout(async () => {
       getAccess = await localStorage.getItem('accessData');
 
-      console.log("asd", JSON.parse(getAccess));
       let filterData = JSON.parse(getAccess)
       if (filterData) {
         this.setState({ data: filterData }, () => {
           console.log(this.state.data)
         })
-        // alert(filterData.roles[0])
-        // this.setState({ data: filterData })
-        // await this.setState({ data: filterData });
-        // console.log(this.state.data);
       }
       else {
         try {
           getLoggedinApi('', async (res) => {
             if (res.sucess) {
-              console.log("res.sucess", res.sucess)
               this.setState({ data: res.sucess })
             } else {
               console.log("errrrr")

@@ -5,13 +5,15 @@ import React from "react";
 import { Container, Row, Col, Nav, NavItem, NavLink } from "reactstrap";
 import config from "config";
 class Footer extends React.Component {
+  currentYear = new Date().getFullYear();
+
   render() {
     return (
       <footer className="footer" style={{marginTop:"7%"}}>
         <Row className="align-items-center justify-content-xl-between ft-class">
           <Col xl="6">
             <div className="copyright text-center text-xl-left text-muted">
-              © 2022{" "}
+              © {this.currentYear+" "}
               <a
                 className="font-weight-bold ml-1"
                 // href="https://www.creative-tim.com?ref=adr-admin-footer"
@@ -61,7 +63,7 @@ class Footer extends React.Component {
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  MIT License
+                  MIT Licence
                 </NavLink>
               </NavItem> */}
             </Nav>

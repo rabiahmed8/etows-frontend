@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 
 // reactstrap components
 import {
-  Badge,
   Card,
   CardHeader,
   CardFooter,
@@ -10,22 +9,15 @@ import {
   DropdownItem,
   UncontrolledDropdown,
   DropdownToggle,
-  Media,
   Pagination,
   PaginationItem,
   PaginationLink,
-  Progress,
   Table,
   Container,
   Button,
   Alert,
   Row,
   Col,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroup,
-  Spinner,
-  UncontrolledTooltip,
   Modal, ModalHeader, ModalBody, ModalFooter,
   Input,
   CardBody,
@@ -33,10 +25,10 @@ import {
   FormGroup,
   Label
 } from "reactstrap";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 // core components
 import Header from "components/Headers/Header.js";
-import { AllUsersApi, getCSVApi, GetAllUsersApi, DeleteCompany, UpdateCompany, AddCompany, getAllCompany, AllUsersByType, CheckEnabledDisabled, deleteUser, disableUser, UploadCsvApi, UpdateUserPassword, UpdateUsersApi, getSingleCompany, getJurisdictionAll, addCompanyJurisdiction, getCompanyJurisdictionAll, updateCompanyJurisdiction } from "../../APIstore/apiCalls";
+import { assignCompany, assignedCompany, getAllTowCompany, getAllAssignedTowCompany, AllUsersApi, getCSVApi, GetAllUsersApi, DeleteCompany, UpdateCompany, AddCompany, getAllCompany, AllUsersByType, CheckEnabledDisabled, deleteUser, disableUser, UploadCsvApi, UpdateUserPassword, UpdateUsersApi, getSingleCompany, getJurisdictionAll, addCompanyJurisdiction, getCompanyJurisdictionAll, updateCompanyJurisdiction, UpdateTowCompany, getAssignCompany } from "../../APIstore/apiCalls";
 import { CsvToHtmlTable } from 'react-csv-to-table';
 import axios from 'axios';
 import config from "config";
@@ -44,9 +36,7 @@ import Select, { StylesConfig } from 'react-select';
 import { successAlert, errorAlert } from '../../Theme/utils';
 import toast, { Toaster } from 'react-hot-toast';
 import { AiFillPlusCircle, AiFillMinusCircle } from 'react-icons/ai';
-import GooglePlacesAutocomplete, {
-  geocodeByPlaceId, geocodeByAddress, getLatLng
-} from "react-google-places-autocomplete";
+import AddressInput from './AddressInput';
 function Company(props) {
   const [data, setData] = useState([]);
   const [modal, setModal] = useState(false);
@@ -82,29 +72,44 @@ function Company(props) {
   const [longitude, setLongitude] = useState('');
   const [address, setAddress] = useState();
   const [dropdownData, setDropdownData] = useState();
+  const [companyDropdownData, setCompanyDropdownData] = useState();
   const [dropdownDataUpdate, setDropdownDataUpdate] = useState();
+  const [companyDropdownDataUpdate, setCompanyDropdownDataUpdate] = useState();
   const [jurisdictionData, setJurisdictionData] = useState();
+  const [companiesData, setCompaniesData] = useState();
   const [selectedservices, setselectedservices] = useState([]);
+  const [selectedCompanies, setSelectedCompanies] = useState([]);
   const [companyDataFilter, setCompanyDataFilter] = useState([]);
+  const [companiesDataFilter, setCompaniesDataFilter] = useState([]);
+  const [corporateAddress,setCorporateAddress]=useState('');
+  const navigate = useHistory()
   const options = [
     { value: 'Tow Company', label: 'Tow Company' },
     { value: 'L.E/Govt Agency', label: 'L.E/Govt Agency' }
   ]
+  // const options = [
+  //   { value: 'Tow Company', label: 'Tow Company' },
+  //   { value: 'L.E/Govt Agency', label: 'L.E/Govt Agency' },
+  //   { value: 'Security Company', label: 'Security Company' },
+  //   { value: 'Company - Other', label: 'Company - Other' },
+  // ]
   const optionsJuridiction = [
     { value: '1', label: '1' },
     { value: '2', label: '2' }
   ]
   const Jurisdiction = [
-    { value: 'chocolate', label: 'Chocolate' },
+    { value: 'chocolate', label: 'ChosetCompanyDropdownDatacolate' },
     { value: 'strawberry', label: 'Strawberry' },
     { value: 'vanilla', label: 'Vanilla' }
   ]
+  const redirect = (to, query) => {
+    navigate.push(to, query);
+  }
   useEffect(() => {
-
     try {
-      getJurisdictionAll('', async (res) => {
+      getAllTowCompany('', async (res) => {
         if (res.sucess) {
-          setDropdownData(res.sucess.list);
+          setCompanyDropdownData(res.sucess.list);
 
         } else {
           console.log("errrrr")
@@ -113,7 +118,23 @@ function Company(props) {
     } catch (error) {
       console.log("error", error)
     }
+
+    try {
+      getJurisdictionAll('', async (res) => {
+        if (res.sucess) {
+          setDropdownData(res.sucess.list);
+        } else {
+          console.log("errrrr")
+        }
+      });
+    } catch (error) {
+      console.log("error", error)
+    }
   }, [setItem])
+
+  const renderCompanyList = (selectedArray) => {
+    return (selectedArray?.map(data => ({ label: data?.corporateName, value: data?.id })))
+  }
 
   const renderList = (selectedArray) => {
     return (selectedArray?.map(data => ({ label: data?.jurisdiction, value: data?.id })))
@@ -134,6 +155,35 @@ function Company(props) {
     return [...new Map(arr.map(item => [item[key], item])).values()]
   }
   const toggleUpdate = (item) => {
+
+    //End Younis Update
+    try {
+      getAssignCompany(item.id, async (res) => {
+        if (res.sucess) {
+          let data = res.sucess.list;
+          console.log("result", data);
+          setCompaniesDataFilter(data)
+          setCompaniesData(res.sucess.list);
+          var myArray = [];
+          for (let i = 0; i < data.length; i++) {
+            myArray.push({
+              jurisdiction: data[i].assigned.corporateName,
+              id: data[i].assigned.id,
+            });
+          };
+          const arr1 = getUniqueListBy(myArray, 'id')
+          setCompanyDropdownDataUpdate(myArray)
+          setSelectedCompanies(renderList(myArray).map((i) => i));
+
+        } else {
+          console.log("errrrr")
+        }
+      });
+    } catch (error) {
+      console.log("error", error)
+    }
+
+    //End Younis Update
 
     try {
       getCompanyJurisdictionAll(item.id, async (res) => {
@@ -164,7 +214,7 @@ function Company(props) {
     }
 
     setModalUpdate(!modalUpdate);
-
+    setCorporateAddress(item?.corporateAddress);
     setItemData(item);
     setCompanyType(item?.companyType);
   }
@@ -227,9 +277,6 @@ function Company(props) {
     return address;
   };
   const deleteFunc = () => {
-    // const obj = {
-    //   [userID]
-    // }
     try {
       DeleteCompany(userID, async (res) => {
 
@@ -265,26 +312,28 @@ function Company(props) {
       errorAlert(error);
     }
   }
-  useEffect(() => {
+
+  // useEffect(() => {
     // if(data?.address){
     //   textOnchange(data?.address,'address');
     // }
-    const func = async () => {
-      const geocodeObj =
-        address &&
-        address?.value &&
-        (await geocodeByPlaceId(address.value?.place_id));
-      const addressObject =
-        geocodeObj && getAddressObject(geocodeObj[0]?.address_components);
-      // let makeString = `${addressObject?.address == undefined ? '' : addressObject?.address} ${addressObject?.city == undefined ? '' : addressObj?.city} ${addressObject?.province == undefined ? '' : addressObject?.province} ${addressObject?.country == undefined ? '' : addressObject?.country}`
-      // alert(address?.label);
+    // const func = async () => {
+    //   const geocodeObj =
+    //     address &&
+    //     address?.value &&
+    //     (await geocodeByPlaceId(address.value?.place_id));
+    //   const addressObject =
+    //     geocodeObj && getAddressObject(geocodeObj[0]?.address_components);
+    //   // let makeString = `${addressObject?.address == undefined ? '' : addressObject?.address} ${addressObject?.city == undefined ? '' : addressObj?.city} ${addressObject?.province == undefined ? '' : addressObject?.province} ${addressObject?.country == undefined ? '' : addressObject?.country}`
+    //   // alert(address?.label);
 
-      if (address?.label) {
-        textOnchange(address?.label, 'corporateAddress');
-      }
-    };
-    func();
-  }, [address]);
+    //   if (address?.label) {
+    //     textOnchange(address?.label, 'corporateAddress');
+    //   }
+    // };
+    // func();
+  // }, [address]);
+
   const disableFunc = (item) => {
     // const obj = {
     //   [userID]
@@ -328,6 +377,7 @@ function Company(props) {
     setIsLoader(true)
     try {
       getAllCompany('', async (res) => {
+        console.warn("res.sucess.younis", res);
         if (res.sucess) {
           console.log("res.sucess.asdsa", res.sucess.list)
           setData(res.sucess.list);
@@ -382,15 +432,13 @@ function Company(props) {
         setEmptyError(false)
       }, 3000);
     }
-
   };
   const OnSubmit = () => {
     console.log("Asd", userDetail)
 
     const obj = {
-
       corporateName: userDetail?.corporateName === undefined ? setItem?.corporateName : userDetail?.corporateName,
-      corporateAddress: userDetail?.corporateAddress === undefined ? setItem?.corporateAddress : userDetail?.corporateAddress,
+      corporateAddress: corporateAddress,
       companyName: userDetail?.companyName === undefined ? setItem?.companyName : userDetail?.companyName,
       companyAddress: userDetail?.companyAddress === undefined ? setItem?.companyAddress : userDetail?.companyAddress,
       companyType: userDetail?.companyType === undefined ? setItem?.companyType : userDetail?.companyType,
@@ -434,11 +482,8 @@ function Company(props) {
                 description: ""
               });
             };
-
             try {
               addCompanyJurisdiction(setItem.id, myArray, async (res) => {
-
-                console.log("aaaaa", res)
                 if (res.sucess.statusCode == 'success') {
                   successAlert("Jurisdiction updated successfully")
                 } else {
@@ -449,6 +494,26 @@ function Company(props) {
               console.log("error", error)
             }
 
+          }
+          if (companiesData && companiesData?.length > 0) {
+            var assignedCompArray = [];
+            for (let i = 0; i < companiesData.length; i++) {
+              assignedCompArray.push({
+                assigned: { id: companiesData[i].value },
+                company: { id: res.sucess.generatedIds[0] },
+                description: companiesData[i].value + " assinged to " + res.sucess.generatedIds[0]
+              });
+            };
+            try {
+              assignCompany(setItem.id,assignedCompArray, async (res) => {
+                if (res.sucess.statusCode == 'success')
+                  successAlert(res.sucess.messages[0].message)
+                else
+                  errorAlert('Companies not updated')
+              });
+            } catch (error) {
+              successAlert(error)
+            }
           }
           toggleUpdate()
           successAlert(res.sucess.messages[0].message)
@@ -473,16 +538,8 @@ function Company(props) {
       return
     }
     const obj = {
-      // companyName: userDetail?.companyName === undefined ? '' : userDetail?.companyName,
-      // companyType: userDetail.companyType === undefined ? '' : userDetail?.companyType,
-      // companyAddress: userDetail.companyAddress === undefined ? '' : userDetail?.companyAddress,
-      // additionalInformation: userDetail.additionalInformation === undefined ? '' : userDetail.additionalInformation,
-      // companyHolderName: userDetail.companyHolderName === undefined ? '' : userDetail.companyHolderName,
-      // companyHolderContact: userDetail.companyHolderContact === undefined ? '' : userDetail.companyHolderContact,
-      // companyHolderAddress: userDetail.companyHolderAddress === undefined ? '' : userDetail.companyHolderAddress,
-
       corporateName: userDetail?.corporateName === undefined ? setItem?.corporateName : userDetail?.corporateName,
-      corporateAddress: userDetail?.corporateAddress === undefined ? setItem?.corporateAddress : userDetail?.corporateAddress,
+      corporateAddress: corporateAddress,
       companyName: userDetail?.companyName === undefined ? setItem?.companyName : userDetail?.companyName,
       companyAddress: userDetail?.companyAddress === undefined ? setItem?.companyAddress : userDetail?.companyAddress,
       companyType: userDetail?.companyType === undefined ? setItem?.companyType : userDetail?.companyType,
@@ -519,8 +576,8 @@ function Company(props) {
     let comPId;
     try {
       AddCompany([obj], async (res) => {
-        console.log("asd", res);
         if (res.sucess) {
+          comPId = res.sucess.generatedIds[0];
           if (jurisdictionData && jurisdictionData.length > 0) {
             comPId = res.sucess.generatedIds[0];
             var myArray = [];
@@ -542,6 +599,28 @@ function Company(props) {
               });
             } catch (error) {
               console.log("error", error)
+            }
+          }
+          var assignedCompArray = [];
+          for (let i = 0; companiesData && i < companiesData?.length; i++) {
+            assignedCompArray.push({
+              assigned: { id: companiesData[i].value },
+              company: { id: res.sucess.generatedIds[0] },
+              description: companiesData[i].value + " assinged to " + res.sucess.generatedIds[0]
+            });
+          };
+
+          if(assignedCompArray!=null && assignedCompArray.length>0){
+            try {
+              assignedCompany(assignedCompArray, async (res) => {
+                console.warn("response: ",res);
+                if (res.sucess.statusCode == 'success')
+                  successAlert("Companies assigned successfully")
+                else
+                  errorAlert('Companies not added')
+              });
+            } catch (error) {
+              successAlert(error)
             }
           }
           toggleAdd()
@@ -732,22 +811,15 @@ function Company(props) {
                         return (
                           <tr style={{ borderWidth: 1, borderColor: 'black' }}>
 
-                            <Link
-
-                              to={{
-                                pathname: "/admin/company-detail",
-                                state: item // your data array of objects
-                              }}
-                            // target='_blank'
-                            > <td style={{ textDecoration: 'underline black', cursor: "pointer" }}
+                            <td onClick={() => { redirect("/admin/company-detail", item) }} style={{ textDecoration: 'underline black', cursor: "pointer" }}
                               // onClick={() => { toggle(item) }} 
-                              className="text-sm">{item?.id}</td></Link>
-                            <td className="text-sm">{item?.companyName}</td>
-                            <td className="text-sm">{item?.corporateName}</td>
-                            <td className="text-sm">
+                              className="text-sm">{item?.id}</td>
+                            <td onClick={() => { redirect("/admin/company-detail", item) }} className="text-sm">{item?.companyName}</td>
+                            <td onClick={() => { redirect("/admin/company-detail", item) }} className="text-sm">{item?.corporateName}</td>
+                            <td onClick={() => { redirect("/admin/company-detail", item) }} className="text-sm">
                               {item?.companyType}
                             </td>
-                            <td className="text-sm">
+                            <td onClick={() => { redirect("/admin/company-detail", item) }} className="text-sm">
                               {item?.corporateAddress}
 
                             </td>
@@ -863,132 +935,129 @@ function Company(props) {
         </Row>
         <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={modal} toggle={() => { toggle() }} className={props.className}>
 
-          <ModalHeader>Company Id: {setItem?.id}</ModalHeader>
+          <ModalHeader>Company ID: {setItem?.id}</ModalHeader>
           <ModalBody>
             <div style={{ display: "flex", flexDirection: "column" }}>
               {setItem?.corporateName ? (
                 <div className="listUi">
-                  <span className="text-sm">Legal Name</span>
+                  <span className="text-sm listUiItem">Legal Name</span>
                   <span className="text-sm">{setItem?.corporateName}</span>
                 </div>
               ) : null}
               {setItem?.corporateAddress ? (
                 <div className="listUi">
-                  <span className="text-sm">Corporate Address</span>
+                  <span className="text-sm listUiItem">Corporate Address</span>
                   <span className="text-sm">{setItem?.corporateAddress}</span>
                 </div>
               ) : null}
               {setItem?.companyName ? (
                 <div className="listUi">
-                  <span className="text-sm">Operating Name</span>
+                  <span className="text-sm listUiItem">Operating Name</span>
                   <span className="text-sm">{setItem?.companyName}</span>
                 </div>
               ) : null}
               {setItem?.companyAddress ? (
                 <div className="listUi">
-                  <span className="text-sm">Company Address</span>
+                  <span className="text-sm listUiItem">Company Address</span>
                   <span className="text-sm">{setItem?.companyAddress}</span>
                 </div>
               ) : null}
               {setItem?.companyType ? (
                 <div className="listUi">
-                  <span className="text-sm">Company Type</span>
+                  <span className="text-sm listUiItem">Company Type</span>
                   <span className="text-sm">{setItem?.companyType}</span>
                 </div>
               ) : null}
               {setItem?.additionalInformation ? (
                 <div className="listUi">
-                  <span className="text-sm">Additional Information</span>
+                  <span className="text-sm listUiItem">Additional Information</span>
                   <span className="text-sm">{setItem?.additionalInformation}</span>
                 </div>
               ) : null}
               {setItem?.primarybadgeId ? (
                 <div className="listUi">
-                  <span className="text-sm">Badge/ID</span>
+                  <span className="text-sm listUiItem">Badge/ID</span>
                   <span className="text-sm">{setItem?.primarybadgeId}</span>
                 </div>
               ) : null}
               {setItem?.primaryName ? (
                 <div className="listUi">
-                  <span className="text-sm">Name</span>
+                  <span className="text-sm listUiItem">Name</span>
                   <span className="text-sm">{setItem?.primaryName}</span>
                 </div>
               ) : null}
               {setItem?.primaryContact ? (
                 <div className="listUi">
-                  <span className="text-sm">Contact</span>
+                  <span className="text-sm listUiItem">Contact</span>
                   <span className="text-sm">{setItem?.primaryContact}</span>
                 </div>
               ) : null}
               {setItem?.primaryRankPositionTitle ? (
                 <div className="listUi">
-                  <span className="text-sm">Rank Position/Title</span>
+                  <span className="text-sm listUiItem">Rank Position/Title</span>
                   <span className="text-sm">{setItem?.primaryRankPositionTitle}</span>
                 </div>
               ) : null}
               {setItem?.primaryDepartment ? (
                 <div className="listUi">
-                  <span className="text-sm">Department</span>
+                  <span className="text-sm listUiItem">Department</span>
                   <span className="text-sm">{setItem?.primaryDepartment}</span>
                 </div>
               ) : null}
               {setItem?.primaryEmail ? (
                 <div className="listUi">
-                  <span className="text-sm">Email</span>
+                  <span className="text-sm listUiItem">Email</span>
                   <span className="text-sm">{setItem?.primaryEmail}</span>
                 </div>
               ) : null}
               {setItem?.primaryAddress ? (
                 <div className="listUi">
-                  <span className="text-sm">Address</span>
+                  <span className="text-sm listUiItem">Address</span>
                   <span className="text-sm">{setItem?.primaryAddress}</span>
                 </div>
               ) : null}
               {setItem?.secondarybadgeId ? (
                 <div className="listUi">
-                  <span className="text-sm">Badge/ID</span>
+                  <span className="text-sm listUiItem">Badge/ID</span>
                   <span className="text-sm">{setItem?.secondarybadgeId}</span>
                 </div>
               ) : null}
               {setItem?.secondaryName ? (
                 <div className="listUi">
-                  <span className="text-sm">Name</span>
+                  <span className="text-sm listUiItem">Name</span>
                   <span className="text-sm">{setItem?.secondaryName}</span>
                 </div>
               ) : null}
               {setItem?.secondaryContact ? (
                 <div className="listUi">
-                  <span className="text-sm">Contact</span>
+                  <span className="text-sm listUiItem">Contact</span>
                   <span className="text-sm">{setItem?.secondaryContact}</span>
                 </div>
               ) : null}
               {setItem?.secondaryRankPositionTitle ? (
                 <div className="listUi">
-                  <span className="text-sm">Rank Position/Title</span>
+                  <span className="text-sm listUiItem">Rank Position/Title</span>
                   <span className="text-sm">{setItem?.secondaryRankPositionTitle}</span>
                 </div>
               ) : null}
               {setItem?.secondaryDepartment ? (
                 <div className="listUi">
-                  <span className="text-sm">Department</span>
+                  <span className="text-sm listUiItem">Department</span>
                   <span className="text-sm">{setItem?.secondaryDepartment}</span>
                 </div>
               ) : null}
               {setItem?.secondaryEmail ? (
                 <div className="listUi">
-                  <span className="text-sm">Email</span>
+                  <span className="text-sm listUiItem">Email</span>
                   <span className="text-sm">{setItem?.secondaryEmail}</span>
                 </div>
               ) : null}
               {setItem?.secondaryAddress ? (
                 <div className="listUi">
-                  <span className="text-sm">Address</span>
+                  <span className="text-sm listUiItem">Address</span>
                   <span className="text-sm">{setItem?.secondaryAddress}</span>
                 </div>
               ) : null}
-
-
-
             </div>
           </ModalBody>
           <ModalFooter>
@@ -998,7 +1067,6 @@ function Company(props) {
 
 
         <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={modalUpdate} toggleUpdate={() => { toggleUpdate() }} className={props.className}>
-
           <ModalBody>
             {sucessUpdate && (
               <Alert color="success">
@@ -1097,6 +1165,32 @@ function Company(props) {
                             </FormGroup>
                           </Col>
                         </Row>
+                        {cType == 'L.E/Govt Agency' && (
+                          <Row>
+                            <Col lg="12">
+                              <FormGroup>
+                                <Label for="exampleSelect">Companies</Label>
+                                <Select
+                                  value={selectedCompanies}
+                                  onChange={(val) => {
+                                    setCompaniesData(val)
+                                    setSelectedCompanies(val)
+                                    console.log("valvalval", val);
+                                  }}
+
+                                  closeMenuOnSelect={false}
+                                  allowSelectAll={true}
+                                  defaultValue={renderList(companyDropdownData)}
+                                  // placeholder={'kk'}
+                                  // value={renderList(dropdownDataUpdate)}
+                                  // defaultMenuIsOpen
+                                  isMulti
+                                  options={renderCompanyList(companyDropdownData)}
+                                />
+                              </FormGroup>
+                            </Col>
+                          </Row>
+                        )}
                         {cType == 'Tow Company' && (
                           <Row>
                             <Col lg="12">
@@ -1153,7 +1247,17 @@ function Company(props) {
                                 Address
                               </Label>
 
-                              <GooglePlacesAutocomplete
+                              <AddressInput
+                                className="form-control-alternative form-control"
+                                id="companyAddress" 
+                                placeholder="Search Address"
+                                value={setItem?.corporateAddress ? setItem?.corporateAddress : ''}                          
+                                onChange={(text) => {
+                                  setCorporateAddress(text);
+                                }}
+                                />
+
+                              {/* <GooglePlacesAutocomplete
                                 className="sp-class"
                                 apiKey="AIzaSyA-dt2M9mfh_6qyZ4yBguLU1zau5UiAetU"
                                 selectProps={{
@@ -1182,7 +1286,7 @@ function Company(props) {
                                     // settowJobRequestLocation(JSON.stringify(val.label))
                                   }
                                 }}
-                              />
+                              /> */}
                             </FormGroup>
                           </Col>
                         </Row>
@@ -1563,8 +1667,6 @@ function Company(props) {
                                     onChange={text => textOnchange(text, 'primaryContact')}
                                   />
                                 </FormGroup>
-
-
                               </Col>
 
                             </Row>
@@ -1800,6 +1902,32 @@ function Company(props) {
                             </FormGroup>
                           </Col>
                         </Row>
+                        {cType == 'L.E/Govt Agency' && (
+                          <Row>
+                            <Col lg="12">
+                              <FormGroup>
+                                <Label for="exampleSelect">Companies</Label>
+                                <Select
+                                  value={selectedCompanies}
+                                  onChange={(val) => {
+                                    setCompaniesData(val)
+                                    setSelectedCompanies(val)
+                                    console.log("valvalval", val);
+                                  }}
+
+                                  closeMenuOnSelect={false}
+                                  allowSelectAll={true}
+                                  // defaultValue={renderList(dropdownDataUpdate)}
+                                  // placeholder={'kk'}
+                                  // value={renderList(dropdownDataUpdate)}
+                                  // defaultMenuIsOpen
+                                  isMulti
+                                  options={renderCompanyList(companyDropdownData)}
+                                />
+                              </FormGroup>
+                            </Col>
+                          </Row>
+                        )}
                         {cType == 'Tow Company' && (
                           <Row>
                             <Col lg="12">
@@ -1849,7 +1977,14 @@ function Company(props) {
                                 Address
                               </Label>
 
-                              <GooglePlacesAutocomplete
+                              <AddressInput 
+                                className="form-control-alternative form-control"
+                                id="companyAddress1" 
+                                placeholder="Search Address"
+                                value={setItem?.corporateAddress ? setItem?.corporateAddress : ''}                          
+                                onChange={(text) => setCorporateAddress(text)} 
+                              />
+                              {/* <GooglePlacesAutocomplete
                                 className="sp-class"
                                 apiKey="AIzaSyA-dt2M9mfh_6qyZ4yBguLU1zau5UiAetU"
                                 selectProps={{
@@ -1878,7 +2013,7 @@ function Company(props) {
                                     // settowJobRequestLocation(JSON.stringify(val.label))
                                   }
                                 }}
-                              />
+                              /> */}
                             </FormGroup>
                           </Col>
                         </Row>

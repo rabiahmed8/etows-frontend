@@ -1,3 +1,26 @@
+.ForwardRef-searchContainer-7 {
+    width: 100% !important;
+    margin: 0 5px !important;
+}
+.pac-container{
+    z-index: 10000;
+}
+.MuiPaper-root{
+    box-shadow:0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02) !important;
+    transition: box-shadow 0.15s ease !important;
+}
+
+
+.MuiInputBase-root{
+    color: #8898aa !important;
+    font-weight: 400 !important;
+}
+
+.MuiInputBase-input{
+    font-size: 0.875rem !important;
+    height: 1.5em !important;
+}
+
 .bg-white {
     background-color: #000 !important;
 }
@@ -98,6 +121,7 @@
         padding-right: 1.5rem !important;
     }
 } */
+
 .navbar-collapse:before {
     content: "";
     display: block;
@@ -245,9 +269,13 @@
 .listUi {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    border: 1px dotted black;
-    padding: 1px 5px 0px 5px;
+    /* justify-content: space-between; */
+    border: 1px solid black;
+    padding: 6px 3px 7px;
+    margin-right: 25px;
+}
+.listUiItem {
+    width: 20%;
 }
 
 .pro-sidebar .pro-menu .pro-menu-item.pro-sub-menu .pro-inner-list-item {
@@ -306,7 +334,7 @@
 
 .nav--links {
     cursor: pointer;
-    padding: 20px 10px 20px 10px !important;
+    padding: 10px 10px !important;
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -350,6 +378,9 @@
 
 .additional {
     height: 360px !important;
+}
+.additionalLE {
+    height: 405px !important;
 }
 
 .addSome {
@@ -513,11 +544,105 @@
 .parent {
     display: flex;
     flex-wrap: wrap;
-  }
-  
-  .child {
+}
+
+.child {
     flex: 1 0 21%; /* explanation below */
     margin: 5px;
     height: 100px;
     background-color: blue;
-  }
+}
+#overlay {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+    cursor: pointer;
+}
+
+#text {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    font-size: 30px;
+    color: black;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+}
+.opacityset {
+    opacity: 0.3;
+}
+.table-responsive {
+    height: 100vh !important;
+}
+.map-main {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -10px !important;
+    margin-left: 10px !important;
+    margin-top: 8px !important;
+}
+.map-height {
+    height: 600px !important;
+}
+.zeroPadding {
+    padding: 0px !important;
+}
+.badge1 {
+    text-align: center;
+    display: flex;
+    align-self: center;
+    margin-left: 2px;
+    margin-top: 1px;
+}
+.badge2 .suffix-wrapper {
+    background: red;
+    border-radius: 50%;
+    width: 23px;
+    height: 23px;
+
+}
+.badge2 .pro-icon-wrapper{
+    background-color: red !important;
+}
+.text-sm {
+    /* vertical-align: top !important; */
+    width: 20rem !important;
+    white-space: pre-line !important;
+}
+.card .table td, .card .table th {
+    padding-left: 1rem !important;
+    padding-right: 0rem !important;
+}
+.ex-width {
+    width: unset !important;
+}
+.width-160 {
+    width: 160px !important;
+}
+.table.align-items-center td, .table.align-items-center th {
+    vertical-align: unset !important;
+}
+.table-flush tbody tr td, .table-flush tbody tr th {
+    cursor: pointer !important;
+}
+.pac-container {
+    width: 476px !important
+}
+.widths {
+    width: 100% !important;
+}
+.modal-title {
+    width: 100% !important;
+}
+.eq-style {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+}
+.eq-field {
+    margin-left: 15px;
+}
+.md-header {
+    padding: 1.25rem 2rem;
+}

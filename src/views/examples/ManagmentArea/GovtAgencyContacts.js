@@ -33,7 +33,7 @@ import {
 } from "reactstrap";
 import { Document, Page } from 'react-pdf';
 import Select from 'react-select';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import * as moment from 'moment'
 // core components
 import Header from "components/Headers/Header.js";
@@ -48,6 +48,7 @@ import PropTypes from "prop-types";
 import DateTimePicker from 'react-datetime-picker';
 import UploadModal from "component/UploadModal";
 import { AiFillPlusCircle, AiFillMinusCircle } from 'react-icons/ai';
+import AddressInput from '../AddressInput';
 const styles = (theme) => ({
   button: {
     margin: theme.spacing.unit
@@ -63,7 +64,7 @@ function GovtAgencyContacts(props) {
   const [ViewImagemodal, setViewImageModal] = useState(false);
   const [setItem, setItemData] = useState('');
   const [modalUpdate, setModalUpdate] = useState(false);
-  const [sampleData, setsampleData] = useState('https://api.etows.app:9000/file/files/9/Police/users-list%20(1).xlsx');
+  const [sampleData, setsampleData] = useState('process.env.REACT_APP_API_URL/file/files/9/Police/users-list%20(1).xlsx');
   const [statusData, setStatusData] = useState([]);
   const [imageLink, setImageLink] = useState('');
   const [typeAgency, setAgencyType] = useState('')
@@ -85,6 +86,7 @@ function GovtAgencyContacts(props) {
   const [ShowSec, setShowSec] = useState(false)
   const [deleteModal, setDeletToggle] = useState(false);
   const [userID, setUserId] = useState('');
+  const navigate = useHistory()
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
   }
@@ -99,13 +101,17 @@ function GovtAgencyContacts(props) {
       console.log("setItemData", hoistData);
     }
     else {
-      setModalUpdate(!modalUpdate);
       setItemData('');
+      hoistData = {};
+      setModalUpdate(!modalUpdate);
     }
   }
   const Deletetoggle = (item) => {
     setUserId(item?.id)
     setDeletToggle(!deleteModal)
+  }
+  const redirect = (to, query) => {
+    navigate.push(to, query);
   }
   const deleteAPI = () => {
     try {
@@ -162,16 +168,16 @@ function GovtAgencyContacts(props) {
       id: hoistData?.id ? hoistData?.id : 0,
       agencyName: agencyName === undefined || agencyName === '' ? hoistData?.agencyName : agencyName,
       agencyType: typeAgency === undefined || typeAgency === '' ? hoistData?.agencyType : typeAgency,
-      primaryName: name1 === undefined || name1 === '' ? hoistData?.name1 : name1,
-      primaryPosition: position1 === undefined || position1 === '' ? hoistData?.position1 : position1,
-      primaryPhone: hoistData?.phone1 ? hoistData?.phone1 : phone1,
-      primaryEmail: email1 === undefined || email1 === '' ? hoistData?.email1 : email1,
-      primaryAddress: address1 === undefined || address1 === '' ? hoistData?.address1 : address1,
-      secondaryName: name2 === undefined || name2 === '' ? hoistData?.name2 : name2,
-      secondaryPosition: position2 === undefined || position2 === '' ? hoistData?.position2 : position2,
-      secondaryPhone: phone2 === undefined || phone2 === '' ? hoistData?.phone2 : phone2,
-      secondaryEmail: email2 === undefined || email2 === '' ? hoistData?.email2 : email2,
-      secondaryAddress: address2 === undefined || address2 === '' ? hoistData?.address2 : address2,
+      primaryName: name1 === undefined || name1 === '' ? hoistData?.primaryName : name1,
+      primaryPosition: position1 === undefined || position1 === '' ? hoistData?.primaryPosition : position1,
+      primaryPhone: hoistData?.phone1 ? hoistData?.primaryPhone : phone1,
+      primaryEmail: email1 === undefined || email1 === '' ? hoistData?.primaryEmail : email1,
+      primaryAddress: address1 === undefined || address1 === '' ? hoistData?.primaryAddress : address1,
+      secondaryName: name2 === undefined || name2 === '' ? hoistData?.secondaryName : name2,
+      secondaryPosition: position2 === undefined || position2 === '' ? hoistData?.secondaryPosition : position2,
+      secondaryPhone: phone2 === undefined || phone2 === '' ? hoistData?.secondaryPhone : phone2,
+      secondaryEmail: email2 === undefined || email2 === '' ? hoistData?.secondaryEmail : email2,
+      secondaryAddress: address2 === undefined || address2 === '' ? hoistData?.secondaryAddress : address2,
       companyId: loggedData.companyId ? loggedData.companyId : null,
     }
     console.log("ooobb", obj);
@@ -213,9 +219,21 @@ function GovtAgencyContacts(props) {
   const ChangeStatusJob = (status) => {
     console.log("fff", data);
     console.log("fff", status);
-    if (status == 'Police') {
-      let result = data.filter(el => el.agencyType === status);
-      setData(result)
+    if (status != 'All') {
+      try {
+        singleAllAgency('', async (res) => {
+          if (res.sucess) {
+            let result = res.sucess.list.filter(el => (el.agencyType !== 'Police' && el.agencyType !== 'By-Law' && status=='Other') || 
+              'Other'!==status && el.agencyType==status);
+            setData(result)
+          } else {
+            console.log("errrrr")
+          }
+        });
+      } catch (error) {
+        console.log("error", error)
+      }
+
     }
     else {
       try {
@@ -232,6 +250,7 @@ function GovtAgencyContacts(props) {
       }
     }
     setStatusData(status)
+
   }
   return (
     <>
@@ -271,13 +290,23 @@ function GovtAgencyContacts(props) {
                       </DropdownItem>
                       <DropdownItem
 
-                        onClick={() => { ChangeStatusJob('By Law') }}
+                        onClick={() => { ChangeStatusJob('By-Law') }}
                       >
                         {config.byLaw}
                       </DropdownItem>
+                      <DropdownItem
+
+                        onClick={() => { ChangeStatusJob('Other') }}
+                      >
+                        {config.others}
+                      </DropdownItem>
                     </DropdownMenu>
                   </UncontrolledDropdown>
-                  <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
+                  <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => {
+                    setItemData('');
+                    hoistData = {};
+                    toggleUpdate()
+                  }} className="my-4 p-btm" color="primary" type="button">
                     Add New
                   </Button>
                   {/* <Link
@@ -313,19 +342,12 @@ function GovtAgencyContacts(props) {
                       {data.map((item) => {
                         return (
                           <tr>
-                            <Link
-
-                              to={{
-                                pathname: "/admin/agency-detail",
-                                state: item // your data array of objects
-                              }}
-                            // target='_blank'
-                            > <td style={{ textDecoration: 'underline black', cursor: "pointer" }}
+                            <td onClick={() => { redirect("/admin/agency-detail", item) }} style={{ textDecoration: 'underline black', cursor: "pointer" }}
                               // onClick={() => { toggle(item) }} 
-                              className="text-sm">{item?.id}</td></Link>
+                              className="text-sm ex-width">{item?.id}</td>
                             {/* <td className="text-sm">{item?.id}</td> */}
-                            <td className="text-sm">{item?.agencyName}</td>
-                            <td className="text-sm">
+                            <td onClick={() => { redirect("/admin/agency-detail", item) }} className="text-sm ex-width">{item?.agencyName}</td>
+                            <td onClick={() => { redirect("/admin/agency-detail", item) }} className="text-sm ex-width">
                               {item?.agencyType}
                             </td>
                             {/* <td className="text-sm">
@@ -460,7 +482,7 @@ function GovtAgencyContacts(props) {
               tableClassName="table table-striped table-hover"
             /> */}
             <h3>{imageLink ? imageLink : 'Please Upload image'}</h3>
-            <Document file="https://api.etows.app:9000/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
+            <Document file="process.env.REACT_APP_API_URL/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
               <Page pageNumber={pageNumber} />
             </Document>
             <p>
@@ -490,7 +512,7 @@ function GovtAgencyContacts(props) {
                   <CardHeader className="bg-white border-0">
                     <Row className="align-items-center">
                       <Col xs="8">
-                        <h3 className="mb-0">{hoistData ? config.updateUser : "Add New"}</h3>
+                        <h3 className="mb-0">{Object.keys(hoistData).length === 0 ? "Add New" : 'Update Agency/Company Information'}</h3>
                       </Col>
 
                     </Row>
@@ -543,7 +565,7 @@ function GovtAgencyContacts(props) {
                                 valueKey='countryCode'
                                 options={[
                                   { value: 'police', label: 'Police' },
-                                  { value: 'bylaw', label: 'By Law' },
+                                  { value: 'bylaw', label: 'By-Law' },
                                   { value: 'other', label: 'Other' }
                                 ]}
                               />
@@ -650,7 +672,7 @@ function GovtAgencyContacts(props) {
                               />
                             </FormGroup>
                           </Col>
-                          <Col lg="4">
+                          <Col lg="8">
                             <FormGroup>
                               <label
                                 className="form-control-label"
@@ -658,13 +680,22 @@ function GovtAgencyContacts(props) {
                               >
                                 Address
                               </label>
-                              <Input
+                              {/* <Input
                                 className="form-control-alternative"
                                 defaultValue={hoistData?.primaryAddress}
                                 id="input-first-name"
                                 placeholder="Address"
                                 type="text"
                                 onChange={text => setAddress1(text.target.value)}
+                              /> */}
+                              <AddressInput
+                               className="form-control-alternative form-control"
+                               id="priAddress" 
+                               placeholder="Search Address"
+                               value={hoistData?.primaryAddress ? hoistData?.primaryAddress : ''}                         
+                               onChange={(text) => {
+                                setAddress1(text);
+                               }}
                               />
                             </FormGroup>
                           </Col>
@@ -755,7 +786,7 @@ function GovtAgencyContacts(props) {
                                   />
                                 </FormGroup>
                               </Col>
-                              <Col lg="4">
+                              <Col lg="8">
                                 <FormGroup>
                                   <label
                                     className="form-control-label"
@@ -763,13 +794,20 @@ function GovtAgencyContacts(props) {
                                   >
                                     Address
                                   </label>
-                                  <Input
+                                  {/* <Input
                                     className="form-control-alternative"
                                     defaultValue={hoistData?.secondaryAddress}
                                     id="input-first-name"
                                     placeholder="Address"
                                     type="text"
                                     onChange={text => setAddress2(text.target.value)}
+                                  /> */}
+                                  <AddressInput
+                                    className="form-control-alternative form-control"
+                                    id="secAddress"
+                                    placeholder="Search Address"
+                                    value={hoistData?.secondaryAddress ? hoistData?.secondaryAddress : ''}           
+                                    onChange={text => setAddress2(text)}
                                   />
                                 </FormGroup>
                               </Col>

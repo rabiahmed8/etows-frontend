@@ -33,8 +33,9 @@ import {
 } from "reactstrap";
 import { Document, Page } from 'react-pdf';
 import Select from 'react-select';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import * as moment from 'moment'
+// import { browserHistory } from 'react-router';
 // core components
 import Header from "components/Headers/Header.js";
 import { singleAllAgency, singleAllCorporate, singleDeleteAgency, singleDeleteCorporate, singleSaveAgency, singleSaveCorporate, singleUpdateAgency, singleUpdateCorporate } from "../../../APIstore/apiCalls";
@@ -44,10 +45,11 @@ import config from "config";
 import { successAlert, errorAlert, emailValidator } from '../../../Theme/utils';
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import PropTypes from "prop-types";
+import PropTypes, { object } from "prop-types";
 import DateTimePicker from 'react-datetime-picker';
 import UploadModal from "component/UploadModal";
 import { AiFillPlusCircle, AiFillMinusCircle } from 'react-icons/ai';
+import routes from "routes";
 const styles = (theme) => ({
   button: {
     margin: theme.spacing.unit
@@ -57,13 +59,35 @@ const styles = (theme) => ({
   }
 });
 var hoistData = {};
+// const descriptionList = [
+//   { value: "Light Tow / Duty boom style tow truck", label: "Light Tow / Duty boom style tow truck" },
+//   { value: "Light Tow / Duty tilt and load tow truck", label: "Light Tow / Duty tilt and load tow truck" },
+//   { value: "Medium Tow / Duty tilt and load tow truck", label: "Medium Tow / Duty tilt and load tow truck" },
+//   { value: "Medium Tow / Duty wreckers - fixed boom(25 tons)", label: "Medium Tow / Duty wreckers - fixed boom(25 tons)" },
+//   { value: "Medium Tow / Duty wreckers - fixed boom(20 tons)", label: "Medium Tow / Duty wreckers - fixed boom(20 tons)" },
+//   { value: "Medium Tow / Duty wreckers - fixed boom(15 tons)", label: "Medium Tow / Duty wreckers - fixed boom(15 tons)" },
+//   { value: "Medium Tow / Duty wreckers - fixed boom(10 tons)", label: "Medium Tow / Duty wreckers - fixed boom(10 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - rotator boom(75 tons or higher)", label: "Heavy Tow / Duty wreckers - rotator boom(75 tons or higher)" },
+//   { value: "Heavy Tow / Duty wreckers - rotator boom(70 tons)", label: "Heavy Tow / Duty wreckers - rotator boom(70 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - rotator boom(65 tons)", label: "Heavy Tow / Duty wreckers - rotator boom(65 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - rotator boom(60 tons)", label: "Heavy Tow / Duty wreckers - rotator boom(60 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - rotator boom(55 tons)", label: "Heavy Tow / Duty wreckers - rotator boom(55 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - rotator boom(50 tons)", label: "Heavy Tow / Duty wreckers - rotator boom(50 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - rotator boom(45 tons)", label: "Heavy Tow / Duty wreckers - rotator boom(45 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - rotator boom(40 tons)", label: "Heavy Tow / Duty wreckers - rotator boom(40 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - fixed boom(50 tons)", label: "Heavy Tow / Duty wreckers - fixed boom(50 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - fixed boom(45 tons)", label: "Heavy Tow / Duty wreckers - fixed boom(45 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - fixed boom(40 tons)", label: "Heavy Tow / Duty wreckers - fixed boom(40 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - fixed boom(35 tons)", label: "Heavy Tow / Duty wreckers - fixed boom(35 tons)" },
+//   { value: "Heavy Tow / Duty wreckers - fixed boom(30 tons)", label: "Heavy Tow / Duty wreckers - fixed boom(30 tons)" },
+// ]
 function Fleet(props) {
-  const { classes } = props;
+  const { classes, dataItem } = props;
   const [data, setData] = useState([]);
   const [ViewImagemodal, setViewImageModal] = useState(false);
   const [setItem, setItemData] = useState('');
   const [modalUpdate, setModalUpdate] = useState(false);
-  const [sampleData, setsampleData] = useState('https://api.etows.app:9000/file/files/9/Police/users-list%20(1).xlsx');
+  const [sampleData, setsampleData] = useState('process.env.REACT_APP_API_URL/file/files/9/Police/users-list%20(1).xlsx');
   const [statusData, setStatusData] = useState([]);
   const [imageLink, setImageLink] = useState('');
   const [typeTruck, setTypeTruck] = useState('')
@@ -71,6 +95,7 @@ function Fleet(props) {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [truckName, setTruckName] = useState('');
+  const [mileage, setMileage] = useState(0)
   const [description, setDescription] = useState('')
   const [position1, setPosition1] = useState('')
   const [phone1, setPhone1] = useState('')
@@ -85,6 +110,8 @@ function Fleet(props) {
   const [ShowSec, setShowSec] = useState(false)
   const [deleteModal, setDeletToggle] = useState(false);
   const [userID, setUserId] = useState('');
+  const [logdataVal, setLogData] = useState('');
+  const navigate = useHistory()
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
   }
@@ -96,9 +123,9 @@ function Fleet(props) {
       setModalUpdate(!modalUpdate);
       setItemData(item)
       hoistData = item;
-      console.log("setItemData", hoistData);
     }
     else {
+      hoistData = {};
       setModalUpdate(!modalUpdate);
       setItemData('');
     }
@@ -137,14 +164,23 @@ function Fleet(props) {
       errorAlert(error)
     }
   }
-  useEffect(() => {
-
+  const getLoggedData = async () => {
+    var logData;
+    const storedData = await localStorage.getItem('accessData')
+    if (storedData) {
+      const getdata = await localStorage.getItem('accessData')
+      logData = JSON.parse(getdata)
+    }
+    else {
+      const getdata = await localStorage.getItem('loggedData')
+      logData = JSON.parse(getdata)
+    }
+    setLogData(logData)
     try {
-      singleAllCorporate('', async (res) => {
-        console.log("adasdasd", res)
+      
+      singleAllCorporate(dataItem != null ? dataItem?.id : (logData!=null && logData!=undefined?logData.companyId:""), async (res) => {
         if (res.sucess) {
           setData(res.sucess.list);
-          console.log("res.sucess.list", res.sucess.list);
         } else {
           console.log("errrrr")
         }
@@ -152,6 +188,9 @@ function Fleet(props) {
     } catch (error) {
       console.log("error", error)
     }
+  }
+  useEffect(() => {
+    getLoggedData()
   }, [setItem])
   const OnSubmit = async () => {
     const getdata = await localStorage.getItem('loggedData')
@@ -163,6 +202,7 @@ function Fleet(props) {
       name: truckName === undefined || truckName === '' ? hoistData?.name : truckName,
       type: 'fleet',
       description: description === undefined || description === '' ? hoistData?.description : description,
+      longVal:mileage === undefined || mileage=== '' ? hoistData?.mileage: mileage,
       companyId: loggedData.companyId ? loggedData.companyId : null,
     }
     console.log("ooobb", obj);
@@ -224,9 +264,30 @@ function Fleet(props) {
     }
     setStatusData(status)
   }
+
+  const redirect = (to, query) => {
+    navigate.push(to, query);
+  }
   return (
     <>
-      <Header />
+
+      {logdataVal.role != 'POLICE_ADMIN' ? (
+        <div className="header pb-8 pt-5 pt-md-8" style={{ background: 'green' }}>
+          <Container fluid>
+            <div className="header-body">
+              {/* Card stats */}
+            </div>
+          </Container>
+        </div>
+      ) : (
+        <div className="header pb-8" style={{ background: 'green' }}>
+          <Container fluid>
+            <div className="header-body">
+              {/* Card stats */}
+            </div>
+          </Container>
+        </div>
+      )}
       {/* Page content */}
       <Container className="mt--7" fluid>
 
@@ -236,41 +297,11 @@ function Fleet(props) {
               <CardHeader className="border-0">
                 <Row>
                   <h3 className="mb-0">{config.fleet}</h3>
-                  <UncontrolledDropdown style={{ marginLeft: 10 }}>
-                    <DropdownToggle
-                      className="btn-icon-only text-light"
-
-                      role="button"
-                      size="sm"
-                      color=""
-                      onClick={e => e.preventDefault()}
-                    >
-                      <i className="fas fa-ellipsis-v" />
-                    </DropdownToggle>
-                    <DropdownMenu className="dropdown-menu-arrow" right>
-                      <DropdownItem
-
-                        onClick={() => { ChangeStatusJob('All') }}
-                      >
-                        All
-                      </DropdownItem>
-                      <DropdownItem
-
-                        onClick={() => { ChangeStatusJob('Police') }}
-                      >
-                        {config.police}
-                      </DropdownItem>
-                      <DropdownItem
-
-                        onClick={() => { ChangeStatusJob('By Law') }}
-                      >
-                        {config.byLaw}
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </UncontrolledDropdown>
-                  <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
-                    Add New
-                  </Button>
+                  {logdataVal.role != 'POLICE_ADMIN' && (
+                    <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
+                      Add New
+                    </Button>
+                  )}
                 </Row>
 
               </CardHeader>
@@ -280,11 +311,12 @@ function Fleet(props) {
                     <thead className="thead-light">
                       <tr>
 
-                        <th scope="col">ID</th>
-                        <th scope="col">Truck Name</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Description</th>
-                        <th scope="col" />
+                        <th scope="col" className="width-160">Truck ID</th>
+                        <th scope="col" className="width-160">Truck Name</th>
+                        {/* <th scope="col">Truck Type</th> */}
+                        <th scope="col" className="width-160">Mileage</th>
+                        <th scope="col" className="width-160">Description</th>
+                        <th scope="col" className="width-160" />
                       </tr>
                     </thead>
 
@@ -292,49 +324,45 @@ function Fleet(props) {
                       {data.map((item) => {
                         return (
                           <tr>
-                            <Link
-
-                              to={{
-                                pathname: "/admin/fleet-detail",
-                                state: item // your data array of objects
-                              }}
-                            // target='_blank'
-                            > <td style={{ textDecoration: 'underline black', cursor: "pointer" }}
+                            <td onClick={() => { redirect("/admin/fleet-detail", item) }} style={{ textDecoration: 'underline black', cursor: "pointer", whiteSpace: "pre-line" }}
                               // onClick={() => { toggle(item) }} 
-                              className="text-sm">{item?.id}</td></Link>
-                            <td className="text-sm">{item?.name}</td>
-                            <td className="text-sm">
-                              {item?.type}
-                            </td>
-                            <td className="text-sm">
+                              className="text-sm ex-width">{item?.id}</td>
+                            <td onClick={() => { redirect("/admin/fleet-detail", item) }} className="text-sm">{item?.name}</td>
+                            <td onClick={() => { redirect("/admin/fleet-detail", item) }} className="text-sm">{item?.longVal==null?0:item?.longVal}</td>
+                            {/* <td className="text-sm ex-width">
+                              {item?.type === 'fleet' ? 'Fleet' : item?.type}
+                            </td> */}
+                            <td onClick={() => { redirect("/admin/fleet-detail", item) }} className="text-sm">
                               {item?.description}
                             </td>
-                            <td className="text-right">
-                              <UncontrolledDropdown>
-                                <DropdownToggle
-                                  className="btn-icon-only text-light"
-                                  href="#pablo"
-                                  role="button"
-                                  size="sm"
-                                  color=""
-                                  onClick={e => e.preventDefault()}
-                                >
-                                  <i className="fas fa-ellipsis-v" />
-                                </DropdownToggle>
-                                <DropdownMenu className="dropdown-menu-arrow" right>
+                            <td className="">
+                              {logdataVal.role != 'POLICE_ADMIN' && (
+                                <UncontrolledDropdown>
+                                  <DropdownToggle
+                                    className="btn-icon-only text-light"
+                                    href="#pablo"
+                                    role="button"
+                                    size="sm"
+                                    color=""
+                                    onClick={e => e.preventDefault()}
+                                  >
+                                    <i className="fas fa-ellipsis-v" />
+                                  </DropdownToggle>
+                                  <DropdownMenu className="dropdown-menu-arrow" right>
 
-                                  <DropdownItem
-                                    onClick={() => { toggleUpdate(item) }}
-                                  >
-                                    Update
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => { Deletetoggle(item) }}
-                                  >
-                                    Delete
-                                  </DropdownItem>
-                                </DropdownMenu>
-                              </UncontrolledDropdown>
+                                    <DropdownItem
+                                      onClick={() => { toggleUpdate(item) }}
+                                    >
+                                      Update
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => { Deletetoggle(item) }}
+                                    >
+                                      Delete
+                                    </DropdownItem>
+                                  </DropdownMenu>
+                                </UncontrolledDropdown>
+                              )}
                             </td>
                           </tr>
                         )
@@ -412,7 +440,7 @@ function Fleet(props) {
               tableClassName="table table-striped table-hover"
             /> */}
             <h3>{imageLink ? imageLink : 'Please Upload image'}</h3>
-            <Document file="https://api.etows.app:9000/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
+            <Document file="process.env.REACT_APP_API_URL/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
               <Page pageNumber={pageNumber} />
             </Document>
             <p>
@@ -436,13 +464,12 @@ function Fleet(props) {
         <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={modalUpdate} toggleUpdate={() => { toggleUpdate() }} className={props.className}>
           <ModalBody>
             <Row>
-
               <Col className="order-xl-1" xl="12">
                 <Card className="bg-secondary shadow">
                   <CardHeader className="bg-white border-0">
                     <Row className="align-items-center">
                       <Col xs="8">
-                        <h3 className="mb-0">{hoistData ? config.updateUser : "Add New"}</h3>
+                        <h3 className="mb-0">{Object.entries(hoistData).length > 0 ? "Update Vehicle" : "Add New"}</h3>
                       </Col>
 
                     </Row>
@@ -488,6 +515,25 @@ function Fleet(props) {
                                 placeholder="Description"
                                 type="text"
                                 onChange={text => setDescription(text.target.value)}
+                              />
+                            </FormGroup>
+                          </Col>
+                          </Row>
+                          <Row>
+                          <Col lg="6">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-first-name">
+                                Mileage
+                              </label>
+                              <Input
+                                className="form-control-alternative"
+                                defaultValue={hoistData?.longVal==null?0:hoistData?.longVal}
+                                id="input-first-name"
+                                placeholder="Mileage"
+                                type="number"
+                                onChange={text => setMileage(text.target.value)}
                               />
                             </FormGroup>
                           </Col>

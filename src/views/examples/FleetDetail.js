@@ -10,43 +10,32 @@ import {
     DropdownItem,
     UncontrolledDropdown,
     DropdownToggle,
-    Media,
     Pagination,
     PaginationItem,
     PaginationLink,
-    Progress,
     Table,
-    Label,
     Container,
-    // Button,
-    Alert,
     Row,
     Col,
     Spinner,
-    UncontrolledTooltip,
     Modal, ModalHeader, ModalBody, ModalFooter,
-    Input,
-    CardBody,
-    Form,
-    FormGroup
 } from "reactstrap";
 import toast, { Toaster } from 'react-hot-toast';
 import classnames from 'classnames';
-import Header from "components/Headers/Header.js";
-import AllUsers from "./AllUsers";
-import config from "config";
 import { useLocation } from 'react-router-dom';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
 import UploadModal from "component/UploadModal";
 import { UploadContractsApi } from "APIstore/apiCalls";
 import { errorAlert } from "Theme/utils";
 import { successAlert } from "Theme/utils";
 import { UploadGetContractsApi } from "APIstore/apiCalls";
 import { singleDeleteFile } from "APIstore/apiCalls";
-// export default class FleetDetail extends React.Component {
-function FleetDetail(props) {
+import { getAssignCompany } from "APIstore/apiCalls";
+import ViewImageModal from "component/ViewImageModal";
 
+var logData1 = {}
+var localAccessData = null
+function FleetDetail(props) {
+    const [logInfo, setLogInfo] = useState('');
     const [key, setKey] = useState('home');
     const [activeTab, setactiveTab] = useState('1')
     const location = useLocation();
@@ -56,8 +45,10 @@ function FleetDetail(props) {
     const [openAnnualSafteyModal, setOpenAnnualSafteyModal] = useState(false);
     const [openTruckOwnerModal, setOpenTruckOwnerModal] = useState(false);
     const [openInsuranceInfoModal, setOpenInsuranceInfoModal] = useState(false);
+    const [openVehiclePicturesModal, setOpenVehiclePicturesModal] = useState(false);
 
     const [dataVehicle, setDataVehicle] = useState([]);
+    const [dataVehiclePictures, setDataVehiclePictures] = useState([]);
     const [dataTowLic, setDataTowLic] = useState([]);
     const [dataCSOR, setDataCSOR] = useState([]);
     const [dataAnnualSaftey, setDataAnnualSaftey] = useState([]);
@@ -70,9 +61,15 @@ function FleetDetail(props) {
     const [dataUpdateAnnualSaftey, setDataUpdateAnnualSaftey] = useState([]);
     const [dataUpdateTruckOwr, setDataUpdateTruckOwr] = useState([]);
     const [dataUpdateInsuranceInfo, setDataUpdateInsuranceInfo] = useState([]);
+    const [dataUpdateVehiclePictures, setDataUpdateVehiclePictures] = useState([]);
     const [isLoader, setIsLoader] = useState(false);
+    const [dropdownVal, setDropdownVal] = useState('Select Company');
+    const [companiesID, setCompId] = useState();
+    const [dropdownData, setDropdownData] = useState([]);
+    const [openViewImageModal, setViewImageModal] = useState(false);
+    const [imageData, setDataImage] = useState();
+
     const setItem = location.state;
-    console.log("location", location);
 
     const [deleteModal, setDeletToggle] = useState(false);
     const [fileData, setFileData] = useState('');
@@ -81,29 +78,34 @@ function FleetDetail(props) {
         setDeletToggle(!deleteModal)
     }
     const deleteAPI = () => {
-        console.log("fileData", fileData);
         setIsLoader(true)
         try {
             singleDeleteFile(fileData, async (res) => {
                 console.log("adasdasd", res)
                 if (res.sucess) {
                     setDeletToggle(!deleteModal)
-                    // try {
-                    //     singleAllAgency('', async (res) => {
-                    //         console.log("singleAllAgency", res)
-                    //         if (res.sucess) {
-                    //             setData(res.sucess.list);
-                    //             console.log("res.sucess.list", res.sucess.list);
-                    //             setDeletToggle(!deleteModal)
-                    //         } else {
-                    //             console.log("errrrr")
-                    //             setDeletToggle(!deleteModal)
-                    //         }
-                    //     });
-                    // } catch (error) {
-                    //     console.log("error", error)
-                    //     setDeletToggle(!deleteModal)
-                    // }
+                    if (activeTab == '2') {
+                        getDataFiles("VehicleOwnership")
+                    }
+                    if (activeTab == '3') {
+                        getDataFiles("TowLicence")
+                    }
+                    if (activeTab == '4') {
+                        getDataFiles("CVOR")
+                    }
+                    if (activeTab == '5') {
+                        getDataFiles("AnnualSafety")
+                    }
+                    if (activeTab == '6') {
+                        getDataFiles("TruckOwnership")
+                    }
+                    if (activeTab == '7') {
+                        getDataFiles("InsuranceInformation")
+                    }
+                    if (activeTab == '8') {
+                        getDataFiles("VehiclePictures")
+                    }
+                   
                     setIsLoader(false)
                     successAlert(res.sucess.messages[0].message)
                 } else {
@@ -118,28 +120,9 @@ function FleetDetail(props) {
             setDeletToggle(!deleteModal)
         }
     }
-    const ChangeStatusJob = (status) => {
-        // console.log("fff", data);
-        // console.log("fff", status);
-        // if (status == 'Police') {
-        //   let result = data.filter(el => el.agencyType === status);
-        //   setData(result)
-        // }
-        // else {
-        //   try {
-        //     getAgencies('', async (res) => {
-        //       if (res.sucess) {
-        //         console.log("res.sucess", res.sucess)
-        //         setData(res.sucess.list)
-        //       } else {
-        //         console.log("errrrr")
-        //       }
-        //     });
-        //   } catch (error) {
-        //     console.log("error", error)
-        //   }
-        // }
-        // setStatusData(status)
+    const ChangeStatusJob = (item) => {
+        setDropdownVal(item.corporateName)
+        setCompId(item.id)
     }
 
     const toggleUpdateVehicleOwnership = (item) => {
@@ -147,64 +130,41 @@ function FleetDetail(props) {
             setDataUpdateVehicle(item)
             setOpenVOModal(!openVOModal)
         }
-        else {
-            //   setModalUpdate(!modalUpdate);
-            //   setItemData('');
-        }
     }
     const toggleUpdateTowLicence = (item) => {
         if (item) {
-            //   setModalUpdate(!modalUpdate);
             setDataUpdateTowLic(item)
             setOpenTowLicModal(!openTowLicModal)
-        }
-        else {
-            //   setModalUpdate(!modalUpdate);
-            //   setItemData('');
         }
     }
     const toggleUpdateCVOR = (item) => {
         if (item) {
-            //   setModalUpdate(!modalUpdate);
             setDataUpdateCSOR(item)
             setOpenCVORModal(!openCVORModal)
-        }
-        else {
-            //   setModalUpdate(!modalUpdate);
-            //   setItemData('');
         }
     }
     const toggleUpdateAnnualSafety = (item) => {
         if (item) {
-            //   setModalUpdate(!modalUpdate);
             setDataUpdateAnnualSaftey(item)
             setOpenAnnualSafteyModal(!openAnnualSafteyModal)
-        }
-        else {
-            //   setModalUpdate(!modalUpdate);
-            //   setItemData('');
         }
     }
     const toggleUpdateTruckOwnership = (item) => {
         if (item) {
-            //   setModalUpdate(!modalUpdate);
             setDataUpdateTruckOwr(item)
             setOpenTruckOwnerModal(!openTruckOwnerModal)
-        }
-        else {
-            //   setModalUpdate(!modalUpdate);
-            //   setItemData('');
         }
     }
     const toggleUpdateInsuranceInformation = (item) => {
         if (item) {
-            //   setModalUpdate(!modalUpdate);
             setDataUpdateInsuranceInfo(item)
             setOpenInsuranceInfoModal(!openInsuranceInfoModal)
         }
-        else {
-            //   setModalUpdate(!modalUpdate);
-            //   setItemData('');
+    }
+    const toggleUpdateVehiclePictures = (item) => {
+        if (item) {
+            setDataUpdateVehiclePictures(item)
+            setOpenVehiclePicturesModal(!openVehiclePicturesModal)
         }
     }
     const toggle = (tab) => {
@@ -214,25 +174,8 @@ function FleetDetail(props) {
         }
     }
     const ViewImage = (item) => {
-        // const obj = {
-        //   type: item?.agencyType,
-        //   id: item?.id
-        // }
-        // try {
-        //   getUploadData(obj, async (res) => {
-        //     console.log("adasdasd", res)
-        //     if (res.sucess) {
-        //       console.log("res.sucess.fileInfoList[0].url", res.sucess.fileInfoList[0].url)
-        //       setImageLink(res.sucess.fileInfoList[0].url);
-        //       ViewImagetoggle();
-        //     } else {
-        //       console.log("errrrr");
-        //       // ViewImagetoggle();
-        //     }
-        //   });
-        // } catch (error) {
-        //   console.log("error", error)
-        // }
+        setDataImage(item)
+        setViewImageModal(!openViewImageModal)
     }
     const VehicleOwnershipCallback = (InvoiceData) => {
         setIsLoader(true)
@@ -279,10 +222,6 @@ function FleetDetail(props) {
             setIsLoader(false)
             console.log("error", error)
         }
-
-        // console.log("invoiceData", invoiceData);
-        // setInvoiceData(invoiceData)
-
     }
     const TowLicenceCallback = (ContractData) => {
         setIsLoader(true)
@@ -315,7 +254,6 @@ function FleetDetail(props) {
                     setOpenTowLicModal(false)
                     setDataUpdateTowLic([])
 
-                    // setModalUpdate(!modalUpdate)
                 } else {
                     console.log("errrrr")
                     setIsLoader(false)
@@ -327,9 +265,6 @@ function FleetDetail(props) {
             setIsLoader(false)
             errorAlert(error)
         }
-        // console.log("contractData", contractData);
-        // setContractData(contractData)
-        // setOpenContractModal(false)
     }
     const CVORCallback = (feeAgrementData) => {
         setIsLoader(true)
@@ -362,8 +297,6 @@ function FleetDetail(props) {
                     setOpenCVORModal(false)
                     successAlert(res.sucess.response.messages[0].message)
                     setDataUpdateCSOR([])
-
-                    // setModalUpdate(!modalUpdate)
                 } else {
                     console.log("errrrr")
                     setIsLoader(false)
@@ -375,9 +308,6 @@ function FleetDetail(props) {
             setIsLoader(false)
             errorAlert(error)
         }
-        // console.log("feeAgrement", feeAgrement);
-        // setFeeAgrementData(feeAgrement)
-        // setOpenFeeAgrementModal(false)
     }
     const AnnualSafetyCallback = (feeAgrementData) => {
         setIsLoader(true)
@@ -423,9 +353,6 @@ function FleetDetail(props) {
             setIsLoader(false)
             errorAlert(error)
         }
-        // console.log("feeAgrement", feeAgrement);
-        // setFeeAgrementData(feeAgrement)
-        // setOpenFeeAgrementModal(false)
     }
     const TruckOwnershipCallback = (feeAgrementData) => {
         setIsLoader(true)
@@ -470,9 +397,6 @@ function FleetDetail(props) {
             setIsLoader(false)
             errorAlert(error)
         }
-        // console.log("feeAgrement", feeAgrement);
-        // setFeeAgrementData(feeAgrement)
-        // setOpenFeeAgrementModal(false)
     }
     const InsuranceInformationCallback = (feeAgrementData) => {
         setIsLoader(true)
@@ -517,20 +441,75 @@ function FleetDetail(props) {
             setIsLoader(false)
             errorAlert(error)
         }
-        // console.log("feeAgrement", feeAgrement);
-        // setFeeAgrementData(feeAgrement)
-        // setOpenFeeAgrementModal(false)
+    }
+    const VehiclePicturesCallback = (feeAgrementData) => {
+        setIsLoader(true)
+        try {
+            const formData = new FormData();
+
+            if (feeAgrementData) {
+                for (let i = 0; i < feeAgrementData.length; i++) {
+                    formData.append(`file`, feeAgrementData[i].files);
+                    formData.append('type', feeAgrementData[i].imageType);
+                    formData.append('subType', feeAgrementData[i].imageType);
+                    formData.append('issueDate', feeAgrementData[i].issueDate);
+                    formData.append('expiryDate', feeAgrementData[i].expDate);
+                    formData.append('comments', feeAgrementData[i].comments ? feeAgrementData[i].comments : '');
+                }
+            }
+            if (Object.keys(dataUpdateVehiclePictures).length !== 0) {
+                formData.append('id', dataUpdateVehiclePictures.id);
+            }
+            formData.append('refId', setItem.id);
+            for (var key of formData.entries()) {
+                console.log(key[0] + ", " + key[1]);
+            }
+
+            UploadContractsApi(formData, async (res) => {
+                if (res.sucess) {
+                    console.log("UPP", res.sucess)
+                    await getDataFiles("VehiclePictures")
+                    setOpenVehiclePicturesModal(false)
+                    setIsLoader(false)
+                    successAlert(res.sucess.response.messages[0].message)
+                    setDataUpdateVehiclePictures([])
+                    // setModalUpdate(!modalUpdate)
+                } else {
+                    console.log("errrrr")
+                    setIsLoader(false)
+                    errorAlert(res.sucess.response.messages[0].message)
+                }
+            });
+        } catch (error) {
+            console.log("error", error)
+            setIsLoader(false)
+            errorAlert(error)
+        }
     }
     const getDataFiles = (type) => {
         setIsLoader(true)
-        const obj = {
-            id: setItem.id,
-            subType: type,
-            type: type
+        let obj
+        if (localAccessData == null) {
+            obj = {
+                id: setItem.id,
+                subType: type,
+                type: type,
+                comId: setItem?.companyId
+            }
         }
+        else {
+            obj = {
+                id: logData1.role == 'POLICE_ADMIN' ? setItem?.id : logData1?.companyId,
+                subType: type,
+                type: type,
+                comId: logData1.role == 'POLICE_ADMIN' ? setItem?.id : logData1?.companyId
+            }
+        }
+
+        setCompId(logData1.role == 'POLICE_ADMIN' ? setItem?.companyId : logData1?.companyId);
+
         try {
             UploadGetContractsApi(obj, async (res) => {
-                console.log("adasdasd", res)
                 if (res.sucess) {
                     if (type == "VehicleOwnership") {
                         setDataVehicle(res.sucess.list);
@@ -562,6 +541,11 @@ function FleetDetail(props) {
                         setIsLoader(false)
                         return
                     }
+                    if (type == "VehiclePictures") {
+                        setDataVehiclePictures(res.sucess.list);
+                        setIsLoader(false)
+                        return
+                    }
                 } else {
                     console.log("errrrr")
                     setIsLoader(false)
@@ -571,8 +555,38 @@ function FleetDetail(props) {
             console.log("error", error)
             setIsLoader(false)
         }
+        try {
+            getAssignCompany(logData1?.companyId, async (res) => {
+                if (res.sucess) {
+                    console.log("res.sucess.listres.sucess.list", res.sucess.list);
+                    setDropdownData(res.sucess.list)
+                }
+                // else
+                //     errorAlert('Companies not added')
+            });
+        } catch (error) {
+            successAlert(error)
+        }
+    }
+    const getLoggedData = async () => {
+        let logData;
+        const storedData = await localStorage.getItem('accessData')
+        if (storedData) {
+            const getdata = await localStorage.getItem('accessData')
+            logData = JSON.parse(getdata)
+            localAccessData = logData
+        }
+        else {
+            const getdata = await localStorage.getItem('loggedData')
+            logData = JSON.parse(getdata)
+        }
+        setLogInfo(logData)
+        setLogInfo((state) => {
+            logData1 = state;
+        });
     }
     useEffect(() => {
+        getLoggedData()
         if (activeTab == '2') {
             getDataFiles("VehicleOwnership")
         }
@@ -590,6 +604,9 @@ function FleetDetail(props) {
         }
         if (activeTab == '7') {
             getDataFiles("InsuranceInformation")
+        }
+        if (activeTab == '8') {
+            getDataFiles("VehiclePictures")
         }
     }, [activeTab])
     return (
@@ -639,12 +656,16 @@ function FleetDetail(props) {
                             CVOR
                         </NavLink>
                     </NavItem>
+                    
+                </Nav>
+                <Nav tabs className="nav--links" style={{}} >
+                   
                     <NavItem>
                         <NavLink
                             className={classnames({ active: activeTab === '5' })}
                             onClick={() => { toggle('5'); }}
                         >
-                            Annual Safety inspections
+                            Annual Safety Inspections
                         </NavLink>
                     </NavItem>
                     <NavItem>
@@ -652,7 +673,7 @@ function FleetDetail(props) {
                             className={classnames({ active: activeTab === '6' })}
                             onClick={() => { toggle('6'); }}
                         >
-                            Truck ownership info
+                            Truck Ownership Info
                         </NavLink>
                     </NavItem>
                     <NavItem>
@@ -663,6 +684,14 @@ function FleetDetail(props) {
                             Insurance Information
                         </NavLink>
                     </NavItem>
+                    <NavItem>
+                        <NavLink
+                            className={classnames({ active: activeTab === '8' })}
+                            onClick={() => { toggle('8'); }}
+                        >
+                            Vehicle Pictures
+                        </NavLink>
+                    </NavItem>
                 </Nav>
                 <TabContent activeTab={activeTab}>
                     <TabPane tabId="1">
@@ -671,31 +700,31 @@ function FleetDetail(props) {
                                 <div style={{ display: "flex", flexDirection: "column" }}>
                                     {setItem?.id ? (
                                         <div className="listUi">
-                                            <span className="text-sm">ID</span>
+                                            <span className="text-sm listUiItem">Fleet Vehicle ID</span>
                                             <span className="text-sm">{setItem?.id}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.companyId ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Company Id</span>
+                                            <span className="text-sm listUiItem">Tow Company ID</span>
                                             <span className="text-sm">{setItem?.companyId}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.name ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Name</span>
+                                            <span className="text-sm listUiItem">Name</span>
                                             <span className="text-sm">{setItem?.name}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.type ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Type</span>
-                                            <span className="text-sm">{setItem?.type}</span>
+                                            <span className="text-sm listUiItem">Type</span>
+                                            <span className="text-sm">{setItem?.type === 'fleet' ? 'Fleet' : setItem?.type}</span>
                                         </div>
                                     ) : null}
                                     {setItem?.description ? (
                                         <div className="listUi">
-                                            <span className="text-sm">Description</span>
+                                            <span className="text-sm listUiItem">Description</span>
                                             <span className="text-sm">{setItem?.description}</span>
                                         </div>
                                     ) : null}
@@ -711,42 +740,14 @@ function FleetDetail(props) {
                                     <CardHeader className="border-0">
                                         <Row>
                                             <h3 className="mb-0">Vehicle Ownership</h3>
-                                            <UncontrolledDropdown style={{ marginLeft: 10 }}>
-                                                <DropdownToggle
-                                                    className="btn-icon-only text-light"
-
-                                                    role="button"
-                                                    size="sm"
-                                                    color=""
-                                                    onClick={e => e.preventDefault()}
-                                                >
-                                                    <i className="fas fa-ellipsis-v" />
-                                                </DropdownToggle>
-                                                <DropdownMenu className="dropdown-menu-arrow" right>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('All') }}
-                                                    >
-                                                        All
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('Police') }}
-                                                    >
-                                                        {config.police}
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('By Law') }}
-                                                    >
-                                                        {config.byLaw}
-                                                    </DropdownItem>
-                                                </DropdownMenu>
-                                            </UncontrolledDropdown>
-                                            {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenVOModal(!openVOModal) }} className="my-4 p-btm" color="primary" type="button">
-                                                Add New
-                                            </Button>
+                                            {logData1.role != 'POLICE_ADMIN' && (
+                                                <Button style={{ position: "absolute", right: 20, top: -12, }} onClick={() => {
+                                                    setDataUpdateVehicle([])
+                                                    setOpenVOModal(!openVOModal)
+                                                }} className="my-4 p-btm" color="primary" type="button">
+                                                    Add New
+                                                </Button>
+                                            )}
                                         </Row>
 
                                     </CardHeader>
@@ -765,12 +766,7 @@ function FleetDetail(props) {
                                                             <th scope="col">File</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
-                                                            {/* <th>
-                                                    <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
-                                                        Add
-                                                    </Button>
-                                                </th> */}
+                                                            <th scope="col">Expiry /Renewal Date</th>
                                                             <th scope="col" />
                                                         </tr>
                                                     </thead>
@@ -799,36 +795,32 @@ function FleetDetail(props) {
                                                                         {item?.expiryDate}
                                                                     </td>
                                                                     <td className="text-right">
-                                                                        <UncontrolledDropdown>
-                                                                            <DropdownToggle
-                                                                                className="btn-icon-only text-light"
-                                                                                href="#pablo"
-                                                                                role="button"
-                                                                                size="sm"
-                                                                                color=""
-                                                                                onClick={e => e.preventDefault()}
-                                                                            >
-                                                                                <i className="fas fa-ellipsis-v" />
-                                                                            </DropdownToggle>
-                                                                            <DropdownMenu className="dropdown-menu-arrow" right>
-                                                                                {/* <DropdownItem
-
-                                  onClick={() => { toggleUpdate() }}
-                                >
-                                  Add
-                                </DropdownItem> */}
-                                                                                <DropdownItem
-                                                                                    onClick={() => { toggleUpdateVehicleOwnership(item) }}
+                                                                        {logData1.role != 'POLICE_ADMIN' && (
+                                                                            <UncontrolledDropdown>
+                                                                                <DropdownToggle
+                                                                                    className="btn-icon-only text-light"
+                                                                                    href="#pablo"
+                                                                                    role="button"
+                                                                                    size="sm"
+                                                                                    color=""
+                                                                                    onClick={e => e.preventDefault()}
                                                                                 >
-                                                                                    Update
-                                                                                </DropdownItem>
-                                                                                <DropdownItem
-                                                                                    onClick={() => { Deletetoggle(item) }}
-                                                                                >
-                                                                                    Delete
-                                                                                </DropdownItem>
-                                                                            </DropdownMenu>
-                                                                        </UncontrolledDropdown>
+                                                                                    <i className="fas fa-ellipsis-v" />
+                                                                                </DropdownToggle>
+                                                                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { toggleUpdateVehicleOwnership(item) }}
+                                                                                    >
+                                                                                        Update
+                                                                                    </DropdownItem>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { Deletetoggle(item) }}
+                                                                                    >
+                                                                                        Delete
+                                                                                    </DropdownItem>
+                                                                                </DropdownMenu>
+                                                                            </UncontrolledDropdown>
+                                                                        )}
                                                                     </td>
                                                                 </tr>
                                                             )
@@ -906,42 +898,14 @@ function FleetDetail(props) {
                                     <CardHeader className="border-0">
                                         <Row>
                                             <h3 className="mb-0">Tow Licence</h3>
-                                            <UncontrolledDropdown style={{ marginLeft: 10 }}>
-                                                <DropdownToggle
-                                                    className="btn-icon-only text-light"
-
-                                                    role="button"
-                                                    size="sm"
-                                                    color=""
-                                                    onClick={e => e.preventDefault()}
-                                                >
-                                                    <i className="fas fa-ellipsis-v" />
-                                                </DropdownToggle>
-                                                <DropdownMenu className="dropdown-menu-arrow" right>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('All') }}
-                                                    >
-                                                        All
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('Police') }}
-                                                    >
-                                                        {config.police}
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('By Law') }}
-                                                    >
-                                                        {config.byLaw}
-                                                    </DropdownItem>
-                                                </DropdownMenu>
-                                            </UncontrolledDropdown>
-                                            {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenTowLicModal(!openTowLicModal) }} className="my-4 p-btm" color="primary" type="button">
-                                                Add New
-                                            </Button>
+                                            {logData1.role != 'POLICE_ADMIN' && (
+                                                <Button style={{ position: "absolute", right: 20, top: -12, }} onClick={() => {
+                                                    setDataUpdateTowLic([])
+                                                    setOpenTowLicModal(!openTowLicModal)
+                                                }} className="my-4 p-btm" color="primary" type="button">
+                                                    Add New
+                                                </Button>
+                                            )}
                                         </Row>
 
                                     </CardHeader>
@@ -960,12 +924,7 @@ function FleetDetail(props) {
                                                             <th scope="col">File</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
-                                                            {/* <th>
-                                              <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
-                                                  Add
-                                              </Button>
-                                          </th> */}
+                                                            <th scope="col">Expiry /Renewal Date</th>
                                                             <th scope="col" />
                                                         </tr>
                                                     </thead>
@@ -994,36 +953,32 @@ function FleetDetail(props) {
                                                                         {item?.expiryDate}
                                                                     </td>
                                                                     <td className="text-right">
-                                                                        <UncontrolledDropdown>
-                                                                            <DropdownToggle
-                                                                                className="btn-icon-only text-light"
-                                                                                href="#pablo"
-                                                                                role="button"
-                                                                                size="sm"
-                                                                                color=""
-                                                                                onClick={e => e.preventDefault()}
-                                                                            >
-                                                                                <i className="fas fa-ellipsis-v" />
-                                                                            </DropdownToggle>
-                                                                            <DropdownMenu className="dropdown-menu-arrow" right>
-                                                                                {/* <DropdownItem
-
-                            onClick={() => { toggleUpdate() }}
-                          >
-                            Add
-                          </DropdownItem> */}
-                                                                                <DropdownItem
-                                                                                    onClick={() => { toggleUpdateTowLicence(item) }}
+                                                                        {logData1.role != 'POLICE_ADMIN' && (
+                                                                            <UncontrolledDropdown>
+                                                                                <DropdownToggle
+                                                                                    className="btn-icon-only text-light"
+                                                                                    href="#pablo"
+                                                                                    role="button"
+                                                                                    size="sm"
+                                                                                    color=""
+                                                                                    onClick={e => e.preventDefault()}
                                                                                 >
-                                                                                    Update
-                                                                                </DropdownItem>
-                                                                                <DropdownItem
-                                                                                    onClick={() => { Deletetoggle(item) }}
-                                                                                >
-                                                                                    Delete
-                                                                                </DropdownItem>
-                                                                            </DropdownMenu>
-                                                                        </UncontrolledDropdown>
+                                                                                    <i className="fas fa-ellipsis-v" />
+                                                                                </DropdownToggle>
+                                                                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { toggleUpdateTowLicence(item) }}
+                                                                                    >
+                                                                                        Update
+                                                                                    </DropdownItem>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { Deletetoggle(item) }}
+                                                                                    >
+                                                                                        Delete
+                                                                                    </DropdownItem>
+                                                                                </DropdownMenu>
+                                                                            </UncontrolledDropdown>
+                                                                        )}
                                                                     </td>
                                                                 </tr>
                                                             )
@@ -1101,42 +1056,15 @@ function FleetDetail(props) {
                                     <CardHeader className="border-0">
                                         <Row>
                                             <h3 className="mb-0">CVOR</h3>
-                                            <UncontrolledDropdown style={{ marginLeft: 10 }}>
-                                                <DropdownToggle
-                                                    className="btn-icon-only text-light"
-
-                                                    role="button"
-                                                    size="sm"
-                                                    color=""
-                                                    onClick={e => e.preventDefault()}
-                                                >
-                                                    <i className="fas fa-ellipsis-v" />
-                                                </DropdownToggle>
-                                                <DropdownMenu className="dropdown-menu-arrow" right>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('All') }}
-                                                    >
-                                                        All
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('Police') }}
-                                                    >
-                                                        {config.police}
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('By Law') }}
-                                                    >
-                                                        {config.byLaw}
-                                                    </DropdownItem>
-                                                </DropdownMenu>
-                                            </UncontrolledDropdown>
-                                            {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenCVORModal(!openCVORModal) }} className="my-4 p-btm" color="primary" type="button">
-                                                Add New
-                                            </Button>
+                                            {logData1.role != 'POLICE_ADMIN' && (
+                                                <Button style={{ position: "absolute", right: 20, top: -12, }} onClick={() => {
+                                                    setDataUpdateCSOR([])
+                                                    setOpenCVORModal(!openCVORModal)
+                                                }} className="my-4 p-btm" color="primary" type="button">
+                                                    Add New
+                                                </Button>
+                                            )}
+                                           
                                         </Row>
 
                                     </CardHeader>
@@ -1155,12 +1083,7 @@ function FleetDetail(props) {
                                                             <th scope="col">File</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
-                                                            {/* <th>
-                                                <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
-                                                    Add
-                                                </Button>
-                                            </th> */}
+                                                            <th scope="col">Expiry /Renewal Date</th>
                                                             <th scope="col" />
                                                         </tr>
                                                     </thead>
@@ -1189,36 +1112,38 @@ function FleetDetail(props) {
                                                                         {item?.expiryDate}
                                                                     </td>
                                                                     <td className="text-right">
-                                                                        <UncontrolledDropdown>
-                                                                            <DropdownToggle
-                                                                                className="btn-icon-only text-light"
-                                                                                href="#pablo"
-                                                                                role="button"
-                                                                                size="sm"
-                                                                                color=""
-                                                                                onClick={e => e.preventDefault()}
-                                                                            >
-                                                                                <i className="fas fa-ellipsis-v" />
-                                                                            </DropdownToggle>
-                                                                            <DropdownMenu className="dropdown-menu-arrow" right>
-                                                                                {/* <DropdownItem
+                                                                        {logData1.role != 'POLICE_ADMIN' && (
+                                                                            <UncontrolledDropdown>
+                                                                                <DropdownToggle
+                                                                                    className="btn-icon-only text-light"
+                                                                                    href="#pablo"
+                                                                                    role="button"
+                                                                                    size="sm"
+                                                                                    color=""
+                                                                                    onClick={e => e.preventDefault()}
+                                                                                >
+                                                                                    <i className="fas fa-ellipsis-v" />
+                                                                                </DropdownToggle>
+                                                                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                                                                    {/* <DropdownItem
 
                               onClick={() => { toggleUpdate() }}
                             >
                               Add
                             </DropdownItem> */}
-                                                                                <DropdownItem
-                                                                                    onClick={() => { toggleUpdateCVOR(item) }}
-                                                                                >
-                                                                                    Update
-                                                                                </DropdownItem>
-                                                                                <DropdownItem
-                                                                                    onClick={() => { Deletetoggle(item) }}
-                                                                                >
-                                                                                    Delete
-                                                                                </DropdownItem>
-                                                                            </DropdownMenu>
-                                                                        </UncontrolledDropdown>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { toggleUpdateCVOR(item) }}
+                                                                                    >
+                                                                                        Update
+                                                                                    </DropdownItem>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { Deletetoggle(item) }}
+                                                                                    >
+                                                                                        Delete
+                                                                                    </DropdownItem>
+                                                                                </DropdownMenu>
+                                                                            </UncontrolledDropdown>
+                                                                        )}
                                                                     </td>
                                                                 </tr>
                                                             )
@@ -1295,43 +1220,16 @@ function FleetDetail(props) {
                                 <Card className="shadow">
                                     <CardHeader className="border-0">
                                         <Row>
-                                            <h3 className="mb-0">Annual Safety inspections</h3>
-                                            <UncontrolledDropdown style={{ marginLeft: 10 }}>
-                                                <DropdownToggle
-                                                    className="btn-icon-only text-light"
+                                            <h3 className="mb-0">Annual Safety Inspections</h3>
 
-                                                    role="button"
-                                                    size="sm"
-                                                    color=""
-                                                    onClick={e => e.preventDefault()}
-                                                >
-                                                    <i className="fas fa-ellipsis-v" />
-                                                </DropdownToggle>
-                                                <DropdownMenu className="dropdown-menu-arrow" right>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('All') }}
-                                                    >
-                                                        All
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('Police') }}
-                                                    >
-                                                        {config.police}
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('By Law') }}
-                                                    >
-                                                        {config.byLaw}
-                                                    </DropdownItem>
-                                                </DropdownMenu>
-                                            </UncontrolledDropdown>
-                                            {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenAnnualSafteyModal(!openAnnualSafteyModal) }} className="my-4 p-btm" color="primary" type="button">
-                                                Add New
-                                            </Button>
+                                            {logData1.role != 'POLICE_ADMIN' && (
+                                                <Button style={{ position: "absolute", right: 20, top: -12, }} onClick={() => {
+                                                    setDataUpdateAnnualSaftey([])
+                                                    setOpenAnnualSafteyModal(!openAnnualSafteyModal)
+                                                }} className="my-4 p-btm" color="primary" type="button">
+                                                    Add New
+                                                </Button>
+                                            )}
                                         </Row>
 
                                     </CardHeader>
@@ -1350,12 +1248,7 @@ function FleetDetail(props) {
                                                             <th scope="col">File</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
-                                                            {/* <th>
-                                                <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
-                                                    Add
-                                                </Button>
-                                            </th> */}
+                                                            <th scope="col">Expiry Date</th>
                                                             <th scope="col" />
                                                         </tr>
                                                     </thead>
@@ -1384,36 +1277,32 @@ function FleetDetail(props) {
                                                                         {item?.expiryDate}
                                                                     </td>
                                                                     <td className="text-right">
-                                                                        <UncontrolledDropdown>
-                                                                            <DropdownToggle
-                                                                                className="btn-icon-only text-light"
-                                                                                href="#pablo"
-                                                                                role="button"
-                                                                                size="sm"
-                                                                                color=""
-                                                                                onClick={e => e.preventDefault()}
-                                                                            >
-                                                                                <i className="fas fa-ellipsis-v" />
-                                                                            </DropdownToggle>
-                                                                            <DropdownMenu className="dropdown-menu-arrow" right>
-                                                                                {/* <DropdownItem
-
-                              onClick={() => { toggleUpdate() }}
-                            >
-                              Add
-                            </DropdownItem> */}
-                                                                                <DropdownItem
-                                                                                    onClick={() => { toggleUpdateAnnualSafety(item) }}
+                                                                        {logData1.role != 'POLICE_ADMIN' && (
+                                                                            <UncontrolledDropdown>
+                                                                                <DropdownToggle
+                                                                                    className="btn-icon-only text-light"
+                                                                                    href="#pablo"
+                                                                                    role="button"
+                                                                                    size="sm"
+                                                                                    color=""
+                                                                                    onClick={e => e.preventDefault()}
                                                                                 >
-                                                                                    Update
-                                                                                </DropdownItem>
-                                                                                <DropdownItem
-                                                                                    onClick={() => { Deletetoggle(item) }}
-                                                                                >
-                                                                                    Delete
-                                                                                </DropdownItem>
-                                                                            </DropdownMenu>
-                                                                        </UncontrolledDropdown>
+                                                                                    <i className="fas fa-ellipsis-v" />
+                                                                                </DropdownToggle>
+                                                                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { toggleUpdateAnnualSafety(item) }}
+                                                                                    >
+                                                                                        Update
+                                                                                    </DropdownItem>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { Deletetoggle(item) }}
+                                                                                    >
+                                                                                        Delete
+                                                                                    </DropdownItem>
+                                                                                </DropdownMenu>
+                                                                            </UncontrolledDropdown>
+                                                                        )}
                                                                     </td>
                                                                 </tr>
                                                             )
@@ -1490,43 +1379,15 @@ function FleetDetail(props) {
                                 <Card className="shadow">
                                     <CardHeader className="border-0">
                                         <Row>
-                                            <h3 className="mb-0">Truck ownership info </h3>
-                                            <UncontrolledDropdown style={{ marginLeft: 10 }}>
-                                                <DropdownToggle
-                                                    className="btn-icon-only text-light"
-
-                                                    role="button"
-                                                    size="sm"
-                                                    color=""
-                                                    onClick={e => e.preventDefault()}
-                                                >
-                                                    <i className="fas fa-ellipsis-v" />
-                                                </DropdownToggle>
-                                                <DropdownMenu className="dropdown-menu-arrow" right>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('All') }}
-                                                    >
-                                                        All
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('Police') }}
-                                                    >
-                                                        {config.police}
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('By Law') }}
-                                                    >
-                                                        {config.byLaw}
-                                                    </DropdownItem>
-                                                </DropdownMenu>
-                                            </UncontrolledDropdown>
-                                            {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenTruckOwnerModal(!openTruckOwnerModal) }} className="my-4 p-btm" color="primary" type="button">
-                                                Add New
-                                            </Button>
+                                            <h3 className="mb-0">Truck Ownership Info </h3>
+                                            {logData1.role != 'POLICE_ADMIN' && (
+                                                <Button style={{ position: "absolute", right: 20, top: -12, }} onClick={() => {
+                                                    setDataUpdateTruckOwr([])
+                                                    setOpenTruckOwnerModal(!openTruckOwnerModal)
+                                                }} className="my-4 p-btm" color="primary" type="button">
+                                                    Add New
+                                                </Button>
+                                            )}
                                         </Row>
 
                                     </CardHeader>
@@ -1545,12 +1406,7 @@ function FleetDetail(props) {
                                                             <th scope="col">File</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
-                                                            {/* <th>
-                                                <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
-                                                    Add
-                                                </Button>
-                                            </th> */}
+                                                            <th scope="col">Expiry Date</th>
                                                             <th scope="col" />
                                                         </tr>
                                                     </thead>
@@ -1579,36 +1435,32 @@ function FleetDetail(props) {
                                                                         {item?.expiryDate}
                                                                     </td>
                                                                     <td className="text-right">
-                                                                        <UncontrolledDropdown>
-                                                                            <DropdownToggle
-                                                                                className="btn-icon-only text-light"
-                                                                                href="#pablo"
-                                                                                role="button"
-                                                                                size="sm"
-                                                                                color=""
-                                                                                onClick={e => e.preventDefault()}
-                                                                            >
-                                                                                <i className="fas fa-ellipsis-v" />
-                                                                            </DropdownToggle>
-                                                                            <DropdownMenu className="dropdown-menu-arrow" right>
-                                                                                {/* <DropdownItem
-
-                              onClick={() => { toggleUpdate() }}
-                            >
-                              Add
-                            </DropdownItem> */}
-                                                                                <DropdownItem
-                                                                                    onClick={() => { toggleUpdateTruckOwnership(item) }}
+                                                                        {logData1.role != 'POLICE_ADMIN' && (
+                                                                            <UncontrolledDropdown>
+                                                                                <DropdownToggle
+                                                                                    className="btn-icon-only text-light"
+                                                                                    href="#pablo"
+                                                                                    role="button"
+                                                                                    size="sm"
+                                                                                    color=""
+                                                                                    onClick={e => e.preventDefault()}
                                                                                 >
-                                                                                    Update
-                                                                                </DropdownItem>
-                                                                                <DropdownItem
-                                                                                    onClick={() => { Deletetoggle(item) }}
-                                                                                >
-                                                                                    Delete
-                                                                                </DropdownItem>
-                                                                            </DropdownMenu>
-                                                                        </UncontrolledDropdown>
+                                                                                    <i className="fas fa-ellipsis-v" />
+                                                                                </DropdownToggle>
+                                                                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { toggleUpdateTruckOwnership(item) }}
+                                                                                    >
+                                                                                        Update
+                                                                                    </DropdownItem>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { Deletetoggle(item) }}
+                                                                                    >
+                                                                                        Delete
+                                                                                    </DropdownItem>
+                                                                                </DropdownMenu>
+                                                                            </UncontrolledDropdown>
+                                                                        )}
                                                                     </td>
                                                                 </tr>
                                                             )
@@ -1686,42 +1538,14 @@ function FleetDetail(props) {
                                     <CardHeader className="border-0">
                                         <Row>
                                             <h3 className="mb-0">Insurance Information</h3>
-                                            <UncontrolledDropdown style={{ marginLeft: 10 }}>
-                                                <DropdownToggle
-                                                    className="btn-icon-only text-light"
-
-                                                    role="button"
-                                                    size="sm"
-                                                    color=""
-                                                    onClick={e => e.preventDefault()}
-                                                >
-                                                    <i className="fas fa-ellipsis-v" />
-                                                </DropdownToggle>
-                                                <DropdownMenu className="dropdown-menu-arrow" right>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('All') }}
-                                                    >
-                                                        All
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('Police') }}
-                                                    >
-                                                        {config.police}
-                                                    </DropdownItem>
-                                                    <DropdownItem
-
-                                                        onClick={() => { ChangeStatusJob('By Law') }}
-                                                    >
-                                                        {config.byLaw}
-                                                    </DropdownItem>
-                                                </DropdownMenu>
-                                            </UncontrolledDropdown>
-                                            {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenInsuranceInfoModal(!openInsuranceInfoModal) }} className="my-4 p-btm" color="primary" type="button">
-                                                Add New
-                                            </Button>
+                                            {logData1.role != 'POLICE_ADMIN' && (
+                                                <Button style={{ position: "absolute", right: 20, top: -12, }} onClick={() => {
+                                                    setDataUpdateInsuranceInfo([])
+                                                    setOpenInsuranceInfoModal(!openInsuranceInfoModal)
+                                                }} className="my-4 p-btm" color="primary" type="button">
+                                                    Add New
+                                                </Button>
+                                            )}
                                         </Row>
 
                                     </CardHeader>
@@ -1740,12 +1564,7 @@ function FleetDetail(props) {
                                                             <th scope="col">File</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
-                                                            {/* <th>
-                                                <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
-                                                    Add
-                                                </Button>
-                                            </th> */}
+                                                            <th scope="col">Expiry Date</th>
                                                             <th scope="col" />
                                                         </tr>
                                                     </thead>
@@ -1774,36 +1593,190 @@ function FleetDetail(props) {
                                                                         {item?.expiryDate}
                                                                     </td>
                                                                     <td className="text-right">
-                                                                        <UncontrolledDropdown>
-                                                                            <DropdownToggle
-                                                                                className="btn-icon-only text-light"
-                                                                                href="#pablo"
-                                                                                role="button"
-                                                                                size="sm"
-                                                                                color=""
-                                                                                onClick={e => e.preventDefault()}
-                                                                            >
-                                                                                <i className="fas fa-ellipsis-v" />
-                                                                            </DropdownToggle>
-                                                                            <DropdownMenu className="dropdown-menu-arrow" right>
-                                                                                {/* <DropdownItem
+                                                                        {logData1.role != 'POLICE_ADMIN' && (
+                                                                            <UncontrolledDropdown>
+                                                                                <DropdownToggle
+                                                                                    className="btn-icon-only text-light"
+                                                                                    href="#pablo"
+                                                                                    role="button"
+                                                                                    size="sm"
+                                                                                    color=""
+                                                                                    onClick={e => e.preventDefault()}
+                                                                                >
+                                                                                    <i className="fas fa-ellipsis-v" />
+                                                                                </DropdownToggle>
+                                                                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { toggleUpdateInsuranceInformation(item) }}
+                                                                                    >
+                                                                                        Update
+                                                                                    </DropdownItem>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { Deletetoggle(item) }}
+                                                                                    >
+                                                                                        Delete
+                                                                                    </DropdownItem>
+                                                                                </DropdownMenu>
+                                                                            </UncontrolledDropdown>
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            )
+                                                        })}
 
-                              onClick={() => { toggleUpdate() }}
-                            >
-                              Add
-                            </DropdownItem> */}
-                                                                                <DropdownItem
-                                                                                    onClick={() => { toggleUpdateInsuranceInformation(item) }}
+                                                    </tbody>
+                                                </>
+                                            ) : (
+                                                <div className="text-center">
+                                                    <h3>No Record Found</h3>
+                                                </div>
+                                            )}
+                                        </Table>
+                                    }
+                                    <CardFooter className="py-4">
+                                        <nav aria-label="...">
+                                            <Pagination
+                                                className="pagination justify-content-end mb-0"
+                                                listClassName="justify-content-end mb-0"
+                                            >
+                                                <PaginationItem className="disabled">
+                                                    <PaginationLink
+                                                        href="#pablo"
+                                                        onClick={e => e.preventDefault()}
+                                                        tabIndex="-1"
+                                                    >
+                                                        <i className="fas fa-angle-left" />
+                                                        <span className="sr-only">Previous</span>
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                                <PaginationItem className="active">
+                                                    <PaginationLink
+                                                        href="#pablo"
+                                                        onClick={e => e.preventDefault()}
+                                                    >
+                                                        1
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                                <PaginationItem>
+                                                    <PaginationLink
+                                                        href="#pablo"
+                                                        onClick={e => e.preventDefault()}
+                                                    >
+                                                        2 <span className="sr-only">(current)</span>
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                                <PaginationItem>
+                                                    <PaginationLink
+                                                        href="#pablo"
+                                                        onClick={e => e.preventDefault()}
+                                                    >
+                                                        3
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                                <PaginationItem>
+                                                    <PaginationLink
+                                                        href="#pablo"
+                                                        onClick={e => e.preventDefault()}
+                                                    >
+                                                        <i className="fas fa-angle-right" />
+                                                        <span className="sr-only">Next</span>
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            </Pagination>
+                                        </nav>
+                                    </CardFooter>
+                                </Card>
+                            </div>
+                        </Row>
+                    </TabPane>
+                    <TabPane tabId="8">
+                        <Row className="row1">
+                            <div className="col">
+                                <Card className="shadow">
+                                    <CardHeader className="border-0">
+                                        <Row>
+                                            <h3 className="mb-0">Vehicle Pictures</h3>
+                                            {logData1.role != 'POLICE_ADMIN' && (
+                                                <Button style={{ position: "absolute", right: 20, top: -12, }} onClick={() => {
+                                                    setDataUpdateVehiclePictures([])
+                                                    setOpenVehiclePicturesModal(!openVehiclePicturesModal)
+                                                }} className="my-4 p-btm" color="primary" type="button">
+                                                    Add New
+                                                </Button>
+                                            )}
+                                        </Row>
+
+                                    </CardHeader>
+                                    {isLoader ? (
+                                        <div className="SpinnerClass">
+                                            <Spinner className="loader" children={true} />
+                                        </div>
+                                    ) :
+                                        <Table className="align-items-center table-flush" responsive>
+                                            {dataVehiclePictures?.length > 0 ? (
+                                                <>
+                                                    <thead className="thead-light">
+                                                        <tr>
+                                                            <th scope="col">ID</th>
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col">File</th>
+                                                            <th scope="col">Comments</th>
+                                                            <th scope="col">Issued Date</th>
+                                                            <th scope="col">Expiry Date</th>
+                                                            <th scope="col" />
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody>
+                                                        {dataVehiclePictures.map((item) => {
+                                                            return (
+                                                                <tr>
+                                                                    <td className="text-sm">{item?.id}</td>
+                                                                    <td className="text-sm">{item.name.length > 20 ?
+                                                                        `${item.name.substring(0, 20)}...` : item.name
+                                                                    }</td>
+                                                                    <td className="text-sm">
+                                                                        <Button onClick={() => { ViewImage(item) }} className="my-4 p-btm" color="primary" type="button">
+                                                                            View
+                                                                        </Button>
+                                                                    </td>
+
+                                                                    <td className="text-sm">
+                                                                        {item?.comments}
+                                                                    </td>
+                                                                    <td className="text-sm">
+                                                                        {item?.issueDate}
+                                                                    </td>
+                                                                    <td className="text-sm">
+                                                                        {item?.expiryDate}
+                                                                    </td>
+                                                                    <td className="text-right">
+                                                                        {logData1.role != 'POLICE_ADMIN' && (
+                                                                            <UncontrolledDropdown>
+                                                                                <DropdownToggle
+                                                                                    className="btn-icon-only text-light"
+                                                                                    href="#pablo"
+                                                                                    role="button"
+                                                                                    size="sm"
+                                                                                    color=""
+                                                                                    onClick={e => e.preventDefault()}
                                                                                 >
-                                                                                    Update
-                                                                                </DropdownItem>
-                                                                                <DropdownItem
-                                                                                    onClick={() => { Deletetoggle(item) }}
-                                                                                >
-                                                                                    Delete
-                                                                                </DropdownItem>
-                                                                            </DropdownMenu>
-                                                                        </UncontrolledDropdown>
+                                                                                    <i className="fas fa-ellipsis-v" />
+                                                                                </DropdownToggle>
+                                                                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { toggleUpdateVehiclePictures(item) }}
+                                                                                    >
+                                                                                        Update
+                                                                                    </DropdownItem>
+                                                                                    <DropdownItem
+                                                                                        onClick={() => { Deletetoggle(item) }}
+                                                                                    >
+                                                                                        Delete
+                                                                                    </DropdownItem>
+                                                                                </DropdownMenu>
+                                                                            </UncontrolledDropdown>
+                                                                        )}
                                                                     </td>
                                                                 </tr>
                                                             )
@@ -1875,7 +1848,6 @@ function FleetDetail(props) {
                         </Row>
                     </TabPane>
                 </TabContent>
-                {/* delete */}
                 <Modal isOpen={deleteModal} toggle={() => { Deletetoggle() }} className={props.className}>
                     <ModalHeader toggle={() => { Deletetoggle() }}>Delete</ModalHeader>
                     <ModalBody>
@@ -1892,6 +1864,8 @@ function FleetDetail(props) {
                 <UploadModal modal={openAnnualSafteyModal} data={dataUpdateAnnualSaftey} title='Annual Safety' parentCallback={AnnualSafetyCallback} />
                 <UploadModal modal={openTruckOwnerModal} data={dataUpdateTruckOwr} title='Truck Ownership' parentCallback={TruckOwnershipCallback} />
                 <UploadModal modal={openInsuranceInfoModal} data={dataUpdateInsuranceInfo} title='Insurance Information' parentCallback={InsuranceInformationCallback} />
+                <UploadModal modal={openVehiclePicturesModal} data={dataUpdateVehiclePictures} title='Vehicle Pictures' parentCallback={VehiclePicturesCallback} />
+                <ViewImageModal modal={openViewImageModal} itemData={imageData} companyId={companiesID}/>
             </div>
             <Toaster
                 toastOptions={{

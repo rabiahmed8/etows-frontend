@@ -14,7 +14,7 @@ import {
     FormGroup,
     Input
 } from "reactstrap";
-
+import { Document, Page, pdfjs } from 'react-pdf';
 import * as moment from 'moment'
 import toast, { Toaster } from 'react-hot-toast';
 import config from "config";
@@ -23,6 +23,8 @@ import Button from "@material-ui/core/Button";
 import PropTypes from "prop-types";
 import DateTimePicker from 'react-datetime-picker';
 import Select from 'react-select';
+
+import { getUploadDatabyUrl } from "APIstore/apiCalls";
 const styles = (theme) => ({
     button: {
         margin: theme.spacing.unit
@@ -31,50 +33,74 @@ const styles = (theme) => ({
         display: "none"
     }
 });
-function UploadModal(props) {
-    const { classes, modal, title, data } = props;
-    const [multipleImages, saveMultipleImages] = useState([]);
+function ViewImageModal(props) {
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+    const { classes, modal, itemData,prefix,companyId } = props;
     const [openModal, setModal] = useState(modal);
-    const [openData, setData] = useState(data ? data : {});
-    const [comment, setComments] = useState('');
-    const [paidnUnpaid, setPaidnUnpaid] = useState('');
-    const [files, setFiles] = useState('');
-    const [imageType, setType] = useState('');
-    const [dateTimepickerIssueDate, onChangeIssueDate] = useState('');
-    const [dateTimepickerExpiryDate, onChangeExpiryDate] = useState('');
-    useEffect(() => {
-        setData({})
-        onChangeIssueDate('');
-        onChangeExpiryDate('')
-        setComments('')
-        saveMultipleImages([])
-        setData(data)
-        setModal(modal);
-    }, [modal, data])
-    const uploadImages = (e, imageType) => {
-        const files = e.target.files[0];
-        setFiles(files)
-        setType(imageType)
-    }
-    const onTrigger = (event) => {
-        const issueDate = dateTimepickerIssueDate ? dateTimepickerIssueDate : '';
-        const expDate = dateTimepickerExpiryDate ? dateTimepickerExpiryDate : '';
-        const comments = comment ? comment : '';
-        multipleImages.push(...multipleImages, { files, imageType, issueDate, expDate, comments })
-        console.log("multiImages", multipleImages);
-        setData({})
-        onChangeIssueDate('');
-        onChangeExpiryDate('')
-        setComments('')
-        if (event == "1") {
+    const [openData, setData] = useState(itemData ? itemData : {});
 
+    const [imageUrl, setImageUrl] = useState('');
+    const [imageType, setImageType] = useState('');
+    const [pdfString, setPdfString] = useState('');
+    const [msg, setMsg] = useState('');
+    const [numPages, setNumPages] = useState(null);
+    const [pageNumber, setPageNumber] = useState(1);
+
+    const onDocumentLoadSuccess = ({ numPages }) => {
+        setNumPages(numPages);
+    };
+    useEffect(() => {
+        if (itemData?.url) {
+            try {
+                getUploadDatabyUrl((prefix===null || prefix===undefined?"":prefix)+itemData?.url+(companyId?"&companyId="+companyId:""), (res) => {
+                    if (res.sucess) {
+                        setImageType(res.sucess.type);
+
+                        if(String(itemData?.url).includes("/tow/image/files")){
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                var data = event.target.result;
+                                
+                                const base64Part = data.replace(/^data:image\/\w+;base64,/, '');
+                                const endInd=data.length-base64Part.length;
+                                const remainingPart = data.substring(0,endInd);
+                                const dec=atob(base64Part);
+                                
+                                setImageUrl(dec.startsWith("data")?dec:remainingPart+dec);
+                            };
+
+                            reader.readAsDataURL(res.sucess);
+                            
+                        }else
+                            setImageUrl(URL.createObjectURL(res.sucess));
+                        
+                        if (res.sucess.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                            setModal(false);
+                            setMsg('Your Excel sheet is downloaded')
+                        }
+                    } else {
+                        console.log("error in res");
+                    }
+                });
+            } catch (error) {
+                console.log("error", error)
+            }
+        }
+        pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+        setData(itemData)
+        setModal(modal);
+
+        return () => {
+            setPdfString('')
+            setImageUrl('')
+        }
+    }, [modal, openData])
+    const onTrigger = (event) => {
+        if (event == "1") {
             setModal(!openModal)
-            // setData('')
             return
         }
         else {
-            props.parentCallback(multipleImages);
-            // setData('')
             setModal(!openModal)
         }
     }
@@ -82,6 +108,7 @@ function UploadModal(props) {
         onTrigger("1")
         setModal(!openModal)
     }
+
     return (
         <>
             <Container className="mt--7" fluid>
@@ -90,169 +117,53 @@ function UploadModal(props) {
                     className={props.className}>
                     <ModalBody>
                         <Row>
-
                             <Col className="order-xl-1" xl="12">
                                 <Card className="bg-secondary shadow">
                                     <CardHeader className="bg-white border-0">
                                         <Row className="align-items-center">
                                             <Col xs="8">
-                                                <h3 className="mb-0">{title}</h3>
+                                                <h3 className="mb-0">Show Document</h3>
                                             </Col>
-
                                         </Row>
                                     </CardHeader>
                                     <CardBody>
                                         <Form>
+                                            {itemData?.name ? 
+                                            <>
                                             <h6 className="heading-small text-muted mb-4">
-                                                {/* {config.govtAgency} */}
+                                                {(prefix===null || prefix===undefined?"":prefix)+itemData?.url}
                                             </h6>
                                             <div className="pl-lg-3">
-                                                {title == 'Invoice Upload' && (
+                                                {imageUrl && (
                                                     <Row>
                                                         <Col lg="12">
-                                                            <FormGroup>
-                                                                <Label for="exampleSelect">Select Type</Label>
-
-                                                                <Select
-                                                                    name="form-field-name"
-                                                                    // value={this.state.value}
-                                                                    // defaultValue={setItem?.agencyType}
-                                                                    // defaultInputValue={setItem?.agencyType}
-                                                                    // val={setItem?.agencyType}
-                                                                    onChange={(val) => {
-                                                                        setPaidnUnpaid(val.label)
-                                                                    }}
-                                                                    labelKey='name'
-                                                                    valueKey='countryCode'
-                                                                    options={[
-                                                                        { value: 'paid', label: 'Paid' },
-                                                                        { value: 'unpaid', label: 'Unpaid' }
-                                                                    ]}
-                                                                />
-                                                            </FormGroup>
+                                                            {String(itemData?.url).includes("/tow/image/files")?
+                                                                <img width={'100%'} src={imageUrl}/>:
+                                                                <iframe width={'100%'} src={imageUrl}></iframe>
+                                                                }
                                                         </Col>
                                                     </Row>
                                                 )}
-                                                <Row>
-                                                    <Col lg="2">
-                                                        <FormGroup>
-                                                            <div className="flex-class">
-                                                                <label
-                                                                    className="form-control-label"
-                                                                    htmlFor="input-username"
-                                                                >
-                                                                    {title}
-                                                                </label>
-                                                                <input
-                                                                    // accept="image/*"
-                                                                    className={classes.input}
-                                                                    id="contained-button-file-1"
-                                                                    // defaultValue={openData?.name}
-                                                                    type="file"
-                                                                    onChange={(e) => {
-                                                                        uploadImages(e, title.split(" ").join(""))
-                                                                    }}
-                                                                />
-                                                                <label htmlFor="contained-button-file-1">
-                                                                    <Button variant="contained" component="span" className='p-btm'>
-                                                                        Upload
-                                                                    </Button>
-                                                                </label>
-                                                            </div>
-                                                        </FormGroup>
-
-                                                    </Col>
-                                                    {/* <Col lg="5">
-                                                        <FormGroup>
-                                                            <Label>Issue Date</Label>
-                                                            <DateTimePicker onChange={onChangeIssueDate} value={dateTimepickerIssueDate} />
-                                                        </FormGroup>
-                                                    </Col>
-                                                    <Col lg="5">
-                                                        <FormGroup>
-                                                            <Label>Expiry Date</Label>
-                                                            <DateTimePicker onChange={onChangeExpiryDate} value={dateTimepickerExpiryDate} />
-                                                        </FormGroup>
-                                                    </Col> */}
-                                                    <Col lg="5">
-                                                        <FormGroup>
-                                                            <label
-                                                                className="form-control-label"
-                                                                htmlFor="input-username"
-                                                            >
-                                                                Issued Date
-                                                            </label>
-                                                            <Input
-                                                                className="form-control-alternative"
-                                                                defaultValue={openData?.issueDate}
-                                                                id="input-username"
-                                                                placeholder="YYYY-MM-DD"
-                                                                type="text"
-                                                                onChange={text => onChangeIssueDate(text.target.value)}
-                                                            />
-                                                        </FormGroup>
-                                                    </Col>
-                                                    <Col lg="5">
-                                                        <FormGroup>
-                                                            <label
-                                                                className="form-control-label"
-                                                                htmlFor="input-username"
-                                                            >
-                                                                Paid Date
-                                                            </label>
-                                                            <Input
-                                                                className="form-control-alternative"
-                                                                defaultValue={openData?.expiryDate}
-                                                                id="input-username"
-                                                                placeholder="YYYY-MM-DD"
-                                                                type="text"
-                                                                onChange={text => onChangeExpiryDate(text.target.value)}
-                                                            />
-                                                        </FormGroup>
-                                                    </Col>
-                                                </Row>
-
-                                                <Row>
-                                                    <Col lg="12">
-                                                        <FormGroup>
-                                                            <label
-                                                                className="form-control-label"
-                                                                htmlFor="input-username"
-                                                            >
-                                                                Comment
-                                                            </label>
-                                                            <Input
-                                                                className="form-control-alternative"
-                                                                defaultValue={openData?.comments}
-                                                                id="input-username"
-                                                                placeholder="Comment"
-                                                                type="text"
-                                                                onChange={text => setComments(text.target.value)}
-                                                            />
-                                                        </FormGroup>
-                                                    </Col>
-                                                </Row>
-                                                <Row>
-                                                    <div className="save-close-div">
-                                                        <Button
-                                                            onClick={() => { onTrigger() }}
-                                                            // onClick={() => { handleOnChange(25) }}
-                                                            className="p-btm my-4 save-close" color="primary" type="button">
-                                                            {config.save}
-                                                        </Button>
-
-                                                        <Button color="primary" className='s-btm my-4 save-close' onClick={() => { toggleUpdate() }}>{config.close}</Button>
-                                                    </div>
-                                                </Row>
                                             </div>
+                                            </>:
+                                            <>
+                                            <Row>
+                                                <Col lg="12">Document not available</Col>
+                                            </Row>
+                                            </>
+                                            }
+                                            <Row>
+                                                <div className="save-close-div">
+                                                    <Button color="primary" className='s-btm my-4 save-close' onClick={() => { toggleUpdate() }}>{config.close}</Button>
+                                                </div>
+                                            </Row>
                                         </Form>
                                     </CardBody>
                                 </Card>
                             </Col>
                         </Row>
                     </ModalBody>
-                    <ModalFooter>
-                    </ModalFooter>
+
                 </Modal>
             </Container>
             <Toaster
@@ -272,7 +183,7 @@ function UploadModal(props) {
         </>
     );
 }
-UploadModal.propTypes = {
+ViewImageModal.propTypes = {
     classes: PropTypes.object.isRequired
 };
-export default withStyles(styles)(UploadModal);
+export default withStyles(styles)(ViewImageModal);

@@ -1,0 +1,68 @@
+  ############    Start all services
+sudo service agencies_service start
+sudo service api_gateway start
+sudo service auth_server start
+sudo service company_service start
+sudo service court_proceeding_service start
+sudo service eureka_server start
+sudo service file_service start
+sudo service gendata_service start
+sudo service geolocation_service start
+sudo service insurance_info_service start
+sudo service lien_info_service start
+sudo service notification_service start
+sudo service tow_admin_service start
+sudo service tow_service start
+sudo service vehicle_service start
+
+############    Restart all services
+sudo service agencies_service restart
+sudo service api_gateway restart
+sudo service auth_server restart
+sudo service company_service restart
+sudo service court_proceeding_service restart
+sudo service eureka_server restart
+sudo service file_service restart
+sudo service gendata_service restart
+sudo service geolocation_service restart
+sudo service insurance_info_service restart
+sudo service lien_info_service restart
+sudo service notification_service restart
+sudo service tow_admin_service restart
+sudo service tow_service restart
+sudo service vehicle_service restart
+
+############    Stop all services
+sudo service agencies_service stop
+sudo service api_gateway stop
+sudo service auth_server stop
+sudo service company_service stop
+sudo service court_proceeding_service stop
+sudo service eureka_server stop
+sudo service file_service stop
+sudo service gendata_service stop
+sudo service geolocation_service stop
+sudo service insurance_info_service stop
+sudo service lien_info_service stop
+sudo service notification_service stop
+sudo service tow_admin_service stop
+sudo service tow_service stop
+sudo service vehicle_service stop
+
+
+############    Enable all services - It will be used once in time, when initially we setup the server
+sudo systemctl enable agencies_service start
+sudo systemctl enable api_gateway start
+sudo systemctl enable auth_server
+sudo systemctl enable company_service
+sudo systemctl enable court_proceeding_service
+sudo systemctl enable eureka_server
+sudo systemctl enable file_service
+sudo systemctl enable gendata_service
+sudo systemctl enable geolocation_service
+sudo systemctl enable insurance_info_service
+sudo systemctl enable lien_info_service
+sudo systemctl enable notification_service
+sudo systemctl enable tow_admin_service
+sudo systemctl enable tow_service
+sudo systemctl enable vehicle_service

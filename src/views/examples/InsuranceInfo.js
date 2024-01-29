@@ -43,8 +43,9 @@ import { UploadGetContractsApi } from "APIstore/apiCalls";
 import { successAlert } from "Theme/utils";
 import { errorAlert } from "Theme/utils";
 import { singleDeleteFile } from "APIstore/apiCalls";
+import ViewImageModal from "component/ViewImageModal";
+
 var logData1 = {}
-// export default class InsuranceInfo extends React.Component {
 function InsuranceInfo(props) {
 
     const [key, setKey] = useState('home');
@@ -64,10 +65,12 @@ function InsuranceInfo(props) {
     const [dataGLIUpdate, setDataGLIUpdate] = useState([]);
     const [dataWSIBUpdate, setDataWSIBUpdate] = useState([]);
     const [fileData, setFileData] = useState('');
+    const [imageData, setDataImage] = useState();
+    const [openViewImageModal, setViewImageModal] = useState(false);
     const [logInfo, setLogInfo, getValue] = useState('');
     const [isLoader, setIsLoader] = useState(false);
     const setItem = location.state;
-    console.log("location", location);
+    
     const Deletetoggle = (item) => {
         setFileData(item)
         setDeletToggle(!deleteModal)
@@ -80,6 +83,18 @@ function InsuranceInfo(props) {
                 console.log("adasdasd", res)
                 if (res.sucess) {
                     setDeletToggle(!deleteModal)
+                    if (activeTab == '5') {
+                        getDataFiles("WSIB")
+                    }
+                    if (activeTab == '4') {
+                        getDataFiles("GarageLiablitlyInsurance")
+                    }
+                    if (activeTab == '3') {
+                        getDataFiles("AutomobileLiabilityInsurance")
+                    }
+                    if (activeTab == '2') {
+                        getDataFiles("CommercialGeneralLiabilityInsurance")
+                    }
                     // try {
                     //     singleAllAgency('', async (res) => {
                     //         console.log("singleAllAgency", res)
@@ -256,25 +271,8 @@ function InsuranceInfo(props) {
         }
     }
     const ViewImage = (item) => {
-        // const obj = {
-        //   type: item?.agencyType,
-        //   id: item?.id
-        // }
-        // try {
-        //   getUploadData(obj, async (res) => {
-        //     console.log("adasdasd", res)
-        //     if (res.sucess) {
-        //       console.log("res.sucess.fileInfoList[0].url", res.sucess.fileInfoList[0].url)
-        //       setImageLink(res.sucess.fileInfoList[0].url);
-        //       ViewImagetoggle();
-        //     } else {
-        //       console.log("errrrr");
-        //       // ViewImagetoggle();
-        //     }
-        //   });
-        // } catch (error) {
-        //   console.log("error", error)
-        // }
+        setDataImage(item)
+        setViewImageModal(!openViewImageModal)
     }
     const CGLICallback = (feeAgrementData) => {
         setIsLoader(true)
@@ -496,7 +494,7 @@ function InsuranceInfo(props) {
                             className={classnames({ active: activeTab === '4' })}
                             onClick={() => { toggle('4'); }}
                         >
-                            Garage Liablitly Insurance
+                            Garage Liability Insurance
                         </NavLink>
                     </NavItem>
                     <NavItem>
@@ -550,7 +548,9 @@ function InsuranceInfo(props) {
                                                 </DropdownMenu>
                                             </UncontrolledDropdown>
                                             {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenCGLIModal(!openCGLIModal) }} className="my-4 p-btm" color="primary" type="button">
+                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { 
+                                                 setDataCGLIUpdate([])
+                                                setOpenCGLIModal(!openCGLIModal) }} className="my-4 p-btm" color="primary" type="button">
                                                 Add New
                                             </Button>
                                         </Row>
@@ -571,7 +571,7 @@ function InsuranceInfo(props) {
                                                             {/* <th scope="col">Status</th> */}
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
+                                                            <th scope="col">Expiry Date</th>
                                                             {/* <th>
                                                     <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                                         Add
@@ -743,7 +743,9 @@ function InsuranceInfo(props) {
                                                 </DropdownMenu>
                                             </UncontrolledDropdown>
                                             {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenALIModal(!openALIModal) }} className="my-4 p-btm" color="primary" type="button">
+                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { 
+                                                 setDataALIUpdate([])
+                                                setOpenALIModal(!openALIModal) }} className="my-4 p-btm" color="primary" type="button">
                                                 Add New
                                             </Button>
                                         </Row>
@@ -763,7 +765,7 @@ function InsuranceInfo(props) {
                                                             <th scope="col">Name</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
+                                                            <th scope="col">Expiry Date</th>
                                                             {/* <th>
                                                     <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                                         Add
@@ -900,7 +902,7 @@ function InsuranceInfo(props) {
                                 <Card className="shadow">
                                     <CardHeader className="border-0">
                                         <Row>
-                                            <h3 className="mb-0">Garage Liablitly Insurance</h3>
+                                            <h3 className="mb-0">Garage Liability Insurance</h3>
                                             <UncontrolledDropdown style={{ marginLeft: 10 }}>
                                                 <DropdownToggle
                                                     className="btn-icon-only text-light"
@@ -934,7 +936,9 @@ function InsuranceInfo(props) {
                                                 </DropdownMenu>
                                             </UncontrolledDropdown>
                                             {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenGLIModal(!openGLIModal) }} className="my-4 p-btm" color="primary" type="button">
+                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => {
+                                                 setDataGLIUpdate([])
+                                                setOpenGLIModal(!openGLIModal) }} className="my-4 p-btm" color="primary" type="button">
                                                 Add New
                                             </Button>
                                         </Row>
@@ -954,7 +958,7 @@ function InsuranceInfo(props) {
                                                             <th scope="col">Name</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
+                                                            <th scope="col">Expiry Date</th>
                                                             {/* <th>
                                                     <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                                         Add
@@ -1125,7 +1129,9 @@ function InsuranceInfo(props) {
                                                 </DropdownMenu>
                                             </UncontrolledDropdown>
                                             {/* <h3 style={{ position: "absolute", right: 20, top: 25, }} className="mb-0">Keep Scrolling ►</h3> */}
-                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { setOpenWSIBModal(!openWSIBModal) }} className="my-4 p-btm" color="primary" type="button">
+                                            <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { 
+                                                 setDataWSIBUpdate([])
+                                                setOpenWSIBModal(!openWSIBModal) }} className="my-4 p-btm" color="primary" type="button">
                                                 Add New
                                             </Button>
                                         </Row>
@@ -1145,7 +1151,7 @@ function InsuranceInfo(props) {
                                                             <th scope="col">Name</th>
                                                             <th scope="col">Comments</th>
                                                             <th scope="col">Issued Date</th>
-                                                            <th scope="col">Paid Date</th>
+                                                            <th scope="col">Expiry Date</th>
                                                             {/* <th>
                                                     <Button onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                                                         Add
@@ -1291,8 +1297,9 @@ function InsuranceInfo(props) {
                 {/* <UploadModal modal={openCDIModal} title='Corporate Document Information' parentCallback={CDICallback} /> */}
                 <UploadModal modal={openCGLIModal} data={dataCGLIUpdate} title='Commercial General Liability Insurance' parentCallback={CGLICallback} />
                 <UploadModal modal={openALIModal} data={dataALIUpdate} title='Automobile Liability Insurance' parentCallback={ALICallback} />
-                <UploadModal modal={openGLIModal} data={dataGLIUpdate} title='Garage Liablitly Insurance' parentCallback={GLICallback} />
+                <UploadModal modal={openGLIModal} data={dataGLIUpdate} title='Garage Liability Insurance' parentCallback={GLICallback} />
                 <UploadModal modal={openWSIBModal} data={dataWSIBUpdate} title='WSIB' parentCallback={WSIBCallback} />
+                <ViewImageModal modal={openViewImageModal} itemData={imageData} />
             </div>
         </>
     );

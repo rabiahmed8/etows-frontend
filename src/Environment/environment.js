@@ -1,28 +1,7 @@
 const Constants = {
-    //  BASE_URL
-    // url: 'https://stage-console.etows.app',
-    // url: 'https://console.etows.app',
-    url: 'http://127.0.0.1:3000',
-    //    BASE_URL
-
-    //    ENDPOINT_URL_WITH_8443
-    // endpointUrl8443: 'https://api.etows.app:8443',
-    //    ENDPOINT_URL_WITH_8443
-
-
-    //    ENDPOINT_URL_WITH_9000
-    // endpointUrl9000: 'https://api.etows.app:9000',
-    //    ENDPOINT_URL_WITH_9000
-
-
-    //    STAGE_ENDPOINT_URL_WITH_8443
-    endpointUrl8443: 'https://stage-api.etows.app:8443',
-    //    ENDPOINT_URL_WITH_8443
-
-
-    //    STAGE_ENDPOINT_URL_WITH_9000
-    endpointUrl9000: 'https://stage-api.etows.app:9000',
-    //    ENDPOINT_URL_WITH_9000
-};
+    authUrl:process.env.REACT_APP_AUTH_URL,
+    apiUrl:process.env.REACT_APP_API_URL,
+    url:process.env.REACT_APP_APP_URL,
+}
 
 export default Constants;

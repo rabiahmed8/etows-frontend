@@ -63,7 +63,7 @@ function TowVehicleInventory(props) {
   const [ViewImagemodal, setViewImageModal] = useState(false);
   const [setItem, setItemData] = useState('');
   const [modalUpdate, setModalUpdate] = useState(false);
-  const [sampleData, setsampleData] = useState('https://api.etows.app:9000/file/files/9/Police/users-list%20(1).xlsx');
+  const [sampleData, setsampleData] = useState('process.env.REACT_APP_API_URL/file/files/9/Police/users-list%20(1).xlsx');
   const [statusData, setStatusData] = useState([]);
   const [imageLink, setImageLink] = useState('');
   const [typeAgency, setAgencyType] = useState('')
@@ -268,14 +268,6 @@ function TowVehicleInventory(props) {
                   <Button style={{ position: "absolute", right: 20, top: -7, }} onClick={() => { toggleUpdate() }} className="my-4 p-btm" color="primary" type="button">
                     Add New
                   </Button>
-                  {/* <Link
-
-                    to={{
-                      pathname: "/admin/agency-detail",
-                      state: '' // your data array of objects
-                    }}>
-                    Add New
-                  </Link> */}
                 </Row>
 
               </CardHeader>
@@ -288,12 +280,7 @@ function TowVehicleInventory(props) {
                         <th scope="col">ID</th>
                         <th scope="col">Ownership Declaration</th>
                         <th scope="col">Incorporation Documents</th>
-                        <th scope="col">Owner info</th>
-                        {/* <th scope="col">Contract</th>
-                        <th scope="col">Fees Agrement</th>
-                        <th scope="col">Invoices</th>
-                        <th scope="col">Issue Date</th>
-                        <th scope="col">Expiry Date</th> */}
+                        <th scope="col">Owner Info</th>
                         <th scope="col" />
                       </tr>
                     </thead>
@@ -434,7 +421,7 @@ function TowVehicleInventory(props) {
               tableClassName="table table-striped table-hover"
             /> */}
             <h3>{imageLink ? imageLink : 'Please Upload image'}</h3>
-            <Document file="https://api.etows.app:9000/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
+            <Document file="process.env.REACT_APP_API_URL/file/files/9/Police/Resume-Tayyab.pdf" onLoadSuccess={onDocumentLoadSuccess}>
               <Page pageNumber={pageNumber} />
             </Document>
             <p>

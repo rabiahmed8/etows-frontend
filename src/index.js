@@ -1,6 +1,6 @@
 // import { createRoot } from 'react-dom/client';
 // import Index from 'views/Index';
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect,useState,useCallback } from 'react'
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch, Redirect, useHistory } from "react-router-dom";
 // import { useLocation } from 'react-router-dom';
@@ -19,10 +19,16 @@ import Profile from 'views/examples/Profile';
 import AllUsers from 'views/examples/AllUsers';
 import CorpDetail from 'views/examples/CorpDetail';
 import FleetDetail from 'views/examples/FleetDetail';
+import { fetchToken, onMessageListener } from '../src/Service/firebase';
+import reportWebVitals from '../src/Service/reportWebVitals';
+import Notifications, {notify} from 'react-notify-toast';
+import NotificationsComponent from 'component/NotificationsComponent';
+import config from 'config';
+console.warn(`${Constants.authUrl}/oauth2/authorize`);
 const authConfig: TAuthConfig = {
   clientId: 'etows-v2-AM4pQ0fCQoI3Dr7meIRR',
-  authorizationEndpoint: `${Constants.endpointUrl8443}/oauth2/authorize`,
-  tokenEndpoint: `${Constants.endpointUrl8443}/oauth2/token`,
+  authorizationEndpoint: `${Constants.authUrl}/oauth2/authorize`,
+  tokenEndpoint: `${Constants.authUrl}/oauth2/token`,
   // Whereever your application is running. Must match configuration on authorization server
   redirectUri: Constants.url,
   // Optional
@@ -41,40 +47,47 @@ function LoginInfo(props) {
   // const location = useLocation();
   const { tokenData, token, idToken, logOut, error, login } = useContext(AuthContext)
   useEffect(() => {
-    // console.log("Asdasdasdadsasdas", BASE);
     async function myfetch() {
       if (token) {
         await localStorage.setItem('myData', tokenData);
         await localStorage.setItem('token', token);
         navigate.push('/admin/index')
       }
-      // else {
-      //   window.location.replace('https://etows.app:8443/login');
-      // }
     }
     myfetch()
   }, [])
   useEffect(() => {
 
-    // const setItem = location.state;
-    // alert(localStorage.getItem('access'))
     async function myfetchData() {
 
       const token = await localStorage.getItem('token')
 
       if (token) {
-        // window.location.reload()
         navigate.push('/admin/index');
       }
-      // else {
-      //   window.location.replace('https://etows.app:8443/login');
-      // }
     }
     myfetchData()
   }, [])
-
-
-
+  useEffect(() => {
+    loadGoogleMapScript()
+    if("serviceWorker" in navigator){
+      window.addEventListener("load",()=>{
+        navigator.serviceWorker.register("/firebase-messaging-sw.js")
+        .then((reg)=>{
+          console.log("Registration successful, scope is:",reg.scope)
+        }).catch((err)=>{
+          console.log("Service worker registration failed, error:",err)
+        })
+      })
+    }
+    
+  }, [])
+  const loadGoogleMapScript = useCallback((callback) => {
+    const googleMapScript = document.createElement("script");
+    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${config.GOOGLE_MAP_API_KEY}&libraries=places`;
+    window.document.body.appendChild(googleMapScript);
+    googleMapScript.addEventListener("load", callback);
+  }, []);
   return (
     <div class="container h-100">
 
@@ -120,7 +133,6 @@ function LoginInfo(props) {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -131,7 +143,8 @@ function LoginInfo(props) {
 ReactDOM.render(
 
   <AuthProvider authConfig={authConfig}>
-
+    <Notifications options={{zIndex: 200, top: '30px'}}/>
+    <NotificationsComponent />
     <BrowserRouter>
       <Switch>
         <Route path="/admin" render={props => <AdminLayout {...props} />} />
@@ -148,7 +161,7 @@ ReactDOM.render(
   document.getElementById("root")
 );
 
-
+reportWebVitals();
 // ReactDOM.render(
 
 //   <AuthProvider authConfig={authConfig}>

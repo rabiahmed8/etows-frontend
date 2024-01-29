@@ -1,0 +1,37 @@
+#Stagging
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/agencies_service/target/agencies_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/api_gateway/target/api_gateway-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/auth_server/target/auth_server-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/company_service/target/company_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/court_proceeding_service/target/court_proceeding_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/eureka_server/target/eureka_server-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/file_service/target/file_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/gendata_service/target/gendata_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/geolocation_service/target/geolocation_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/insurance_info_service/target/insurance_info_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/lien_info_service/target/lien_info_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/notification_service/target/notification_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/tow_admin_service/target/tow_admin_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/tow_service/target/tow_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/ETowsStagging-Lightsail.pem ~/Ai6/etows/eTOWS_Backend/etows/vehicle_service/target/vehicle_service-0.0.1-SNAPSHOT.jar ubuntu@stage-api.etows.app:~/etows-microservices
+
+
+
+
+####!!!!!!!!!!!!!!!!!!!!!!!!!!!! Be careful before using it !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#Prod
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/agencies_service/target/agencies_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/api_gateway/target/api_gateway-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/auth_server/target/auth_server-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/company_service/target/company_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/court_proceeding_service/target/court_proceeding_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/eureka_server/target/eureka_server-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/file_service/target/file_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/gendata_service/target/gendata_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/geolocation_service/target/geolocation_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/insurance_info_service/target/insurance_info_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/lien_info_service/target/lien_info_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/notification_service/target/notification_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/tow_admin_service/target/tow_admin_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/tow_service/target/tow_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices
+sudo scp -i ~/Ai6/etows/etows-app.pem ~/Ai6/etows/eTOWS_Backend/etows/vehicle_service/target/vehicle_service-0.0.1-SNAPSHOT.jar ubuntu@api.etows.app:~/etows-microservices

@@ -558,7 +558,7 @@ function CourtProceedings(props) {
                 </Row>
                 <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={modal} toggle={() => { toggle() }} className={props.className}>
 
-                    <ModalHeader>Company Id: {setItem?.id}</ModalHeader>
+                    <ModalHeader>Company ID: {setItem?.id}</ModalHeader>
                     <ModalBody>
                         <div style={{ display: "flex", flexDirection: "column" }}>
                             {setItem?.corporateName ? (

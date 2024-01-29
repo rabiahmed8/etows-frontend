@@ -516,10 +516,9 @@ function Profile() {
                         <Button onClick={() => { OnSubmit() }} className="my-4" color="primary" type="button">
                           Save
                         </Button>
-                        <Button onClick={() => { window.location.reload(false); }} className="my-4" color="primary" type="button">
+                        <Button onClick={() => { window.location.href="/admin/index"; }} className="my-4" color="primary" type="button">
                           Cancel
                         </Button>
-
                       </Col>
 
                     </Row>

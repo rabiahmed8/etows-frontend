@@ -37,7 +37,6 @@ class Header extends React.Component {
       try {
         getUserData(id, async (res) => {
           if (res.sucess) {
-            console.log("errrrr", res.sucess)
             this.setState({ data: res.sucess })
           } else {
             console.log("errrrr")
