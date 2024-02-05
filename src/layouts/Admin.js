@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch, Redirect,useNavigate } from "react-router-dom";
+import { Route, Switch, Redirect, useNavigate } from "react-router-dom";
 // reactstrap components
 import { Container } from "reactstrap";
 // core components
@@ -9,17 +9,17 @@ import Sidebar from "components/Sidebar/Sidebar.js";
 
 import routes from "routes.js";
 import { getUserData } from "APIstore/apiCalls";
-import { IoArrowBackSharp } from 'react-icons/io5';
+import { IoArrowBackSharp } from "react-icons/io5";
 import { getLoggedinApi } from "APIstore/apiCalls";
+import image from "assets/img/brand/argon-react.png";
 class Admin extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       activeNav: 1,
-      da: '',
-      data: '',
+      da: "",
+      data: "",
     };
-
   }
   componentDidUpdate(e) {
     document.documentElement.scrollTop = 0;
@@ -27,39 +27,39 @@ class Admin extends React.Component {
     this.refs.mainContent.scrollTop = 0;
   }
   async componentDidMount() {
-    const id = await localStorage.getItem('access');
+    const id = await localStorage.getItem("access");
     if (id) {
       // if (caches) {
       try {
         getUserData(id, async (res) => {
           if (res.sucess) {
-            console.log("errrrr", res.sucess)
-            this.setState({ data: res.sucess })
+            console.log("errrrr", res.sucess);
+            this.setState({ data: res.sucess });
           } else {
-            console.log("errrrr")
+            console.log("errrrr");
           }
         });
       } catch (error) {
-        console.log("error", error)
+        console.log("error", error);
       }
 
       // window.location.reload();
     }
     try {
-      getLoggedinApi('', async (res) => {
+      getLoggedinApi("", async (res) => {
         if (res.sucess) {
-          await localStorage.setItem('loggedData', JSON.stringify(res.sucess))
+          await localStorage.setItem("loggedData", JSON.stringify(res.sucess));
         } else {
-          console.log('Something went wrong')
+          console.log("Something went wrong");
         }
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
     // window.location.reload(false)
     // }
   }
-  getRoutes = routes => {
+  getRoutes = (routes) => {
     return routes.map((prop, key) => {
       if (prop.layout === "/admin") {
         return (
@@ -74,7 +74,7 @@ class Admin extends React.Component {
       }
     });
   };
-  getBrandText = path => {
+  getBrandText = (path) => {
     for (let i = 0; i < routes.length; i++) {
       if (
         this.props.location.pathname.indexOf(
@@ -89,18 +89,35 @@ class Admin extends React.Component {
   render() {
     return (
       <>
-        {this.state.data != '' && (
+        {this.state.data != "" && (
           <div
-            style={{ cursor: "pointer", background: "#fa0000", width: "100%", padding: 20, display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
-            <span style={{ paddingLeft: 20, paddingRight: 20 }} className="TopHeadText">Accessing - {this.state.data.firstName} {this.state.data.lastName} </span>
+            style={{
+              cursor: "pointer",
+              background: "#fa0000",
+              width: "100%",
+              padding: 20,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-around",
+            }}
+          >
+            <span
+              style={{ paddingLeft: 20, paddingRight: 20 }}
+              className="TopHeadText"
+            >
+              Accessing - {this.state.data.firstName} {this.state.data.lastName}{" "}
+            </span>
             <span
               onClick={async () => {
-                await localStorage.removeItem('access')
-                await localStorage.removeItem('accessData')
-                this.props.history.push('admin/index');
+                await localStorage.removeItem("access");
+                await localStorage.removeItem("accessData");
+                this.props.history.push("admin/index");
                 window.location.reload(false);
               }}
-              className="TopHeadText"><IoArrowBackSharp size={25} style={{ marginTop: -3 }} /> Exit</span>
+              className="TopHeadText"
+            >
+              <IoArrowBackSharp size={25} style={{ marginTop: -3 }} /> Exit
+            </span>
           </div>
         )}
         <Sidebar
@@ -108,8 +125,8 @@ class Admin extends React.Component {
           routes={routes}
           logo={{
             innerLink: "/admin/index",
-            imgSrc: require("assets/img/brand/argon-react.png"),
-            imgAlt: "..."
+            imgSrc: image,
+            imgAlt: "...",
           }}
         />
         <div className="main-content" ref="mainContent">

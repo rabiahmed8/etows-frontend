@@ -17,7 +17,7 @@
 */
 import { getUserData } from "APIstore/apiCalls";
 import React from "react";
-import { IoArrowBackSharp } from 'react-icons/io5';
+import { IoArrowBackSharp } from "react-icons/io5";
 // reactstrap components
 import { Card, CardBody, CardTitle, Container, Row, Col } from "reactstrap";
 
@@ -26,24 +26,23 @@ class Header extends React.Component {
     super(props);
     this.state = {
       activeNav: 1,
-      da: '',
-      data: '',
+      da: "",
+      data: "",
     };
-
   }
   async componentDidMount() {
-    const id = await localStorage.getItem('access');
+    const id = await localStorage.getItem("access");
     if (id) {
       try {
         getUserData(id, async (res) => {
           if (res.sucess) {
-            this.setState({ data: res.sucess })
+            this.setState({ data: res.sucess });
           } else {
-            console.log("errrrr")
+            console.log("errrrr");
           }
         });
       } catch (error) {
-        console.log("error", error)
+        console.log("error", error);
       }
     }
   }
@@ -52,7 +51,7 @@ class Header extends React.Component {
     return (
       <>
         {/* {this.state.data != '' && ( */}
-          {/* <div onClick={async () => {
+        {/* <div onClick={async () => {
             await localStorage.removeItem('access')
             await localStorage.removeItem('accessData')
             window.location.reload(false);
@@ -61,11 +60,12 @@ class Header extends React.Component {
             <span  style={{ color: "#fff" }}><IoArrowBackSharp /> Exit</span>
           </div> */}
         {/* )} */}
-        <div className="header pb-5 pt-5 pt-md-8" style={{ background: 'green' }}>
+        <div
+          className="header pb-5 pt-5 pt-md-8"
+          style={{ background: "green" }}
+        >
           <Container fluid>
-            <div className="header-body">
-              {/* Card stats */}
-            </div>
+            <div className="header-body">{/* Card stats */}</div>
           </Container>
         </div>
       </>

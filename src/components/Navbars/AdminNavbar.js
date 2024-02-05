@@ -18,12 +18,15 @@ import {
   Button,
   Container,
   Media,
-  Modal, ModalHeader, ModalBody, ModalFooter,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "reactstrap";
 // import BASE from "environment";
 import { getLoggedinApi } from "../../APIstore/apiCalls";
+import image from "assets/img/theme/team-4-800x800.png";
 class AdminNavbar extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = { data: [], modal: false };
@@ -32,12 +35,12 @@ class AdminNavbar extends React.Component {
 
   toggle() {
     this.setState({
-      modal: !this.state.modal
+      modal: !this.state.modal,
     });
   }
   logout = async () => {
-    await localStorage.removeItem('token');
-    await localStorage.removeItem('myData');
+    await localStorage.removeItem("token");
+    await localStorage.removeItem("myData");
     await window.localStorage.clear();
     await localStorage.clear();
     caches.keys().then((names) => {
@@ -45,46 +48,48 @@ class AdminNavbar extends React.Component {
         caches.delete(name);
       });
     });
-    let f = await localStorage.getItem('token')
+    let f = await localStorage.getItem("token");
     // alert(f)
-    this.setState({ modal: false })
+    this.setState({ modal: false });
 
     // window.opener = null;
-    window.open(`${Constants.authUrl}/api/action/logout`, '1366002941508', 'width=50,height=50')
+    window.open(
+      `${Constants.authUrl}/api/action/logout`,
+      "1366002941508",
+      "width=50,height=50"
+    );
     window.location.replace(Constants.url);
     // window.location.reload(true);
-
-  }
+  };
 
   _handleSubmit() {
     // alert(JSON.stringify(this.state.data));
     //Do your action
   }
   async componentDidMount() {
-    let getAccess
+    let getAccess;
     setTimeout(async () => {
-      getAccess = await localStorage.getItem('accessData');
+      getAccess = await localStorage.getItem("accessData");
 
-      let filterData = JSON.parse(getAccess)
+      let filterData = JSON.parse(getAccess);
       if (filterData) {
         this.setState({ data: filterData }, () => {
-          console.log(this.state.data)
-        })
-      }
-      else {
+          console.log(this.state.data);
+        });
+      } else {
         try {
-          getLoggedinApi('', async (res) => {
+          getLoggedinApi("", async (res) => {
             if (res.sucess) {
-              this.setState({ data: res.sucess })
+              this.setState({ data: res.sucess });
             } else {
-              console.log("errrrr")
+              console.log("errrrr");
             }
           });
         } catch (error) {
-          console.log("error", error)
+          console.log("error", error);
         }
       }
-    }, 1000)
+    }, 1000);
   }
   render() {
     let { data } = this.state;
@@ -117,11 +122,15 @@ class AdminNavbar extends React.Component {
                     <span className="avatar avatar-sm rounded-circle">
                       <img
                         alt="..."
-                        src={require("assets/img/theme/team-4-800x800.png")}
+                        // src={require("assets/img/theme/team-4-800x800.png")}
+                        src={image}
                       />
                     </span>
                     <Media className="ml-2 d-none d-lg-block">
-                      <span className="mb-0 userStyle font-weight-bold" style={{}}>
+                      <span
+                        className="mb-0 userStyle font-weight-bold"
+                        style={{}}
+                      >
                         {data?.firstName} {data?.lastName}
                       </span>
                     </Media>
@@ -148,11 +157,13 @@ class AdminNavbar extends React.Component {
                     <span>Support</span>
                   </DropdownItem> */}
                   <DropdownItem divider />
-                  <DropdownItem onClick={() => {
-                    // await localStorage.removeItem('token');
-                    this.toggle()
-                    // navigate.push('/')
-                  }} >
+                  <DropdownItem
+                    onClick={() => {
+                      // await localStorage.removeItem('token');
+                      this.toggle();
+                      // navigate.push('/')
+                    }}
+                  >
                     <i className="ni ni-user-run" />
                     <span>Logout</span>
                   </DropdownItem>
@@ -161,14 +172,25 @@ class AdminNavbar extends React.Component {
             </Nav>
           </Container>
           {/* delete */}
-          <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+          <Modal
+            isOpen={this.state.modal}
+            toggle={this.toggle}
+            className={this.props.className}
+          >
             <ModalHeader toggle={this.toggle}>Logout</ModalHeader>
-            <ModalBody>
-              Are you sure want to Logout?
-            </ModalBody>
+            <ModalBody>Are you sure want to Logout?</ModalBody>
             <ModalFooter>
-              <Button color="primary" onClick={() => { this.logout() }}>Yes</Button>{' '}
-              <Button color="secondary" onClick={this.toggle}>No</Button>
+              <Button
+                color="primary"
+                onClick={() => {
+                  this.logout();
+                }}
+              >
+                Yes
+              </Button>{" "}
+              <Button color="secondary" onClick={this.toggle}>
+                No
+              </Button>
             </ModalFooter>
           </Modal>
         </Navbar>
