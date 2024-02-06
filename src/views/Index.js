@@ -24,51 +24,55 @@ import {
   Input,
   FormGroup,
   Spinner,
-  Modal, ModalHeader, ModalBody, ModalFooter,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "reactstrap";
-import { useLocation, useHistory, Link } from 'react-router-dom';
-import { PieChart } from 'react-minimal-pie-chart';
+import { useLocation, useHistory, Link } from "react-router-dom";
+import { PieChart } from "react-minimal-pie-chart";
 // core components
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
 import {
   chartOptions,
   parseOptions,
   chartExample1,
-  chartExample2
+  chartExample2,
 } from "variables/charts.js";
-import { Redirect } from 'react-router-dom';
+import { Redirect } from "react-router-dom";
 import Header from "components/Headers/Header.js";
 import Maps from "./examples/Maps";
-import { getDashboard, getLoggedinApi, getUserData, UpdatePassword } from "../APIstore/apiCalls";
+import {
+  getDashboard,
+  getLoggedinApi,
+  getUserData,
+  UpdatePassword,
+} from "../APIstore/apiCalls";
 import config from "config";
 import moment from "moment";
-import { onMessageListener, fetchToken } from '../Service/firebase';
-import Notifications, { notify } from 'react-notify-toast';
+import { onMessageListener, fetchToken } from "../Service/firebase";
+import Notifications, { notify } from "react-notify-toast";
 import { successAlert, errorAlert } from "Theme/utils";
 class Index extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       activeNav: 1,
-      da: '',
+      da: "",
       modal: false,
-      currentPass: '',
-      newPass: '',
-      confirmPass: '',
+      currentPass: "",
+      newPass: "",
+      confirmPass: "",
       data: [],
       EPdata: [],
-      checkTempPassword: '',
+      checkTempPassword: "",
       pieData: {
-        labels: ["Pending Calls", "Service", "Active",],
+        labels: ["Pending Calls", "Service", "Active"],
         datasets: [
           {
             label: "# of Votes",
             data: [35, 40, 25],
-            backgroundColor: [
-              "#007D9C",
-              "#244D70",
-              "#FE452A",
-            ],
+            backgroundColor: ["#007D9C", "#244D70", "#FE452A"],
             borderColor: [
               "rgba(255,99,132,1)",
               "rgba(54, 162, 235, 1)",
@@ -80,96 +84,94 @@ class Index extends React.Component {
       },
       isLoader: false,
       chartExample1Data: "data1",
-      value: window.localStorage.getItem("notificationsData")
+      value: window.localStorage.getItem("notificationsData"),
     };
     if (window.Chart) {
       parseOptions(Chart, chartOptions());
     }
-
   }
-  handleChanges = e => {
+  handleChanges = (e) => {
     // only subscribe to changes to the key specified
     if (e.key === this.props.key) {
-      this.setState({ value: e.newValue })
+      this.setState({ value: e.newValue });
     }
     console.log("valuevalue", this.state.value);
-  }
+  };
 
   getLoggedData = async () => {
-    const storedData = await localStorage.getItem('accessData')
+    const storedData = await localStorage.getItem("accessData");
     if (storedData) {
-      const getdata = await localStorage.getItem('accessData')
-      let logData = JSON.parse(getdata)
-      fetchToken(logData)
+      const getdata = await localStorage.getItem("accessData");
+      let logData = JSON.parse(getdata);
+      fetchToken(logData);
+    } else {
+      const getdata = await localStorage.getItem("loggedData");
+      let logData = JSON.parse(getdata);
+      fetchToken(logData);
     }
-    else {
-      const getdata = await localStorage.getItem('loggedData')
-      let logData = JSON.parse(getdata)
-      fetchToken(logData)
-    }
-  }
+  };
   OnChangePassword = () => {
     const { currentPass, newPass, confirmPass } = this.state;
     if (!currentPass) {
-      errorAlert('Please enter Current Password');
+      errorAlert("Please enter Current Password");
       return;
     }
     if (!newPass) {
-      errorAlert('Please enter New Password');
+      errorAlert("Please enter New Password");
       return;
     }
 
     if (!confirmPass) {
-      errorAlert('Please enter Confirm Password');
+      errorAlert("Please enter Confirm Password");
       return;
     }
     if (confirmPass != newPass) {
-      errorAlert('Your New Password and Confirm Password is not matched');
+      errorAlert("Your New Password and Confirm Password is not matched");
       return;
     }
 
     let obj = {
       currentPassword: currentPass,
       newPassword: newPass,
-      reTypePassword: confirmPass
-    }
+      reTypePassword: confirmPass,
+    };
     try {
       UpdatePassword(obj, async (res) => {
         if (res.sucess) {
-          successAlert(res.sucess.messages[0].message)
-          this.setState({ modal: !this.state.modal })
-          await localStorage.setItem('checkTempVar', false)
+          successAlert(res.sucess.messages[0].message);
+          this.setState({ modal: !this.state.modal });
+          await localStorage.setItem("checkTempVar", false);
         } else {
-          errorAlert('Something went wrong')
+          errorAlert("Something went wrong");
         }
       });
     } catch (error) {
-      errorAlert(error)
+      errorAlert(error);
     }
-  }
+  };
   async onClose() {
-    this.setState({ modal: !this.state.modal })
-    await localStorage.setItem('checkTempVar', false)
+    this.setState({ modal: !this.state.modal });
+    await localStorage.setItem("checkTempVar", false);
   }
   async componentDidMount() {
-    this.getLoggedData()
-    
+    this.getLoggedData();
+
     try {
-      getDashboard('', async (res) => {
+      getDashboard("", async (res) => {
         if (res.sucess) {
-          this.setState({ EPdata: res.sucess })
+          this.setState({ EPdata: res.sucess });
           this.setState({
             pieData: {
-              labels: ["Pending Calls", "Service", "Active",],
+              labels: ["Pending Calls", "Service", "Active"],
               datasets: [
                 {
                   label: "# of Votes",
-                  data: [res.sucess?.activeReq, res.sucess?.serviceReq, res.sucess?.pendingReq],
-                  backgroundColor: [
-                    "#007D9C",
-                    "#244D70",
-                    "#FE452A",
+                  data: [
+                    res.sucess?.activeReq,
+                    res.sucess?.serviceReq,
+                    res.sucess?.pendingReq,
                   ],
+                  backgroundColor: ["#007D9C", "#244D70", "#FE452A"],
                   borderColor: [
                     "rgba(255,99,132,1)",
                     "rgba(54, 162, 235, 1)",
@@ -178,71 +180,73 @@ class Index extends React.Component {
                   borderWidth: 1,
                 },
               ],
-            }
-          })
-          this.setState({ isLoader: false })
+            },
+          });
+          this.setState({ isLoader: false });
         } else {
-          console.log("errrrr")
-          this.setState({ isLoader: false })
+          console.log("errrrr");
+          this.setState({ isLoader: false });
         }
       });
     } catch (error) {
-      console.log("error", error)
-      this.setState({ isLoader: false })
+      console.log("error", error);
+      this.setState({ isLoader: false });
     }
     console.log("pp0", this.state.EPdata?.activeReq);
 
-    const id = await localStorage.getItem('access');
+    const id = await localStorage.getItem("access");
     if (id) {
       try {
         getUserData(id, async (res) => {
           if (res.sucess) {
-            await localStorage.setItem('accessData', JSON.stringify(res.sucess));
+            await localStorage.setItem(
+              "accessData",
+              JSON.stringify(res.sucess)
+            );
           } else {
-            console.log("errrrr")
+            console.log("errrrr");
           }
         });
       } catch (error) {
-        console.log("error", error)
+        console.log("error", error);
       }
-
     }
 
-
-    const token = await localStorage.getItem('token');
+    const token = await localStorage.getItem("token");
 
     if (!token) {
       await localStorage.clear();
       await window.localStorage.clear();
-      window.location.replace('process.env.REACT_APP_AUTH_URL/login');
+      window.location.replace("process.env.REACT_APP_AUTH_URL/login");
     }
     try {
-      getLoggedinApi('', async (res) => {
+      getLoggedinApi("", async (res) => {
         if (res.sucess) {
-          console.log("res.dsgdf", res.sucess.roles[0])
-          this.setState({ data: res.sucess.roles[0], modal: res.sucess.isTemporaryPassword })
-          const tempVar = await localStorage.getItem('checkTempVar')
+          console.log("res.dsgdf", res.sucess.roles[0]);
+          this.setState({
+            data: res.sucess.roles[0],
+            modal: res.sucess.isTemporaryPassword,
+          });
+          const tempVar = await localStorage.getItem("checkTempVar");
           if (tempVar === null) {
-            this.setState({ modal: res.sucess.isTemporaryPassword })
-          }
-          else if (tempVar == true) {
-            this.setState({ modal: tempVar })
-          }
-          else {
-            this.setState({ modal: false })
+            this.setState({ modal: res.sucess.isTemporaryPassword });
+          } else if (tempVar == true) {
+            this.setState({ modal: tempVar });
+          } else {
+            this.setState({ modal: false });
           }
           let role = res.sucess.roles[0];
-          if (role == 'DRIVER') {
-            window.location = '/admin/user-profile';
-            return
+          if (role == "DRIVER") {
+            window.location = "/admin/user-profile";
+            return;
           }
-          if (role == 'POLICE') {
-            window.location = '/admin/user-profile';
-            return
+          if (role == "POLICE") {
+            window.location = "/admin/user-profile";
+            return;
           }
-          if (role == 'STAFF') {
-            window.location = '/admin/user-profile';
-            return
+          if (role == "STAFF") {
+            window.location = "/admin/user-profile";
+            return;
           }
           // if (role == 'POLICE_ADMIN') {
           //     window.location = '/admin/user-profile';
@@ -253,11 +257,11 @@ class Index extends React.Component {
           //   return
           // }
         } else {
-          console.log("errrrr")
+          console.log("errrrr");
         }
       });
     } catch (error) {
-      console.log("error", error)
+      console.log("error", error);
     }
     // else {
     //   window.location.reload();
@@ -269,7 +273,7 @@ class Index extends React.Component {
     this.setState({
       activeNav: index,
       chartExample1Data:
-        this.state.chartExample1Data === "data1" ? "data2" : "data1"
+        this.state.chartExample1Data === "data1" ? "data2" : "data1",
     });
   };
   render() {
@@ -292,7 +296,7 @@ class Index extends React.Component {
             </div>
           ) : (
             <>
-              {this.state.data == 'POLICE_ADMIN' && (
+              {this.state.data == "POLICE_ADMIN" && (
                 <Container className="mt--7" fluid>
                   <Row className="addSome">
                     <Col xl="6">
@@ -397,24 +401,34 @@ class Index extends React.Component {
                               return (
                                 <tr>
                                   <>
-                                    <td>{moment(item?.startDate).format('YYYY-MM-DD')}</td>
-                                    <td scope="row">{item?.licensePlateNumber}</td>
-                                    <td>{item.vinBasicData?.make}, {item.vinBasicData?.model}</td>
-                                    <td>{item?.isRelease === true ? 'YES' : 'NO'}</td>
+                                    <td>
+                                      {moment(item?.startDate).format(
+                                        "YYYY-MM-DD"
+                                      )}
+                                    </td>
+                                    <td scope="row">
+                                      {item?.licensePlateNumber}
+                                    </td>
+                                    <td>
+                                      {item.vinBasicData?.make},{" "}
+                                      {item.vinBasicData?.model}
+                                    </td>
+                                    <td>
+                                      {item?.isRelease === true ? "YES" : "NO"}
+                                    </td>
                                   </>
                                 </tr>
-                              )
+                              );
                             })}
-
                           </tbody>
                         </Table>
                       </Card>
                     </Col>
-
                   </Row>
                 </Container>
               )}
-              {(this.state.data == 'ADMIN' || this.state.data == 'TOW_ADMIN') && (
+              {(this.state.data == "ADMIN" ||
+                this.state.data == "TOW_ADMIN") && (
                 <Container className="mt--7" fluid>
                   <Row className="addSome">
                     <Col className="mb-5 mb-xl-0" xl="8">
@@ -425,13 +439,19 @@ class Index extends React.Component {
                               <h6 className="text-uppercase text-light ls-1 mb-1">
                                 Overview
                               </h6>
-                              <h2 className="text-white mb-0">Show Tracker & Drivers On Duty</h2>
+                              <h2 className="text-white mb-0">
+                                Show Tracker & Drivers On Duty
+                              </h2>
                             </div>
-                           
                           </Row>
                         </CardHeader>
                         <CardBody className="addHeight">
-                          <Maps lat={43.648390} lng={-79.876260} data={'hide'} dataU={"a"}/>
+                          <Maps
+                            lat={43.64839}
+                            lng={-79.87626}
+                            data={"hide"}
+                            dataU={"a"}
+                          />
                         </CardBody>
                       </Card>
                     </Col>
@@ -480,7 +500,7 @@ class Index extends React.Component {
                       </div> */}
                           </Row>
                         </CardHeader>
-                        <Table className="align-items-center table-flush additional" >
+                        <Table className="align-items-center table-flush additional">
                           <thead className="thead-light">
                             <tr>
                               <th scope="col">Date In</th>
@@ -495,17 +515,26 @@ class Index extends React.Component {
                               return (
                                 <tr>
                                   <>
-                                    <td scope="row" className="text-sm">{moment(item?.towOrImpoundDate).format('YYYY-MM-DD')}</td>
+                                    <td scope="row" className="text-sm">
+                                      {moment(item?.towOrImpoundDate).format(
+                                        "YYYY-MM-DD"
+                                      )}
+                                    </td>
                                     <td className="text-sm">{item?.vin}</td>
-                                    <td className="text-sm">{item.vinBasicData?.make}, {item.vinBasicData?.model}</td>
-                                    <td className="text-sm">{item?.releaseStatus}</td>
+                                    <td className="text-sm">
+                                      {item.vinBasicData?.make},{" "}
+                                      {item.vinBasicData?.model}
+                                    </td>
+                                    <td className="text-sm">
+                                      {item?.releaseStatus}
+                                    </td>
                                     <td className="text-sm">
                                       {/* <i className="fas fa-arrow-up text-success mr-3" />{" "} */}
                                       YES
                                     </td>
                                   </>
                                 </tr>
-                              )
+                              );
                             })}
                             {/* <tr>
                         <th scope="row">/all-jobs.html</th>
@@ -563,21 +592,29 @@ class Index extends React.Component {
                                 <tr>
                                   <>
                                     <td scope="row">{item?.policeService}</td>
-                                    <td>{moment(item?.startDate).format('YYYY-MM-DD')}</td>
+                                    <td>
+                                      {moment(item?.startDate).format(
+                                        "YYYY-MM-DD"
+                                      )}
+                                    </td>
                                     <td>$566.25</td>
                                   </>
                                 </tr>
-                              )
+                              );
                             })}
-
-
                           </tbody>
                         </Table>
                       </Card>
                     </Col>
                   </Row>
-                  <Modal size="lg" style={{ maxWidth: '1600px', width: '80%' }} isOpen={this.state.modal} toggle={() => { this.setState({ modal: !this.state.modal }) }}>
-
+                  <Modal
+                    size="lg"
+                    style={{ maxWidth: "1600px", width: "80%" }}
+                    isOpen={this.state.modal}
+                    toggle={() => {
+                      this.setState({ modal: !this.state.modal });
+                    }}
+                  >
                     <ModalHeader>Update Password </ModalHeader>
                     <ModalBody>
                       <Row>
@@ -596,7 +633,11 @@ class Index extends React.Component {
                               id="input-city"
                               placeholder="Current Password"
                               // type="text"
-                              onChange={text => this.setState({ currentPass: text.target.value })}
+                              onChange={(text) =>
+                                this.setState({
+                                  currentPass: text.target.value,
+                                })
+                              }
                             />
                           </FormGroup>
                         </Col>
@@ -614,7 +655,9 @@ class Index extends React.Component {
                               id="input-country"
                               placeholder="New Password"
                               type="password"
-                              onChange={text => this.setState({ newPass: text.target.value })}
+                              onChange={(text) =>
+                                this.setState({ newPass: text.target.value })
+                              }
                             />
                           </FormGroup>
                         </Col>
@@ -632,34 +675,55 @@ class Index extends React.Component {
                               placeholder="Confirm Password"
                               type="password"
                               // defaultValue={data?.postalCode}
-                              onChange={text => this.setState({ confirmPass: text.target.value })}
+                              onChange={(text) =>
+                                this.setState({
+                                  confirmPass: text.target.value,
+                                })
+                              }
                             />
                           </FormGroup>
-
-
                         </Col>
-
                       </Row>
                     </ModalBody>
                     <ModalFooter>
-                      <Button color="bg-white" onClick={() => { this.OnChangePassword() }}>Save</Button>{' '}
-                      <Button color="primary" onClick={() => { this.onClose() }}>Continue</Button>{' '}
-                      <Button color="primary" onClick={() => { this.onClose() }}>Close</Button>{' '}
+                      <Button
+                        color="bg-white"
+                        onClick={() => {
+                          this.OnChangePassword();
+                        }}
+                      >
+                        Save
+                      </Button>{" "}
+                      <Button
+                        color="primary"
+                        onClick={() => {
+                          this.onClose();
+                        }}
+                      >
+                        Continue
+                      </Button>{" "}
+                      <Button
+                        color="primary"
+                        onClick={() => {
+                          this.onClose();
+                        }}
+                      >
+                        Close
+                      </Button>{" "}
                     </ModalFooter>
                   </Modal>
                 </Container>
-
               )}
               <Toaster
                 toastOptions={{
                   success: {
                     style: {
-                      background: 'green',
+                      background: "green",
                     },
                   },
                   error: {
                     style: {
-                      background: 'red',
+                      background: "red",
                     },
                   },
                 }}

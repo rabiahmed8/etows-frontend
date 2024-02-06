@@ -26,6 +26,7 @@ import GovtAgencyDetail from "views/examples/GovtAgencyDetail";
 import CorpDetail from "views/examples/CorpDetail";
 import FleetDetail from "views/examples/FleetDetail";
 import InsuranceInfo from "views/examples/InsuranceInfo";
+import JobDetails from "views/examples/JobDetails";
 // import Icons from "views/examples/Icons.js";
 
 var routes = [
@@ -34,154 +35,154 @@ var routes = [
     name: config.createDispatchRequest,
     icon: "ni ni-single-02 text-yellow",
     component: AddRequest,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/jurisdiction",
-    name: 'Jurisdiction',
+    name: "Jurisdiction",
     icon: "ni ni-single-02 text-yellow",
     component: Jurisdiction,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/court-proceeding",
-    name: 'Court Proceedings',
+    name: "Court Proceedings",
     icon: "ni ni-single-02 text-yellow",
     component: CourtProceedings,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/company-detail",
-    name: '',
+    name: "",
     icon: "ni ni-single-02 text-yellow",
     component: CompanyDetail,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/agency-detail",
-    name: '',
+    name: "",
     icon: "ni ni-single-02 text-yellow",
     component: GovtAgencyDetail,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/fleet-detail",
-    name: '',
+    name: "",
     icon: "ni ni-single-02 text-yellow",
     component: FleetDetail,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/insurance-detail",
-    name: '',
+    name: "",
     icon: "ni ni-single-02 text-yellow",
     component: InsuranceInfo,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/company",
-    name: 'Company',
+    name: "Company",
     icon: "ni ni-single-02 text-yellow",
     component: Company,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/company",
-    name: 'Company',
+    name: "Company",
     icon: "ni ni-single-02 text-yellow",
     component: Company,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/le-assigned-company-management",
-    name: 'Tow/Impound/Storage Company',
+    name: "Tow/Impound/Storage Company",
     icon: "ni ni-single-02 text-yellow",
     component: LECompany,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/le-assigned-company-services",
-    name: '',
+    name: "",
     icon: "ni ni-single-02 text-yellow",
     component: LECompany,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/le-assigned-company-details",
-    name: '',
+    name: "",
     icon: "ni ni-single-02 text-yellow",
     component: LEManagementArea,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/logs",
-    name: 'Logs',
+    name: "Logs",
     icon: "ni ni-single-02 text-yellow",
     component: Logs,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/index",
     name: config.dashbaord,
     icon: "ni ni-tv-2 text-primary",
     component: Index,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/govt-agency",
     name: config.govtAgency,
     icon: "ni ni-tv-2 text-primary",
     component: GovtAgencyContacts,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/corporate-documents",
     name: config.CorporateDetails,
     icon: "ni ni-tv-2 text-primary",
     component: corporateDetails,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/corp-documents-detail",
     name: config.CorporateDetails,
     icon: "ni ni-tv-2 text-primary",
     component: CorpDetail,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/fleet",
     name: config.fleet,
     icon: "ni ni-tv-2 text-primary",
     component: Fleet,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/driver-detail",
     name: config.driver,
     icon: "ni ni-tv-2 text-primary",
     component: Staff,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/other-staff",
     name: config.Otherstaff,
     icon: "ni ni-tv-2 text-primary",
     component: OtherStaff,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/insurance-information",
     name: config.InsuranceInformation,
     icon: "ni ni-tv-2 text-primary",
     component: InsuranceInformation,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/impounded-vehicle",
     name: config.TowImpoundedVehicle,
     icon: "ni ni-tv-2 text-primary",
     component: TowImpounded,
-    layout: "/admin"
+    layout: "/admin",
   },
 
   {
@@ -189,14 +190,14 @@ var routes = [
     name: config.map,
     icon: "ni ni-pin-3 text-orange",
     component: Maps,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/user-profile",
     name: config.userprofile,
     icon: "ni ni-single-02 text-yellow",
     component: Profile,
-    layout: "/admin"
+    layout: "/admin",
   },
 
   {
@@ -204,28 +205,35 @@ var routes = [
     name: config.allUsers,
     icon: "ni ni-bullet-list-67 text-red",
     component: AllUsers,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/activeusers",
     name: config.activeUsers,
     icon: "ni ni-bullet-list-67 text-red",
     component: ActiveUsers,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     path: "/alljobs",
     name: config.allJobs,
     icon: "ni ni-bullet-list-67 text-red",
     component: AllJobs,
-    layout: "/admin"
+    layout: "/admin",
+  },
+  {
+    path: "/jobdetails/:id",
+    name: config.jobDetails,
+    icon: "ni ni-bullet-list-67 text-red",
+    component: JobDetails,
+    layout: "/admin",
   },
   {
     path: "/availabledrivers",
     name: config.availableDrivers,
     icon: "ni ni-bullet-list-67 text-red",
     component: AvailableDrivers,
-    layout: "/admin"
+    layout: "/admin",
   },
 
   {
@@ -233,7 +241,7 @@ var routes = [
     name: config.createUsers,
     icon: "ni ni-single-02 text-yellow",
     component: CreateUsers,
-    layout: "/admin"
+    layout: "/admin",
   },
   {
     tag: "DropdownMenu",
