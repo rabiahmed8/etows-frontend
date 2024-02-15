@@ -749,7 +749,7 @@ function FleetDetail(props) {
           <TabPane tabId="1">
             <Row className="dflex-class">
               <Col sm="11">
-                <div style={{ display: "flex", flexDirection: "column" }}>
+                {/* <div style={{ display: "flex", flexDirection: "column" }}>
                   {setItem?.id ? (
                     <div className="listUi">
                       <span className="text-sm listUiItem">
@@ -784,6 +784,40 @@ function FleetDetail(props) {
                       <span className="text-sm">{setItem?.description}</span>
                     </div>
                   ) : null}
+                </div> */}
+                <div className="table-flex " style={{ width: "625px" }}>
+                  <div className="table-card">
+                    <Table borderless hover>
+                      <tbody>
+                        <tr>
+                          <th scope="row"> Fleet Vehicle ID</th>
+                          <td>{setItem?.id}</td>
+                        </tr>
+
+                        <tr>
+                          <th scope="row">Tow Company ID</th>
+                          <td>{setItem?.companyId}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Name</th>
+                          <td>{setItem?.name}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Type</th>
+                          <td>
+                            {" "}
+                            {setItem?.type === "fleet"
+                              ? "Fleet"
+                              : setItem?.type}
+                          </td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Description</th>
+                          <td>{setItem?.description}</td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
                 </div>
               </Col>
             </Row>
@@ -2041,6 +2075,7 @@ function FleetDetail(props) {
             </Row>
           </TabPane>
         </TabContent>
+
         <Modal
           isOpen={deleteModal}
           toggle={() => {
