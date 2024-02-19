@@ -3,22 +3,23 @@ import { Constants } from "../Environment";
 const axios = require("axios");
 
 const postRequest = async (api, paylaod, myCallback) => {
-  const token = await localStorage.getItem('token')
+  const token = await localStorage.getItem("token");
   const constApiLink = `${Constants.apiUrl}/${api}`;
   let options = {
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   };
-  
+
   axios({
-    method: 'post',
+    method: "post",
     url: constApiLink,
     data: paylaod,
     headers: options,
-  }).then((response) => {
-    myCallback({ sucess: response.data });
   })
+    .then((response) => {
+      myCallback({ sucess: response.data });
+    })
     .catch((error) => {
       const res = error.response.data;
       let message = "";
@@ -31,25 +32,26 @@ const postRequest = async (api, paylaod, myCallback) => {
       }
       myCallback({ error: message });
     });
-}
+};
 const postRequestStatic = async (api, paylaod, myCallback) => {
   const constApiLink = `${Constants.authUrl}/${api}`;
-  const token = await localStorage.getItem('token')
-  console.log("url =>", constApiLink)
+  const token = await localStorage.getItem("token");
+  console.log("url =>", constApiLink);
   let options = {
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   };
-  
+
   axios({
-    method: 'post',
+    method: "post",
     url: constApiLink,
     data: paylaod,
     headers: options,
-  }).then((response) => {
-    myCallback({ sucess: response.data });
   })
+    .then((response) => {
+      myCallback({ sucess: response.data });
+    })
     .catch((error) => {
       const res = error.response.data;
       let message = "";
@@ -62,11 +64,11 @@ const postRequestStatic = async (api, paylaod, myCallback) => {
       }
       myCallback({ error: message });
     });
-}
+};
 const putRequest = async (api, paylaod, myCallback) => {
   const constApiLink = `${Constants.apiUrl}/${api}`;
-  const token = await localStorage.getItem('token')
-  console.log("url =>", constApiLink)
+  const token = await localStorage.getItem("token");
+  console.log("url =>", constApiLink);
   let options = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -79,7 +81,7 @@ const putRequest = async (api, paylaod, myCallback) => {
       Authorization: `Bearer ${token}`,
     };
   }
-  
+
   axios({
     url: constApiLink,
     method: "put",
@@ -91,7 +93,7 @@ const putRequest = async (api, paylaod, myCallback) => {
     })
     .catch((error) => {
       const res = error.response.data;
-      console.log(res)
+      console.log(res);
       let message = "";
       if (res.non_field_errors) {
         message = res.non_field_errors[0];
@@ -105,9 +107,9 @@ const putRequest = async (api, paylaod, myCallback) => {
 };
 
 const postUploadRequest = async (api, paylaod, myCallback) => {
-  const token = await localStorage.getItem('token')
+  const token = await localStorage.getItem("token");
   const constApiLink = `${Constants.apiUrl}/${api}`;
-  console.log("url =>", constApiLink)
+  console.log("url =>", constApiLink);
 
   let options = {
     Accept: "application/json",
@@ -138,7 +140,7 @@ const postUploadRequest = async (api, paylaod, myCallback) => {
 };
 const uploadRequest = (api, paylaod, myCallback, token = "") => {
   const constApiLink = `${Constants.apiUrl}/${api}`;
-  console.log("url =>", constApiLink)
+  console.log("url =>", constApiLink);
   let options = {
     Accept: "application/json",
     "Content-Type": "multipart/form-data",
@@ -151,7 +153,7 @@ const uploadRequest = (api, paylaod, myCallback, token = "") => {
       Authorization: `Bearer ${token}`,
     };
   }
-  
+
   axios({
     url: constApiLink,
     method: "POST",
@@ -178,8 +180,8 @@ const uploadRequest = (api, paylaod, myCallback, token = "") => {
 
 const deleteRequest = async (api, myCallback) => {
   const constApiLink = `${Constants.apiUrl}/${api}`;
-  const token = await localStorage.getItem('token')
-  console.log("url =>", constApiLink)
+  const token = await localStorage.getItem("token");
+  console.log("url =>", constApiLink);
   let options = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -192,7 +194,7 @@ const deleteRequest = async (api, myCallback) => {
       Authorization: `Bearer ${token}`,
     };
   }
-  
+
   axios({
     url: constApiLink,
     method: "DELETE",
@@ -217,39 +219,10 @@ const deleteRequest = async (api, myCallback) => {
 };
 
 const getRequest = async (api, myCallback) => {
-  const token = await localStorage.getItem('token')
+  const token = await localStorage.getItem("token");
   const constApiLink = `${Constants.apiUrl}/${api}`;
-  console.log("getReq", constApiLink)
-  
-  let options = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
+  console.log("getReq", constApiLink);
 
-  axios({
-    url: constApiLink,
-    method: "GET",
-    headers: options
-  }).then((response) => {
-    myCallback({ sucess: response.data });
-  }).catch((error) => {
-    const res = error.response.data;
-
-    let message = "";
-    if (res.non_field_errors) {
-      message = res.non_field_errors[0];
-    } else {
-      for (const [key, value] of Object.entries(res)) {
-        message = message + `${key} : ${JSON.stringify(value)} `;
-      }
-    }
-    myCallback({ error: message });
-  });
-};
-const getRequestStatic = async (api, myCallback) => {
-  const constApiLink = `${Constants.authUrl}/${api}`;
-  const token = await localStorage.getItem('token')
-  
   let options = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -259,10 +232,46 @@ const getRequestStatic = async (api, myCallback) => {
     url: constApiLink,
     method: "GET",
     headers: options,
+  })
+    .then((response) => {
+      console.log("response___", response);
 
-  }).then((response) => {
-    myCallback({ sucess: response.data });
-  }).catch((error) => {
+      myCallback({ sucess: response.data });
+    })
+    .catch((error) => {
+      console.log("error___", error);
+
+      const res = error.response.data;
+
+      let message = "";
+      if (res.non_field_errors) {
+        message = res.non_field_errors[0];
+      } else {
+        for (const [key, value] of Object.entries(res)) {
+          message = message + `${key} : ${JSON.stringify(value)} `;
+        }
+      }
+      myCallback({ error: message });
+    });
+};
+const getRequestStatic = async (api, myCallback) => {
+  const constApiLink = `${Constants.authUrl}/${api}`;
+  const token = await localStorage.getItem("token");
+
+  let options = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+
+  axios({
+    url: constApiLink,
+    method: "GET",
+    headers: options,
+  })
+    .then((response) => {
+      myCallback({ sucess: response.data });
+    })
+    .catch((error) => {
       const res = error.response.data;
 
       let message = "";
@@ -279,12 +288,12 @@ const getRequestStatic = async (api, myCallback) => {
 
 const getApiByUrl = async (api, myCallback) => {
   const constApiLink = api;
-  const token = await localStorage.getItem('token')
-  console.log("constApiLink", constApiLink)
-  
+  const token = await localStorage.getItem("token");
+  console.log("constApiLink", constApiLink);
+
   let options = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   };
 
   axios({
@@ -296,7 +305,7 @@ const getApiByUrl = async (api, myCallback) => {
       myCallback({ sucess: response.data });
     })
     .catch((error) => {
-      console.log("eee", error)
+      console.log("eee", error);
       const res = error.response.data;
 
       let message = "";
@@ -312,41 +321,42 @@ const getApiByUrl = async (api, myCallback) => {
 };
 const getApiByUrlForUpload = async (api, myCallback) => {
   const constApiLink = api;
-  const token = await localStorage.getItem('token')
-  console.log("constApiLink", constApiLink)
+  const token = await localStorage.getItem("token");
+  console.log("constApiLink", constApiLink);
   let options = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   };
 
   axios({
     url: constApiLink,
     method: "GET",
     headers: options,
-    responseType: 'blob'
-  }).then((response) => {
+    responseType: "blob",
+  })
+    .then((response) => {
       myCallback({ sucess: response.data });
-  }).catch((error) => {
-    const res = error.response.data;
+    })
+    .catch((error) => {
+      const res = error.response.data;
 
-    let message = "";
-    if (res.non_field_errors) {
-      message = res.non_field_errors[0];
-    } else {
-      for (const [key, value] of Object.entries(res)) {
-        message = message + `${key} : ${JSON.stringify(value)} `;
+      let message = "";
+      if (res.non_field_errors) {
+        message = res.non_field_errors[0];
+      } else {
+        for (const [key, value] of Object.entries(res)) {
+          message = message + `${key} : ${JSON.stringify(value)} `;
+        }
       }
-    }
-    myCallback({ error: message });
-  });
+      myCallback({ error: message });
+    });
 };
-
 
 export const AllUsersApi = (payload, myCallback) => {
   getRequestStatic("user/userinfo-list-by-type/driver", myCallback);
 };
 export const AddDeviceToken = (payload, myCallback) => {
-  postRequest("notification/device/add-device",payload, myCallback);
+  postRequest("notification/device/add-device", payload, myCallback);
 };
 export const GetAllUsersApi = (payload, myCallback) => {
   getRequestStatic("user/userinfo-list?isAdmin=true", myCallback);
@@ -361,13 +371,20 @@ export const ActiveUserApi = (payload, myCallback) => {
   getRequestStatic(`user/userinfo-list?companyId=${payload}`, myCallback);
 };
 export const CheckEnabledDisabled = (paylaod, myCallback) => {
-  getRequestStatic(`user/userinfo-list-by-enabled?enabled=${paylaod}`, myCallback);
+  getRequestStatic(
+    `user/userinfo-list-by-enabled?enabled=${paylaod}`,
+    myCallback
+  );
 };
 export const getLoggedinApi = (payload, myCallback) => {
   getRequestStatic("user/userinfo", myCallback);
 };
 export const AllJobsApi = (payload, myCallback) => {
-  getRequest("tow-admin/tow-job-requests" + (payload === "" ? "" : "?companyId=" + payload), myCallback);
+  getRequest(
+    "tow-admin/tow-job-requests" +
+      (payload === "" ? "" : "?companyId=" + payload),
+    myCallback
+  );
 };
 export const AvailableDriversApi = (payload, myCallback) => {
   getRequest("tow-admin/available-users?active=1", myCallback);
@@ -379,7 +396,10 @@ export const JobRequestByIDApi = (payload, myCallback) => {
   getRequest("tow-admin/tow-job-request/161", myCallback);
 };
 export const getLocationDriver = (payload, myCallback) => {
-  getRequest(`geolocation/user-location-by-params?userId=${payload}`, myCallback);
+  getRequest(
+    `geolocation/user-location-by-params?userId=${payload}`,
+    myCallback
+  );
 };
 export const GetUserTowResquestApi = (payload, myCallback) => {
   getRequest("tow/tow-job-requests", myCallback);
@@ -396,13 +416,15 @@ export const JobFormDataApi = (payload, myCallback) => {
 export const AvailableFleets = (myCallback) => {
   getRequest("tow/shift/available-fleets", myCallback);
 };
+export const getFleetTypes = (myCallback) => {
+  getRequest("agencies/fleetTypes", myCallback);
+};
 export const TowFormDataApi = (payload, myCallback) => {
   getRequest("tow/job-form-data", myCallback);
 };
 export const getCSVApi = (payload, myCallback) => {
   getRequest("file/public/csv/users-template.csv", myCallback);
 };
-
 
 export const getDropDownApi = (payload, myCallback) => {
   getRequest("tow/job-form-data", myCallback);
@@ -420,7 +442,11 @@ export const UserTowJobReqUpdateApi = (payload, myCallback) => {
   postRequest("tow/tow-job-request-update", payload, myCallback);
 };
 export const UserNotInListApi = (payload, myCallback) => {
-  postRequestStatic("user/userinfo-list-ids-not-in?enabled=true&userType=driver", payload, myCallback);
+  postRequestStatic(
+    "user/userinfo-list-ids-not-in?enabled=true&userType=driver",
+    payload,
+    myCallback
+  );
 };
 export const CreateUsersApi = (payload, myCallback) => {
   postRequestStatic("user/create-user", payload, myCallback);
@@ -472,10 +498,16 @@ export const getVehiclesbyType = (payload, myCallback) => {
   getRequest(`vehicle/get-vehicles-by-vehicleType/${payload}`, myCallback);
 };
 export const getUploadData = (payload, myCallback) => {
-  getRequest(`file/files?id=${payload.id}&fileType=${payload.type}`, myCallback);
+  getRequest(
+    `file/files?id=${payload.id}&fileType=${payload.type}`,
+    myCallback
+  );
 };
 export const getImagesData = (payload, myCallback) => {
-  getRequest(`tow/image/images?id=${payload.id}&fileType=${payload.type}`, myCallback);
+  getRequest(
+    `tow/image/images?id=${payload.id}&fileType=${payload.type}`,
+    myCallback
+  );
 };
 
 export const SaveVehicles = (payload, myCallback) => {
@@ -528,7 +560,11 @@ export const getAllTowCompany = (payload, myCallback) => {
   getRequest("company/all?type=Tow%20Company", myCallback);
 };
 export const assignCompany = (id, payload, myCallback) => {
-  postRequest(`company/assign-company/all?companyId=${id}`, payload, myCallback);
+  postRequest(
+    `company/assign-company/all?companyId=${id}`,
+    payload,
+    myCallback
+  );
 };
 export const getAssignCompany = (id, myCallback) => {
   getRequest(`company/assign-company/all?companyId=${id}`, myCallback);
@@ -574,27 +610,49 @@ export const updateJurisdiction = (payload, myCallback) => {
   postRequest("company/jurisdiction/update-all", payload, myCallback);
 };
 export const addCompanyJurisdiction = (id, payload, myCallback) => {
-  postRequest(`company/jurisdiction/company-jurisdiction/add-all?companyId=${id}`, payload, myCallback);
+  postRequest(
+    `company/jurisdiction/company-jurisdiction/add-all?companyId=${id}`,
+    payload,
+    myCallback
+  );
 };
-export const updateCompanyJurisdiction = (id,payload, myCallback) => {
-  postRequest(`company/jurisdiction/company-jurisdiction/update-all?companyId=${id}`, payload, myCallback);
+export const updateCompanyJurisdiction = (id, payload, myCallback) => {
+  postRequest(
+    `company/jurisdiction/company-jurisdiction/update-all?companyId=${id}`,
+    payload,
+    myCallback
+  );
 };
 // export const getCompanyJurisdictionAll = (payload, myCallback) => {
 //   getRequest(`company/jurisdiction/company-jurisdiction/single/${payload}`, myCallback);
 // };
 export const getCompanyJurisdictionAll = (payload, myCallback) => {
-  getRequest(`company/jurisdiction/company-jurisdiction/all?companyId=${payload}`, myCallback);
+  getRequest(
+    `company/jurisdiction/company-jurisdiction/all?companyId=${payload}`,
+    myCallback
+  );
 };
 
 export const getUserJurisdictionAll = (payload, myCallback) => {
-  getRequest(`company/jurisdiction/user-jurisdiction/all?userId=${payload}`, myCallback);
+  getRequest(
+    `company/jurisdiction/user-jurisdiction/all?userId=${payload}`,
+    myCallback
+  );
 };
 
 export const addUserJurisdiction = (id, payload, myCallback) => {
-  postRequest(`company/jurisdiction/user-jurisdiction/add-all?userId=${id}`, payload, myCallback);
+  postRequest(
+    `company/jurisdiction/user-jurisdiction/add-all?userId=${id}`,
+    payload,
+    myCallback
+  );
 };
 export const updateUserJurisdiction = (payload, myCallback) => {
-  postRequest("company/jurisdiction/user-jurisdiction/update-all", payload, myCallback);
+  postRequest(
+    "company/jurisdiction/user-jurisdiction/update-all",
+    payload,
+    myCallback
+  );
 };
 
 export const getUserDatabyUrl = (payload, myCallback) => {
@@ -631,8 +689,14 @@ export const singleUpdateCorporate = (payload, myCallback) => {
   putRequest("agencies/corporate-details/single", payload, myCallback);
 };
 export const singleAllCorporate = (payload, myCallback) => {
-  payload!=null && payload!=undefined && payload!=''? getRequest(`agencies/corporate-details/all?type=fleet&companyId=${payload}`, myCallback) :
-    getRequest(`agencies/corporate-details/all?type=fleet`, myCallback);
+  console.log("myCallback___", myCallback);
+
+  payload != null && payload != undefined && payload != ""
+    ? getRequest(
+        `agencies/corporate-details/all?type=fleet&companyId=${payload}`,
+        myCallback
+      )
+    : getRequest(`agencies/corporate-details/all?type=fleet`, myCallback);
 };
 export const singleGetCorporate = (payload, myCallback) => {
   getRequest(`agencies/corporate-details/single?id=${payload}`, myCallback);
@@ -650,18 +714,43 @@ export const UploadUpdateContractsApi = (payload, myCallback) => {
   postUploadRequest("file/upload", payload, myCallback);
 };
 export const UploadGetContractsApi = (payload, myCallback) => {
-  payload.comId ? getRequest(`file/all?refId=${payload.id}&subType=${payload.subType}&type=${payload.type}&companyId=${payload.comId}`, myCallback) : getRequest(`file/all?refId=${payload.id}&subType=${payload.subType}&type=${payload.type}`, myCallback);
+  payload.comId
+    ? getRequest(
+        `file/all?refId=${payload.id}&subType=${payload.subType}&type=${payload.type}&companyId=${payload.comId}`,
+        myCallback
+      )
+    : getRequest(
+        `file/all?refId=${payload.id}&subType=${payload.subType}&type=${payload.type}`,
+        myCallback
+      );
 };
 export const singleDeleteFile = (payload, myCallback) => {
-  deleteRequest(`file/single?id=${payload.id}&filename=${payload.name}`, myCallback);
+  deleteRequest(
+    `file/single?id=${payload.id}&filename=${payload.name}`,
+    myCallback
+  );
 };
 export const getOnDutyDrivers = (payload, myCallback) => {
-  getRequest(payload ? `tow-admin/on-duty-users?companyId=${payload}` : "tow-admin/on-duty-users", myCallback);
+  getRequest(
+    payload
+      ? `tow-admin/on-duty-users?companyId=${payload}`
+      : "tow-admin/on-duty-users",
+    myCallback
+  );
 };
 export const getDashboard = (payload, myCallback) => {
   getRequest(`tow-admin/dashboard`, myCallback);
 };
 export const getOndutyLocations = (payload, myCallback) => {
-  getRequest("geolocation/users-locations"+(payload=="" || payload=="0" || payload==undefined || payload==null?"":"?companyId="+payload), myCallback);
+  getRequest(
+    "geolocation/users-locations" +
+      (payload == "" ||
+      payload == "0" ||
+      payload == undefined ||
+      payload == null
+        ? ""
+        : "?companyId=" + payload),
+    myCallback
+  );
 };
 // 4S3BJ6332P6953766

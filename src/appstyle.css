@@ -661,7 +661,6 @@
   border-radius: 20px;
   margin: 8px 50px;
   padding: 19px 53px;
-  width: -webkit-fill-available;
 }
 .table-flex {
   display: flex;

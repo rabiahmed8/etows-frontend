@@ -81,6 +81,7 @@ function FleetDetail(props) {
   const [imageData, setDataImage] = useState();
 
   const setItem = location.state;
+  console.log("item", setItem);
 
   const [deleteModal, setDeletToggle] = useState(false);
   const [fileData, setFileData] = useState("");
@@ -814,6 +815,10 @@ function FleetDetail(props) {
                         <tr>
                           <th scope="row">Description</th>
                           <td>{setItem?.description}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Fleet Type</th>
+                          <td>{setItem?.fleetTypeName}</td>
                         </tr>
                       </tbody>
                     </Table>

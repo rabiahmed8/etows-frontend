@@ -49,6 +49,7 @@ import {
   singleSaveCorporate,
   singleUpdateAgency,
   singleUpdateCorporate,
+  getFleetTypes,
 } from "../../../APIstore/apiCalls";
 import { CsvToHtmlTable } from "react-csv-to-table";
 import toast, { Toaster } from "react-hot-toast";
@@ -124,6 +125,8 @@ function Fleet(props) {
   const [deleteModal, setDeletToggle] = useState(false);
   const [userID, setUserId] = useState("");
   const [logdataVal, setLogData] = useState("");
+  const [fleetType, setFleetType] = useState("");
+  const [typesArray, setTypesArray] = useState([]);
   const navigate = useHistory();
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -131,11 +134,51 @@ function Fleet(props) {
   const ViewImagetoggle = () => {
     setViewImageModal(!ViewImagemodal);
   };
+
+  const renderList = (selectedArray) => {
+    console.log(selectedArray);
+    return selectedArray?.map((data) => ({
+      label: data?.label,
+      value: data?.id,
+    }));
+  };
+
+  const getDropDown = () => {
+    try {
+      // FleetTypes(async (res) => {
+      //   if (res.sucess) {
+      //     setTypesArray(res.sucess);
+      //   }
+      // });
+      getFleetTypes(async (res) => {
+        console.log("res", res);
+        if (res.sucess) {
+          console.log(res.sucess);
+          var Types = res.sucess;
+          let typesArray = Types?.list?.map((ele) => ele);
+
+          // for (let i = 0; i < Types.list.length; i++) {
+          //   typesArray.push(Types.list[i]);
+          // }
+          console.log("163", typesArray);
+          setTypesArray(typesArray);
+        } else {
+          errorAlert("Something went wrong");
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      errorAlert(error);
+    }
+  };
+
   const toggleUpdate = (item) => {
+    getDropDown();
     if (item) {
       setModalUpdate(!modalUpdate);
       setItemData(item);
       hoistData = item;
+      console.log("kch", hoistData);
     } else {
       hoistData = {};
       setModalUpdate(!modalUpdate);
@@ -197,6 +240,7 @@ function Fleet(props) {
         async (res) => {
           if (res.sucess) {
             setData(res.sucess.list);
+            console.error(res.sucess.list);
           } else {
             console.log("errrrr");
           }
@@ -206,9 +250,11 @@ function Fleet(props) {
       console.log("error", error);
     }
   };
+
   useEffect(() => {
     getLoggedData();
   }, [setItem]);
+
   const OnSubmit = async () => {
     const getdata = await localStorage.getItem("loggedData");
     let loggedData = JSON.parse(getdata);
@@ -219,20 +265,29 @@ function Fleet(props) {
     console.log("hoistData", hoistData);
     const obj = {
       id: hoistData?.id ? hoistData?.id : 0,
+
       name:
         truckName === undefined || truckName === ""
           ? hoistData?.name
           : truckName,
+
       type: "fleet",
+
       description:
         description === undefined || description === ""
           ? hoistData?.description
           : description,
+
       longVal:
         mileage === undefined || mileage === "" ? hoistData?.mileage : mileage,
       companyId: loggedData.companyId ? loggedData.companyId : null,
+
+      fleetType: fleetType || hoistData.fleetType,
     };
-    console.log("ooobb", obj);
+    // if (hoistData?.id) {
+    //   obj.id = hoistData?.id;
+    // }
+    console.log("ooobb", obj, fleetType, hoistData.fleetType);
 
     try {
       API(obj, async (res) => {
@@ -257,7 +312,6 @@ function Fleet(props) {
         } else {
           setModalUpdate(!modalUpdate);
           console.log("eeee", res.sucess);
-          errorAlert(res.sucess.messages[0].message);
         }
       });
     } catch (error) {
@@ -353,6 +407,9 @@ function Fleet(props) {
                         <th scope="col" className="width-160">
                           Description
                         </th>
+                        <th scope="col" className="width-160">
+                          Fleet Type
+                        </th>
                         <th scope="col" className="width-160" />
                       </tr>
                     </thead>
@@ -401,6 +458,14 @@ function Fleet(props) {
                               className="text-sm"
                             >
                               {item?.description}
+                            </td>
+                            <td
+                              onClick={() => {
+                                redirect("/admin/fleet-detail", item);
+                              }}
+                              className="text-sm"
+                            >
+                              {item?.fleetTypeName}
                             </td>
                             <td className="">
                               {logdataVal.role != "POLICE_ADMIN" && (
@@ -637,6 +702,31 @@ function Fleet(props) {
                                 onChange={(text) =>
                                   setMileage(text.target.value)
                                 }
+                              />
+                            </FormGroup>
+                          </Col>
+                          <Col lg="6">
+                            <FormGroup>
+                              <label
+                                className="form-control-label"
+                                htmlFor="input-first-name"
+                              >
+                                Fleet Types
+                              </label>
+                              <Select
+                                name="form-field-name"
+                                defaultValue={{
+                                  label: hoistData.fleetTypeName,
+                                  // value: "978edebb-56de-40fc-ae7a-ba5c6159682f",
+                                }}
+                                onChange={(val) => {
+                                  console.log("711", val);
+
+                                  // setFleetType(value);
+                                }}
+                                labelKey="label"
+                                valueKey="value"
+                                options={renderList(typesArray)}
                               />
                             </FormGroup>
                           </Col>
