@@ -697,118 +697,123 @@ function AllJobs(props) {
           <div className="col">
             <Card className="shadow">
               <CardHeader className="border-0">
-                <Row>
-                  <h3 className="mb-0">{config.allJobs}</h3>
-                  {localAccessData == null ? (
-                    <UncontrolledDropdown style={{ marginLeft: 10 }}>
-                      <DropdownToggle
-                        className="btn-icon-only text-light"
-                        style={{
-                          width: 80,
-                          height: 32,
-                        }}
-                        role="button"
-                        size="sm"
-                        color=""
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        Filter
-                      </DropdownToggle>
-                      <DropdownMenu className="dropdown-menu-arrow" right>
-                        <DropdownItem
-                          onClick={() => {
-                            ChangeStatusJob("");
+                <Row className="flex-between">
+                  <div className="flex-row">
+                    <h3 className="mb-0">{config.allJobs}</h3>
+                    {localAccessData == null ? (
+                      <UncontrolledDropdown style={{ marginLeft: 10 }}>
+                        <DropdownToggle
+                          className="btn-icon-only text-light"
+                          style={{
+                            width: 80,
+                            height: 32,
                           }}
+                          role="button"
+                          size="sm"
+                          color=""
+                          onClick={(e) => e.preventDefault()}
                         >
-                          {config.all}
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            LEFilter(true);
-                          }}
-                        >
-                          LE - Yes
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            LEFilter(false);
-                          }}
-                        >
-                          LE - No
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            requestTypeFunc("Roadside Assistance");
-                          }}
-                        >
-                          Roadside Assistance
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            requestTypeFunc("Tow and Impound/Storage");
-                          }}
-                        >
-                          Tow and Impound/Storage
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            requestTypeFunc("Tow only");
-                          }}
-                        >
-                          Tow only
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            ChangeStatusJob("Assigned");
-                          }}
-                        >
-                          Assigned
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            ChangeStatusJob("Pending");
-                          }}
-                        >
-                          {config.pending}
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            ChangeStatusJob("OnScene");
-                          }}
-                        >
-                          OnScene
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            ChangeStatusJob("ENRoute");
-                          }}
-                        >
-                          ENRoute
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            ChangeStatusJob("ENRoute(D)");
-                          }}
-                        >
-                          ENRoute(D)
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            ChangeStatusJob("Complete");
-                          }}
-                        >
-                          Complete
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            ChangeStatusJob("Completely Cancelled");
-                          }}
-                        >
-                          Completely Cancelled
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </UncontrolledDropdown>
-                  ) : null}
+                          Filter
+                        </DropdownToggle>
+                        <DropdownMenu className="dropdown-menu-arrow" right>
+                          <DropdownItem
+                            onClick={() => {
+                              ChangeStatusJob("");
+                            }}
+                          >
+                            {config.all}
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              LEFilter(true);
+                            }}
+                          >
+                            LE - Yes
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              LEFilter(false);
+                            }}
+                          >
+                            LE - No
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              requestTypeFunc("Roadside Assistance");
+                            }}
+                          >
+                            Roadside Assistance
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              requestTypeFunc("Tow and Impound/Storage");
+                            }}
+                          >
+                            Tow and Impound/Storage
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              requestTypeFunc("Tow only");
+                            }}
+                          >
+                            Tow only
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              ChangeStatusJob("Assigned");
+                            }}
+                          >
+                            Assigned
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              ChangeStatusJob("Pending");
+                            }}
+                          >
+                            {config.pending}
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              ChangeStatusJob("OnScene");
+                            }}
+                          >
+                            OnScene
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              ChangeStatusJob("ENRoute");
+                            }}
+                          >
+                            ENRoute
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              ChangeStatusJob("ENRoute(D)");
+                            }}
+                          >
+                            ENRoute(D)
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              ChangeStatusJob("Complete");
+                            }}
+                          >
+                            Complete
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => {
+                              ChangeStatusJob("Completely Cancelled");
+                            }}
+                          >
+                            Completely Cancelled
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </UncontrolledDropdown>
+                    ) : null}
+                  </div>
+                  <div onClick={getIndexData} className="btn btn-primary">
+                    Refresh
+                  </div>
                 </Row>
               </CardHeader>
 

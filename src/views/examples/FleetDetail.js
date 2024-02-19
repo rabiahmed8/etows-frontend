@@ -39,6 +39,7 @@ import { UploadGetContractsApi } from "APIstore/apiCalls";
 import { singleDeleteFile } from "APIstore/apiCalls";
 import { getAssignCompany } from "APIstore/apiCalls";
 import ViewImageModal from "component/ViewImageModal";
+import BootstrapNav from "react-bootstrap/Nav";
 
 var logData1 = {};
 var localAccessData = null;
@@ -662,7 +663,95 @@ function FleetDetail(props) {
         </Container>
       </div>
       <div>
-        <Nav tabs className="nav--links" style={{}}>
+        {/* <BootstrapNav variant="tabs" defaultActiveKey="/home">
+          <BootstrapNav.Item>
+            <BootstrapNav.Link eventKey="link-1">Active</BootstrapNav.Link>
+          </BootstrapNav.Item>
+          <BootstrapNav.Item>
+            <BootstrapNav.Link eventKey="link-2">Option 2</BootstrapNav.Link>
+          </BootstrapNav.Item>
+          <BootstrapNav.Item>
+            <BootstrapNav.Link eventKey="disabled" disabled>
+              Disabled
+            </BootstrapNav.Link>
+          </BootstrapNav.Item>
+        </BootstrapNav> */}
+
+        <div tabs className="nav--links-custom" style={{}}>
+          <div
+            className={classnames({ active: activeTab === "1" })}
+            onClick={() => {
+              toggle("1");
+            }}
+          >
+            Fleet Information
+          </div>
+
+          <div
+            className={classnames({ active: activeTab === "2" })}
+            onClick={() => {
+              toggle("2");
+            }}
+          >
+            Vehicle Ownership
+          </div>
+
+          <div
+            className={classnames({ active: activeTab === "3" })}
+            onClick={() => {
+              toggle("3");
+            }}
+          >
+            Tow Licence
+          </div>
+
+          <div
+            className={classnames({ active: activeTab === "4" })}
+            onClick={() => {
+              toggle("4");
+            }}
+          >
+            CVOR
+          </div>
+
+          <div
+            className={classnames({ active: activeTab === "5" })}
+            onClick={() => {
+              toggle("5");
+            }}
+          >
+            Annual Safety Inspections
+          </div>
+
+          <div
+            className={classnames({ active: activeTab === "6" })}
+            onClick={() => {
+              toggle("6");
+            }}
+          >
+            Truck Ownership Info
+          </div>
+
+          <div
+            className={classnames({ active: activeTab === "7" })}
+            onClick={() => {
+              toggle("7");
+            }}
+          >
+            Insurance Information
+          </div>
+
+          <div
+            className={classnames({ active: activeTab === "8" })}
+            onClick={() => {
+              toggle("8");
+            }}
+          >
+            Vehicle Pictures
+          </div>
+        </div>
+
+        {/* <Nav tabs className="nav--links-custom" style={{}}>
           <NavItem>
             <NavLink
               className={classnames({ active: activeTab === "1" })}
@@ -703,8 +792,6 @@ function FleetDetail(props) {
               CVOR
             </NavLink>
           </NavItem>
-        </Nav>
-        <Nav tabs className="nav--links" style={{}}>
           <NavItem>
             <NavLink
               className={classnames({ active: activeTab === "5" })}
@@ -745,7 +832,49 @@ function FleetDetail(props) {
               Vehicle Pictures
             </NavLink>
           </NavItem>
-        </Nav>
+        </Nav> */}
+        {/* <Nav tabs className="nav--links" style={{}}>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: activeTab === "5" })}
+              onClick={() => {
+                toggle("5");
+              }}
+            >
+              Annual Safety Inspections
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: activeTab === "6" })}
+              onClick={() => {
+                toggle("6");
+              }}
+            >
+              Truck Ownership Info
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: activeTab === "7" })}
+              onClick={() => {
+                toggle("7");
+              }}
+            >
+              Insurance Information
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: activeTab === "8" })}
+              onClick={() => {
+                toggle("8");
+              }}
+            >
+              Vehicle Pictures
+            </NavLink>
+          </NavItem>
+        </Nav> */}
         <TabContent activeTab={activeTab}>
           <TabPane tabId="1">
             <Row className="dflex-class">
