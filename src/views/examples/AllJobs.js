@@ -924,10 +924,13 @@ function AllJobs(props) {
                               </td>
                               {logData1.role != "POLICE_ADMIN" && (
                                 <>
-                                  {statusData == "Pending" ||
-                                  statusData == "LE Request" ||
-                                  item?.status == "Pending" ||
-                                  item?.status == "LE Request" ? (
+                                  {
+                                  // statusData == "Pending" ||
+                                  // statusData == "LE Request" ||
+                                  // item?.status == "Pending" ||
+                                  // item?.status == "LE Request" ?
+                                  item?.status === "Pending" ?
+                                  (
                                     <td>
                                       <Button
                                         onClick={() => {

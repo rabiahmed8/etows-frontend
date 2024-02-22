@@ -688,6 +688,8 @@
   display: flex;
   justify-content: center;
   padding-block: 20px;
+  flex-wrap: wrap;
+  row-gap: 15px;
 }
 
 .nav--links-custom div {
@@ -703,6 +705,8 @@
 
 .nav--links-custom div.active {
   background-color: green;
+  border-radius: 20px;
+  pointer-events: none;
   /* border-right: 0.125rem solid #f1f1f1; */
 
   color: #ffffff;
@@ -720,4 +724,8 @@
 }
 .flex-between {
   justify-content: space-between;
+}
+
+.custom-header{
+  height: 100px;
 }

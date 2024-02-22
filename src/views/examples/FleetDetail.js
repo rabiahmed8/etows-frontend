@@ -645,7 +645,7 @@ function FleetDetail(props) {
   return (
     <>
       {/* {activeTab === '1' && ()} */}
-      <div className="header pb-4 pt-5 pt-md-8" style={{ background: "green" }}>
+      <div className="header custom-header" style={{ background: "green" }}>
         <Container fluid>
           <div className="header-body">
             <span

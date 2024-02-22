@@ -136,7 +136,7 @@ function Fleet(props) {
   };
 
   const renderList = (selectedArray) => {
-    console.log(selectedArray);
+    // console.log(selectedArray);
     return selectedArray?.map((data) => ({
       label: data?.label,
       value: data?.id,
@@ -151,16 +151,16 @@ function Fleet(props) {
       //   }
       // });
       getFleetTypes(async (res) => {
-        console.log("res", res);
+        // console.log("res", res);
         if (res.sucess) {
-          console.log(res.sucess);
+          // console.log(res.sucess);
           var Types = res.sucess;
           let typesArray = Types?.list?.map((ele) => ele);
 
           // for (let i = 0; i < Types.list.length; i++) {
           //   typesArray.push(Types.list[i]);
           // }
-          console.log("163", typesArray);
+          // console.log("163", typesArray);
           setTypesArray(typesArray);
         } else {
           errorAlert("Something went wrong");
@@ -192,7 +192,7 @@ function Fleet(props) {
   const deleteAPI = () => {
     try {
       singleDeleteCorporate(userID, async (res) => {
-        console.log("adasdasd", res);
+        // console.log("adasdasd", res);
         if (res.sucess) {
           try {
             singleAllCorporate("", async (res) => {
@@ -287,15 +287,15 @@ function Fleet(props) {
     // if (hoistData?.id) {
     //   obj.id = hoistData?.id;
     // }
-    console.log("ooobb", obj, fleetType, hoistData.fleetType);
+    // console.log("ooobb", obj, fleetType, hoistData.fleetType);
 
     try {
       API(obj, async (res) => {
-        console.log("qq", res);
+        // console.log("qq", res);
         if (res.sucess) {
           try {
             singleAllCorporate("", async (res) => {
-              console.log("adasdasd", res);
+              // console.log("adasdasd", res);
               if (res.sucess) {
                 setData(res.sucess.list);
                 console.log("res.sucess.list", res.sucess.list);
@@ -311,7 +311,7 @@ function Fleet(props) {
           console.log("res.sucess", res.sucess);
         } else {
           setModalUpdate(!modalUpdate);
-          console.log("eeee", res.sucess);
+          // console.log("eeee", res.sucess);
         }
       });
     } catch (error) {
@@ -323,8 +323,8 @@ function Fleet(props) {
   };
 
   const ChangeStatusJob = (status) => {
-    console.log("fff", data);
-    console.log("fff", status);
+    // console.log("fff", data);
+    // console.log("fff", status);
     if (status == "Police") {
       let result = data.filter((el) => el.agencyType === status);
       setData(result);
@@ -720,9 +720,9 @@ function Fleet(props) {
                                   // value: "978edebb-56de-40fc-ae7a-ba5c6159682f",
                                 }}
                                 onChange={(val) => {
-                                  console.log("711", val);
+                                  // console.log("711", val);
 
-                                  // setFleetType(value);
+                                  setFleetType(val.value);
                                 }}
                                 labelKey="label"
                                 valueKey="value"
