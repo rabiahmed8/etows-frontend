@@ -337,13 +337,17 @@ function AllJobs(props) {
         async (res) => {
           if (res.sucess) {
             console.log("res.sucess", res.sucess);
-            let result = res.sucess.filter(
-              (el) =>
-                (el.status == "LE Request" ? "Pending" : el.status) ===
-                statusData
-            );
-            setData(result);
+            let result = res.sucess;
+            // if (statusData) {
+            //   result = result.filter(
+            //     (el) =>
+            //       (el.status == "LE Request" ? "Pending" : el.status) ===
+            //       statusData
+            //   );
+            // }
+            // setData(result);
             setInitialData(res.sucess);
+            ChangeStatusJob(statusData,res.sucess)
             setCurrentPage(1);
             setIsLoader(false);
           } else {
@@ -352,263 +356,59 @@ function AllJobs(props) {
           }
         }
       );
-
-      // setData([
-      //   {
-      //     id: 538,
-      //     userId: "dec8674d-c3f8-4179-9dc2-e1993a16d8cb",
-      //     indicatePolice: true,
-      //     isMandatory: false,
-      //     isOccurrenceNumbers: true,
-      //     isOfficerInCharge: false,
-      //     towJobRequestLocation: "starting location datafield test",
-      //     questionAsked: null,
-      //     startingMileage: 1235,
-      //     endingMileage: 1236,
-      //     equipmentList: [],
-      //     equipmentListStr: "",
-      //     onSceneInitialImages: [],
-      //     onSceneFinalImages: [],
-      //     policeOfficers: [],
-      //     towTruckPersons: [],
-      //     isOtherVehicle: false,
-      //     loading: false,
-      //     mandatoryDate: "2023-12-12",
-      //     occurrenceNumbers: "additional occ #'s datafield",
-      //     officerInCharge: "oic name datafield",
-      //     officerInChargeBadge: "oic badge number datafield",
-      //     otherVehicle: null,
-      //     policeOccurrence: "2023-LE occ datafield",
-      //     policeService: "York Regional Police",
-      //     officerBadge: "badge # datafield",
-      //     officerDepart: "assignment datafield",
-      //     officerName: "Officer name datafield",
-      //     otherCompany:
-      //       "other number datafield test from info entered in Android app",
-      //     officerContact: "officer phone number datafield",
-      //     licensePlateNumber: "AXJZ639",
-      //     specialInstructions: "",
-      //     otherContact: "Test other contact info datafield",
-      //     reasonForImpound: "CCC VIP Minimum 45 Days",
-      //     reasonForTow: "Impaired Driving",
-      //     releaseStatus: "Can be Released after Mandatory Seizure/Hold Period",
-      //     requestType: "Tow and Impound/Storage",
-      //     requestStatus: "Pending",
-      //     roadService: "",
-      //     step: "538",
-      //     sent: true,
-      //     towOrImpoundDate: "2023-12-12",
-      //     vehicleType: "Light Tow/Duty tilt and load tow truck.",
-      //     vehicle: "Car",
-      //     vin: "19uua66285a804804",
-      //     vinBasicData: {
-      //       doors: 4,
-      //       driveType: "FWD",
-      //       trim: "",
-      //       year: 2005,
-      //       oemDoors: 4,
-      //       rearAxle: "",
-      //       bodyType: "Sedan",
-      //       vehicleType: "Car",
-      //       model: "TL",
-      //       oemBodyStyle: "Sedan",
-      //       make: "Acura",
-      //       bodySubtype: "",
-      //       response: null,
-      //     },
-      //     jurisdiction: null,
-      //     status: "Complete",
-      //     requestlongitude: null,
-      //     requestlatitude: null,
-      //     vehicleOrProperty: "Vehicle",
-      //     property: "",
-      //     specialTask: "Liquid/Oil Clean Up Required",
-      //     specialComments: "Test absorbent ",
-      //     comments: "test datafield from Android app ",
-      //     startingLocation: "starting location datafield test",
-      //     finishingLocation: "ending location datafield test",
-      //     startDate: "2023-12-12T14:44:26.25",
-      //     endDate: "2024-01-26T19:44:00",
-      //     isRelease: false,
-      //     registeredOwnerNotified: false,
-      //     registeredOwnerComments: null,
-      //     finalComments: null,
-      //     heldPurpose:
-      //       "Criminal Proceedings – Homicide, Fatal Collision, Major Project, etc",
-      //     propertyForfiet: "Forfeiture datafield test",
-      //     propertyForfietDetails: "",
-      //     notifyOwner: null,
-      //     notifyOwnerName: null,
-      //     notifyOwnerEmail: null,
-      //     notifyContact: null,
-      //     notifiedBy: null,
-      //     isSpecialInstructions: false,
-      //     isSelfGenerated: false,
-      //     driverName: "Driver First Name Surname",
-      //     driverMobile: "driver phone number",
-      //     driverAddress: "Driver address datafield",
-      //     driverEmail: "driver email datafield",
-      //     ownerName: "Vehicle Owner First name Surname",
-      //     ownerMobile: "Vehicle owner phone number datafield",
-      //     ownerAddress: "12 Springwood Ct, Barrie, ON L4N 5V1, Canada",
-      //     ownerEmail: "Vehicle Owner email datafield",
-      //     lienName: "Test Lien Hold First Name Last Name",
-      //     lienMobile: "123-456-7890 Ext Lien Holder",
-      //     lienAddress: "1lien holder way address datafield",
-      //     lienEmail: "lienholder@email.com",
-      //     companyId: 49,
-      //     testStatus: null,
-      //     userUrl:
-      //       "https://stage-api.etows.app:8443/user/userinfo?userId=dec8674d-c3f8-4179-9dc2-e1993a16d8cb",
-      //     createdAt: "2023-12-12T15:02:05.722021",
-      //     updatedAt: "2023-12-12T15:51:56.362609",
-      //     response: null,
-      //   },
-      // ]);
-      // setInitialData([
-      //   {
-      //     id: 538,
-      //     userId: "dec8674d-c3f8-4179-9dc2-e1993a16d8cb",
-      //     indicatePolice: true,
-      //     isMandatory: false,
-      //     isOccurrenceNumbers: true,
-      //     isOfficerInCharge: false,
-      //     towJobRequestLocation: "starting location datafield test",
-      //     questionAsked: null,
-      //     startingMileage: 1235,
-      //     endingMileage: 1236,
-      //     equipmentList: [],
-      //     equipmentListStr: "",
-      //     onSceneInitialImages: [],
-      //     onSceneFinalImages: [],
-      //     policeOfficers: [],
-      //     towTruckPersons: [],
-      //     isOtherVehicle: false,
-      //     loading: false,
-      //     mandatoryDate: "2023-12-12",
-      //     occurrenceNumbers: "additional occ #'s datafield",
-      //     officerInCharge: "oic name datafield",
-      //     officerInChargeBadge: "oic badge number datafield",
-      //     otherVehicle: null,
-      //     policeOccurrence: "2023-LE occ datafield",
-      //     policeService: "York Regional Police",
-      //     officerBadge: "badge # datafield",
-      //     officerDepart: "assignment datafield",
-      //     officerName: "Officer name datafield",
-      //     otherCompany:
-      //       "other number datafield test from info entered in Android app",
-      //     officerContact: "officer phone number datafield",
-      //     licensePlateNumber: "AXJZ639",
-      //     specialInstructions: "",
-      //     otherContact: "Test other contact info datafield",
-      //     reasonForImpound: "CCC VIP Minimum 45 Days",
-      //     reasonForTow: "Impaired Driving",
-      //     releaseStatus: "Can be Released after Mandatory Seizure/Hold Period",
-      //     requestType: "Tow and Impound/Storage",
-      //     requestStatus: "Pending",
-      //     roadService: "",
-      //     step: "538",
-      //     sent: true,
-      //     towOrImpoundDate: "2023-12-12",
-      //     vehicleType: "Light Tow/Duty tilt and load tow truck.",
-      //     vehicle: "Car",
-      //     vin: "19uua66285a804804",
-      //     vinBasicData: {
-      //       doors: 4,
-      //       driveType: "FWD",
-      //       trim: "",
-      //       year: 2005,
-      //       oemDoors: 4,
-      //       rearAxle: "",
-      //       bodyType: "Sedan",
-      //       vehicleType: "Car",
-      //       model: "TL",
-      //       oemBodyStyle: "Sedan",
-      //       make: "Acura",
-      //       bodySubtype: "",
-      //       response: null,
-      //     },
-      //     jurisdiction: null,
-      //     status: "Complete",
-      //     requestlongitude: null,
-      //     requestlatitude: null,
-      //     vehicleOrProperty: "Vehicle",
-      //     property: "",
-      //     specialTask: "Liquid/Oil Clean Up Required",
-      //     specialComments: "Test absorbent ",
-      //     comments: "test datafield from Android app ",
-      //     startingLocation: "starting location datafield test",
-      //     finishingLocation: "ending location datafield test",
-      //     startDate: "2023-12-12T14:44:26.25",
-      //     endDate: "2024-01-26T19:44:00",
-      //     isRelease: false,
-      //     registeredOwnerNotified: false,
-      //     registeredOwnerComments: null,
-      //     finalComments: null,
-      //     heldPurpose:
-      //       "Criminal Proceedings – Homicide, Fatal Collision, Major Project, etc",
-      //     propertyForfiet: "Forfeiture datafield test",
-      //     propertyForfietDetails: "",
-      //     notifyOwner: null,
-      //     notifyOwnerName: null,
-      //     notifyOwnerEmail: null,
-      //     notifyContact: null,
-      //     notifiedBy: null,
-      //     isSpecialInstructions: false,
-      //     isSelfGenerated: false,
-      //     driverName: "Driver First Name Surname",
-      //     driverMobile: "driver phone number",
-      //     driverAddress: "Driver address datafield",
-      //     driverEmail: "driver email datafield",
-      //     ownerName: "Vehicle Owner First name Surname",
-      //     ownerMobile: "Vehicle owner phone number datafield",
-      //     ownerAddress: "12 Springwood Ct, Barrie, ON L4N 5V1, Canada",
-      //     ownerEmail: "Vehicle Owner email datafield",
-      //     lienName: "Test Lien Hold First Name Last Name",
-      //     lienMobile: "123-456-7890 Ext Lien Holder",
-      //     lienAddress: "1lien holder way address datafield",
-      //     lienEmail: "lienholder@email.com",
-      //     companyId: 49,
-      //     testStatus: null,
-      //     userUrl:
-      //       "https://stage-api.etows.app:8443/user/userinfo?userId=dec8674d-c3f8-4179-9dc2-e1993a16d8cb",
-      //     createdAt: "2023-12-12T15:02:05.722021",
-      //     updatedAt: "2023-12-12T15:51:56.362609",
-      //     response: null,
-      //   },
-      // ]);
-      // setCurrentPage(1);
-      // setIsLoader(false);
     } catch (error) {
       console.log("error", error);
       setIsLoader(false);
     }
   };
-  const requestTypeFunc = (status) => {
-    setIsLoader(true);
-    let result = initialData.filter((el) => el.requestType === status);
-    setData(result);
-    setCurrentPage(1);
-    setIsLoader(false);
-  };
-  const LEFilter = (status) => {
-    setIsLoader(true);
-    let result = initialData.filter((el) => el.indicatePolice === status);
-    setData(result);
-    setCurrentPage(1);
-    setIsLoader(false);
-  };
 
-  const ChangeStatusJob = (status) => {
+  //   const requestTypeFunc = (status) => {
+  //     // setIsLoader(true);
+  //     let result = initialData.filter((el) => el.requestType === status);
+  //     setData(result);
+  //     // setCurrentPage(1);
+  //     // setIsLoader(false);
+  //   };
+  //   const LEFilter = (status) => {
+  //     // setIsLoader(true);
+  //     let result = initialData.filter((el) => el.indicatePolice === status);
+  //     setData(result);
+  //     // setCurrentPage(1);
+  //     // setIsLoader(false);
+  //   };
+  // const serviceFilter = (status) => {
+  //   // setIsLoader(true);
+  //   if (status) {
+  //     let result = initialData.filter(
+  //       (el) => (el.status == "LE Request" ? "Pending" : el.status) === status
+  //     );
+  //     setData(result);
+  //   } else if (status == "") {
+  //     setData(initialData);
+  //   }
+  //   // setCurrentPage(1);
+  //   // setStatusData(status);
+  //   //  setIsLoader(false);
+
+  // }
+  const ChangeStatusJob = (status,data) => {
+    let LE = [true, false];
+    let type = ["Roadside Assistance", "Tow and Impound/Storage", "Tow only"];
+    let result = data || initialData;
     setIsLoader(true);
-    if (status) {
-      let result = initialData.filter(
+    if (status === "") {
+      // result = initialData;
+    } else if (LE.includes(status)) {
+      result = result.filter((el) => el.indicatePolice === status);
+    } else if (type.includes(status)) {
+      result = result.filter((el) => el.requestType === status);
+    } else {
+       result = result.filter(
         (el) => (el.status == "LE Request" ? "Pending" : el.status) === status
       );
-      setData(result);
-    } else if (status == "") {
-      setData(initialData);
     }
+
+    setData(result);
     setCurrentPage(1);
     setStatusData(status);
     setIsLoader(false);
@@ -725,35 +525,35 @@ function AllJobs(props) {
                           </DropdownItem>
                           <DropdownItem
                             onClick={() => {
-                              LEFilter(true);
+                              ChangeStatusJob(true);
                             }}
                           >
                             LE - Yes
                           </DropdownItem>
                           <DropdownItem
                             onClick={() => {
-                              LEFilter(false);
+                              ChangeStatusJob(false);
                             }}
                           >
                             LE - No
                           </DropdownItem>
                           <DropdownItem
                             onClick={() => {
-                              requestTypeFunc("Roadside Assistance");
+                              ChangeStatusJob("Roadside Assistance");
                             }}
                           >
                             Roadside Assistance
                           </DropdownItem>
                           <DropdownItem
                             onClick={() => {
-                              requestTypeFunc("Tow and Impound/Storage");
+                              ChangeStatusJob("Tow and Impound/Storage");
                             }}
                           >
                             Tow and Impound/Storage
                           </DropdownItem>
                           <DropdownItem
                             onClick={() => {
-                              requestTypeFunc("Tow only");
+                              ChangeStatusJob("Tow only");
                             }}
                           >
                             Tow only
@@ -859,7 +659,7 @@ function AllJobs(props) {
                       <tbody>
                         {currentPosts.map((item) => {
                           return (
-                            <tr>
+                            <tr key={item.id}>
                               <td
                                 style={{
                                   textDecoration: "underline black",
@@ -925,27 +725,27 @@ function AllJobs(props) {
                               {logData1.role != "POLICE_ADMIN" && (
                                 <>
                                   {
-                                  // statusData == "Pending" ||
-                                  // statusData == "LE Request" ||
-                                  // item?.status == "Pending" ||
-                                  // item?.status == "LE Request" ?
-                                  item?.status === "Pending" ?
-                                  (
-                                    <td>
-                                      <Button
-                                        onClick={() => {
-                                          AssignJob(item?.id);
-                                        }}
-                                        className="paddingLess"
-                                        color="primary"
-                                        type="button"
-                                      >
-                                        {config.assign}
-                                      </Button>
-                                    </td>
-                                  ) : (
-                                    <td>---</td>
-                                  )}
+                                    // statusData == "Pending" ||
+                                    // statusData == "LE Request" ||
+                                    // item?.status == "Pending" ||
+                                    // item?.status == "LE Request" ?
+                                    item?.status === "Pending" ? (
+                                      <td>
+                                        <Button
+                                          onClick={() => {
+                                            AssignJob(item?.id);
+                                          }}
+                                          className="paddingLess"
+                                          color="primary"
+                                          type="button"
+                                        >
+                                          {config.assign}
+                                        </Button>
+                                      </td>
+                                    ) : (
+                                      <td>---</td>
+                                    )
+                                  }
                                 </>
                               )}
                             </tr>
