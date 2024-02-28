@@ -54,13 +54,17 @@ import {
   getLocationDriver,
   DispatchUserRequestUpdate,
   getDropDownApi,
+  getJobDetails,
 } from "../../APIstore/apiCalls";
+
 import config from "config";
 import Maps from "./Maps";
 import moment from "moment";
 import { successAlert, errorAlert, emailValidator } from "../../Theme/utils";
 import toast, { Toaster } from "react-hot-toast";
 import Select from "react-select";
+import { Link } from "react-router-dom";
+
 var logData1 = {};
 var localAccessData = null;
 function AllJobs(props) {
@@ -158,23 +162,36 @@ function AllJobs(props) {
       value: data?.id,
     }));
   };
-  const toggleUpdate = (item) => {
-    loadImages(item?.id, "vehiclePicture");
-    loadImages(item?.id, "inventoryAndDamagePicture");
-    loadImages(item?.id, "receiptPicture");
+  const toggleUpdate = (detailsData) => {
+    try {
+      getJobDetails(detailsData.id, async (res) => {
+        if (res.sucess) {
+          console.log(res.sucess);
+          let item = res.sucess;
+          loadImages(item?.id, "vehiclePicture");
+          loadImages(item?.id, "inventoryAndDamagePicture");
+          loadImages(item?.id, "receiptPicture");
 
-    setModalUpdate(!modalUpdate);
-    console.log("item", item);
-    setNotifyOwner(item?.notifyOwner ? item.notifyOwner : false);
-    setNotifyOwnerName(item?.notifyOwnerName);
-    setNotifyContact(item?.notifyContact);
-    setNotifyOwnerEmail(item?.notifyOwnerEmail);
-    setNotifiedBy(item?.notifiedBy);
-    setItemData(item);
+          setModalUpdate(!modalUpdate);
+          console.log("item", item);
+          setNotifyOwner(item?.notifyOwner ? item.notifyOwner : false);
+          setNotifyOwnerName(item?.notifyOwnerName);
+          setNotifyContact(item?.notifyContact);
+          setNotifyOwnerEmail(item?.notifyOwnerEmail);
+          setNotifiedBy(item?.notifiedBy);
+          setItemData(item);
 
-    setHeldForOthers(item?.heldPurpose);
-    setPropertyForfiet(item?.propertyForfiet);
+          setHeldForOthers(item?.heldPurpose);
+          setPropertyForfiet(item?.propertyForfiet);
+        } else {
+          console.log("errrrr");
+        }
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
   };
+
   const sortTypes = {
     up: {
       class: "sort-up",
@@ -189,6 +206,7 @@ function AllJobs(props) {
     //   fn: (a, b) => a
     // }
   };
+
   const onSortChange = () => {
     // const { currentSort } = this.state;
     let nextSort;
@@ -294,10 +312,11 @@ function AllJobs(props) {
   };
   const toggleMap = () => {
     try {
+      console.log(driverId);
       getLocationDriver(driverId ? driverId : "", async (res) => {
         if (res.sucess) {
           console.log("res.sucess.userLocations", res.sucess?.userLocations);
-          setDataLatLng(res.sucess?.userLocations[0]);
+          setDataLatLng(res.sucess?.userLocations?.[0] || []);
           setMapModal(!mapModal);
         } else {
           console.log("errrrr");
@@ -347,7 +366,7 @@ function AllJobs(props) {
             // }
             // setData(result);
             setInitialData(res.sucess);
-            ChangeStatusJob(statusData,res.sucess)
+            ChangeStatusJob(statusData, res.sucess);
             setCurrentPage(1);
             setIsLoader(false);
           } else {
@@ -391,7 +410,7 @@ function AllJobs(props) {
   //   //  setIsLoader(false);
 
   // }
-  const ChangeStatusJob = (status,data) => {
+  const ChangeStatusJob = (status, data) => {
     let LE = [true, false];
     let type = ["Roadside Assistance", "Tow and Impound/Storage", "Tow only"];
     let result = data || initialData;
@@ -403,7 +422,7 @@ function AllJobs(props) {
     } else if (type.includes(status)) {
       result = result.filter((el) => el.requestType === status);
     } else {
-       result = result.filter(
+      result = result.filter(
         (el) => (el.status == "LE Request" ? "Pending" : el.status) === status
       );
     }
@@ -666,42 +685,53 @@ function AllJobs(props) {
                                   cursor: "pointer",
                                 }}
                                 className="text-sm"
-                                onClick={() => {
-                                  toggleUpdate(item);
-                                }}
+                                // onClick={() => {
+                                //   toggleUpdate(item);
+                                // }}
                               >
-                                {item?.id}
+                                <Link
+                                  style={{
+                                    textDecoration: "underline black",
+                                    cursor: "pointer",
+                                  }}
+                                  className="text-sm"
+                                  to={`/admin/jobdetail/${item.id}`}
+                                >
+                                  {item?.id}
+                                </Link>
                               </td>
-                              <td
-                                onClick={() => {
-                                  toggleUpdate(item);
-                                }}
-                                className="text-sm"
-                                style={{ whiteSpace: "pre-line" }}
-                              >
-                                {item?.towJobRequestLocation
-                                  ? item?.towJobRequestLocation
-                                  : "Nill"}
+                              <td className="text-sm">
+                                <Link
+                                  style={{ whiteSpace: "pre-line" }}
+                                  className="text-sm"
+                                  to={`/admin/jobdetail/${item.id}`}
+                                >
+                                  {item?.towJobRequestLocation
+                                    ? item?.towJobRequestLocation
+                                    : "Nill"}
+                                </Link>
                               </td>
 
-                              <td
-                                onClick={() => {
-                                  toggleUpdate(item);
-                                }}
-                                className="text-sm"
-                              >
-                                {item?.status == "LE Request"
-                                  ? "Pending"
-                                  : item?.status}
+                              <td className="text-sm">
+                                <Link
+                                  className="text-sm"
+                                  to={`/admin/jobdetail/${item.id}`}
+                                >
+                                  {item?.status == "LE Request"
+                                    ? "Pending"
+                                    : item?.status}
+                                </Link>
                               </td>
-                              <td
-                                onClick={() => {
-                                  toggleUpdate(item);
-                                }}
-                                className="text-sm"
-                              >
-                                {item?.requestType}
+
+                              <td className="text-sm">
+                                <Link
+                                  className="text-sm"
+                                  to={`/admin/jobdetail/${item.id}`}
+                                >
+                                  {item?.requestType}
+                                </Link>
                               </td>
+
                               <td className="text-sm">
                                 <Button
                                   onClick={() => {
@@ -714,13 +744,13 @@ function AllJobs(props) {
                                   View
                                 </Button>
                               </td>
-                              <td
-                                onClick={() => {
-                                  toggleUpdate(item);
-                                }}
-                                className="text-sm"
-                              >
-                                {item?.indicatePolice === true ? "Yes" : "No"}
+                              <td className="text-sm">
+                                <Link
+                                  className="text-sm"
+                                  to={`/admin/jobdetail/${item.id}`}
+                                >
+                                  {item?.indicatePolice === true ? "Yes" : "No"}
+                                </Link>
                               </td>
                               {logData1.role != "POLICE_ADMIN" && (
                                 <>
@@ -730,7 +760,7 @@ function AllJobs(props) {
                                     // item?.status == "Pending" ||
                                     // item?.status == "LE Request" ?
                                     item?.status === "Pending" ? (
-                                      <td>
+                                      <td >
                                         <Button
                                           onClick={() => {
                                             AssignJob(item?.id);
@@ -958,690 +988,6 @@ function AllJobs(props) {
             >
               {config.close}
             </Button>
-          </ModalFooter>
-        </Modal>
-
-        <Modal
-          size="sm"
-          style={{ maxWidth: "1600px" }}
-          isOpen={modalUpdate}
-          fullscreen
-          toggleUpdate={() => {
-            toggleUpdate();
-          }}
-          className={props.className}
-        >
-          <ModalHeader className="md-header">
-            <div style={{ display: "flex", placeContent: "end" }}>
-              {" "}
-              <AiFillCloseCircle
-                size={25}
-                onClick={() => {
-                  setModalUpdate(!modalUpdate);
-                }}
-              />
-            </div>
-          </ModalHeader>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              width: "100%",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-            }}
-          >
-            <Table hover style={{ margin: "20px" }}>
-              <thead>
-                <tr>
-                  <th>Job Id: {setItem?.id}</th>
-                  <th>Update Job</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">Company Id:</th>
-                  <td>{setItem?.companyId}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Other Number:</th>
-                  <td>{setItem?.otherCompany}</td>
-                </tr>
-                <tr>
-                  <th scope="row">UserId:</th>
-                  <td>{setItem?.userId}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Licence Plate Number:</th>
-                  <td>{setItem?.licensePlateNumber}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Service Request Date:</th>
-                  <td>
-                    {moment(setItem?.towOrImpoundDate).format("MMMM Do YYYY")}
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Item Type {setItem?.vehicleOrProperty}:</th>
-                  <td>
-                    {" "}
-                    {setItem?.vehicleOrProperty == "Vehicle"
-                      ? setItem?.vehicle
-                      : setItem?.property}
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Tow Vehicle Required:</th>
-                  <td>{setItem?.vehicleType}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Tow Truck Persons:</th>
-                  <td>{setItem?.towTruckPersons}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Other Vehicle</th>
-                  <td>{setItem?.otherVehicle}</td>
-                </tr>
-                <tr>
-                  <th scope="row">OnScene Initial Images: </th>
-                  <td>
-                    {" "}
-                    <ul>
-                      {vehiclePicture.map((image) => {
-                        return (
-                          <li>
-                            <a
-                              onClick={() => {
-                                ViewImage(image);
-                              }}
-                              target="_blank"
-                              style={{ cursor: "pointer" }}
-                            >
-                              {image?.name}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">OnScene Final Images: </th>
-                  <td>
-                    {" "}
-                    <ul>
-                      {inventoryAndDamagePicture.map((image) => {
-                        return (
-                          <li>
-                            <a
-                              onClick={() => {
-                                ViewImage(image);
-                              }}
-                              target="_blank"
-                              style={{ cursor: "pointer" }}
-                            >
-                              {image?.name}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Service Request Location:</th>
-                  <td>{setItem?.towJobRequestLocation}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Other Contact Info</th>
-                  <td>{setItem?.otherContact}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Is Special Task</th>
-                  <td>{setItem?.isSpecialInstructions ? "Yes" : "No"}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Special Task</th>
-                  <td>{setItem?.specialTask}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Special Comments</th>
-                  <td>{setItem?.specialComments}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Is LE:</th>
-                  <td>{setItem?.indicatePolice ? "Yes" : "No"}</td>
-                </tr>
-                {setItem?.indicatePolice && (
-                  <>
-                    <tr>
-                      <th scope="row">LE Tow (Police/ Bylaw):</th>
-                      <td>{setItem?.policeService}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">LE Agency Occ. #:</th>
-                      <td>{setItem?.policeOccurrence}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Officer Badge #:</th>
-                      <td>{setItem?.officerBadge}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Officer Assignment:</th>
-                      <td>{setItem?.officerDepart}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Officer Name:</th>
-                      <td>{setItem?.officerName}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Officer Contact</th>
-                      <td>{setItem?.officerContact}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Is Officer Incharge:</th>
-                      <td>
-                        {setItem?.isOfficerInCharge &&
-                        (setItem?.isOfficerInCharge == true ||
-                          setItem?.isOfficerInCharge == "true")
-                          ? "Yes"
-                          : "No"}
-                      </td>
-                    </tr>
-                    {setItem?.isOfficerInCharge && (
-                      <>
-                        <tr>
-                          <th scope="row">Officer In Charge Badge#:</th>
-                          <td>{setItem?.officerInChargeBadge}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Officer In Charge:</th>
-                          <td>{setItem?.officerInCharge}</td>
-                        </tr>
-                      </>
-                    )}
-                    <tr>
-                      <th scope="row">Is Occurrence Numbers:</th>
-                      <td>
-                        {setItem?.isOccurrenceNumbers &&
-                        (setItem?.isOccurrenceNumbers == true ||
-                          setItem?.isOccurrenceNumbers == "true")
-                          ? "Yes"
-                          : "No"}
-                      </td>
-                    </tr>
-                    {setItem?.isOccurrenceNumbers && (
-                      <tr>
-                        <th scope="row">Occurrence Numbers</th>
-                        <td>{setItem?.occurrenceNumbers}</td>
-                      </tr>
-                    )}
-                    <tr>
-                      <th scope="row">Confirm LE Tow Reciept: </th>
-                      <td>
-                        {" "}
-                        {receiptPicture.map((image) => {
-                          return (
-                            <li>
-                              <a
-                                onClick={() => {
-                                  ViewImage(image);
-                                }}
-                                target="_blank"
-                                style={{ cursor: "pointer" }}
-                              >
-                                {image?.name}
-                              </a>
-                            </li>
-                          );
-                        })}
-                      </td>
-                    </tr>
-                  </>
-                )}
-                {!setItem?.indicatePolice && (
-                  <>
-                    <tr>
-                      <th scope="row">Client Name:</th>
-                      <td>{setItem?.officerName}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Client Contact</th>
-                      <td>{setItem?.officerContact}</td>
-                    </tr>
-                  </>
-                )}
-                <tr>
-                  <th scope="row">VIN Number:</th>
-                  <td>{setItem?.vin}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Year:</th>
-                  <td>{setItem.vinBasicData?.year}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Make:</th>
-                  <td>{setItem.vinBasicData?.make}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Model:</th>
-                  <td>{setItem.vinBasicData?.model}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Body Style:</th>
-                  <td>{setItem.vinBasicData?.oemBodyStyle}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Vehicle Type:</th>
-                  <td>{setItem.vinBasicData?.vehicleType}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Body Type:</th>
-                  <td>{setItem.vinBasicData?.bodyType}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Driver Type:</th>
-                  <td>{setItem.vinBasicData?.driveType}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Doors:</th>
-                  <td>{setItem.vinBasicData?.doors}</td>
-                </tr>
-              </tbody>
-            </Table>
-            <Table hover style={{ margin: "20px" }}>
-              <thead>
-                <tr>
-                  <th>Job Id: {setItem?.id}</th>
-                  <th>Update Job</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">Starting Mileage:</th>
-                  <td>{setItem?.startingMileage}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Ending Mileage:</th>
-                  <td>{setItem?.endingMileage}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Equipment List:</th>
-                  <td>{setItem?.equipmentListStr}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Starting Location:</th>
-                  <td>{setItem?.startingLocation}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Finishing Location:</th>
-                  <td>{setItem?.finishingLocation}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Final Comments:</th>
-                  <td>{setItem?.finalComments}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Release Status</th>
-                  <td>{setItem?.releaseStatus}</td>
-                </tr>
-                {setItem?.requestType == "Tow and Impound/Storage" && (
-                  <>
-                    <tr>
-                      <th scope="row">Is Release:</th>
-                      <td>{setItem?.isRelease ? "Yes" : "No"}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Start Date:</th>
-                      <td>{setItem?.startDate}</td>
-                    </tr>
-                    {setItem?.releaseStatus == "Cannot be Released" ? (
-                      <tr>
-                        <th scope="row">End Date:</th>
-                        <td>-</td>
-                      </tr>
-                    ) : (
-                      <tr>
-                        <th scope="row">End Date:</th>
-                        <td>{setItem?.startDate}</td>{" "}
-                        {/*end date krni hai shayed*/}
-                      </tr>
-                    )}
-                  </>
-                )}
-                <tr>
-                  <th scope="row">Jurisdiction:</th>
-                  <td>{setItem?.jurisdiction}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Mandatory Date:</th>
-                  <td>{setItem?.mandatoryDate}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Comments:</th>
-                  <td>{setItem?.comments}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Owner Name:</th>
-                  <td>{setItem?.ownerName}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Owner Mobile:</th>
-                  <td>{setItem?.ownerMobile}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Owner Address:</th>
-                  <td>{setItem?.ownerAddress}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Owner Email:</th>
-                  <td>{setItem?.ownerEmail}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Lien Name:</th>
-                  <td>{setItem?.lienName}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Lien Mobile:</th>
-                  <td>{setItem?.lienMobile}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Lien Address:</th>
-                  <td>{setItem?.lienAddress}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Lien Email:</th>
-                  <td>{setItem?.lienEmail}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Driver Name</th>
-                  <td>{setItem?.driverName}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Driver Mobile</th>
-                  <td>{setItem?.driverMobile}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Driver Address</th>
-                  <td>{setItem?.driverAddress}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Driver Email</th>
-                  <td>{setItem?.driverEmail}</td>
-                </tr>
-                {setItem?.requestType == "Tow and Impound/Storage" && (
-                  <tr>
-                    <th scope="row">Reason For Impound</th>
-                    <td>{setItem?.reasonForImpound}</td>
-                  </tr>
-                )}
-                {(setItem?.requestType == "Tow and Impound/Storage" ||
-                  setItem?.requestType == "Tow only") && (
-                  <tr>
-                    <th scope="row">Reason For Tow</th>
-                    <td>{setItem?.reasonForTow}</td>
-                  </tr>
-                )}
-                <tr>
-                  <th scope="row">Request Type</th>
-                  <td>{setItem?.requestType}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Service Status</th>
-                  <td>
-                    {setItem?.status == "LE Request"
-                      ? "Pending"
-                      : setItem?.status}
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Registered Owner Notified</th>
-                  <td>{setItem?.registeredOwnerNotified ? "Yes" : "No"}</td>
-                </tr>
-                {setItem?.registeredOwnerNotified && (
-                  <tr>
-                    <th scope="row">{setItem?.registeredOwnerComments}</th>
-                    <td>{setItem?.registeredOwnerComments}</td>
-                  </tr>
-                )}
-                {setItem?.requestType == "Roadside Assistance" && (
-                  <tr>
-                    <th scope="row">Road Service</th>
-                    <td>{setItem?.roadService}</td>
-                  </tr>
-                )}
-                <tr>
-                  <th scope="row">Held Purpose:</th>
-                  <td>
-                    <Row>
-                      <Col lg="12">
-                        <FormGroup>
-                          <Label for="exampleSelect">{heldForOthersVal}</Label>
-                          <Select
-                            name="form-field-name"
-                            // onChange={(val) => { setReasonforTow(val.label) }}
-                            onChange={(val) => {
-                              setHeldForOthers(val.label);
-                              if (
-                                val.label == "Other" ||
-                                val.label == "Other - Manual Entry"
-                              ) {
-                                setShowHeldForOthers(true);
-                              } else {
-                                setShowHeldForOthers(false);
-                              }
-                            }}
-                            labelKey="name"
-                            options={renderList(dataDropdown?.heldPurposeList)}
-                          />
-                        </FormGroup>
-                        {showheldForOthers === true && (
-                          <Col lg="12">
-                            <FormGroup>
-                              <Label
-                                className="form-control-label"
-                                htmlFor="input-username"
-                              >
-                                Other
-                              </Label>
-                              <Input
-                                className="form-control-alternative"
-                                // defaultValue={data?.userName}
-                                id="input-username"
-                                placeholder="Other"
-                                type="text"
-                                onChange={(text) =>
-                                  setHeldForOthers(text.target.value)
-                                }
-                              />
-                            </FormGroup>
-                          </Col>
-                        )}
-                      </Col>
-                    </Row>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Property Forfiet:</th>
-                  <td>
-                    <Row>
-                      <Col lg="12">
-                        <FormGroup>
-                          <Label for="exampleSelect">
-                            {propertyForfietVal}
-                          </Label>
-                          <Select
-                            name="form-field-name"
-                            onChange={(val) => {
-                              setPropertyForfiet(val.label);
-                              if (
-                                val.label == "Other" ||
-                                val.label == "Other - Manual Entry"
-                              ) {
-                                setShowPropertyForfiet(true);
-                              } else {
-                                setShowPropertyForfiet(false);
-                              }
-                            }}
-                            labelKey="name"
-                            options={renderList(
-                              dataDropdown?.propertyForfietList
-                            )}
-                          />
-                        </FormGroup>
-
-                        {showPropertyForfiet === true && (
-                          <FormGroup>
-                            <Label
-                              className="form-control-label"
-                              htmlFor="input-username"
-                            >
-                              Other
-                            </Label>
-                            <Input
-                              className="form-control-alternative"
-                              // defaultValue={data?.userName}
-                              id="input-username"
-                              placeholder="Other"
-                              type="text"
-                              onChange={(text) =>
-                                setPropertyForfiet(text.target.value)
-                              }
-                            />
-                          </FormGroup>
-                        )}
-                      </Col>
-                    </Row>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Notified Owner details </th>
-                  <td>
-                    <Row>
-                      <Col lg="12">
-                        <FormGroup check>
-                          <Input
-                            id="checkbox2"
-                            className="checkq"
-                            type="checkbox"
-                            checked={notifyOwner}
-                            onChange={(e) => {
-                              const { checked } = e.target;
-                              setNotifyOwner(checked);
-                            }}
-                          />
-                          {"  "} Notify Owner?
-                        </FormGroup>
-                        {notifyOwner && (
-                          <>
-                            <FormGroup style={{ marginTop: 10 }}>
-                              <Label
-                                className="form-control-label"
-                                htmlFor="input-username"
-                              >
-                                Notify Owner Name
-                              </Label>
-                              <Input
-                                className="form-control-alternative"
-                                defaultValue={notifyOwnerName}
-                                id="input-username"
-                                placeholder="i.e. forfiet details"
-                                type="text"
-                                onChange={(text) =>
-                                  setNotifyOwnerName(text.target.value)
-                                }
-                              />
-                            </FormGroup>
-                            <FormGroup style={{ marginTop: 10 }}>
-                              <Label
-                                className="form-control-label"
-                                htmlFor="input-username"
-                              >
-                                Notify Owner Email
-                              </Label>
-                              <Input
-                                className="form-control-alternative"
-                                defaultValue={notifyOwnerEmail}
-                                id="input-username"
-                                placeholder="i.e. forfiet details"
-                                type="text"
-                                onChange={(text) =>
-                                  setNotifyOwnerEmail(text.target.value)
-                                }
-                              />
-                            </FormGroup>
-
-                            <FormGroup style={{ marginTop: 10 }}>
-                              <Label
-                                className="form-control-label"
-                                htmlFor="input-username"
-                              >
-                                Notify Owner Contact
-                              </Label>
-                              <Input
-                                className="form-control-alternative"
-                                defaultValue={notifyContact}
-                                id="input-username"
-                                placeholder="i.e. forfiet details"
-                                type="text"
-                                onChange={(text) =>
-                                  setNotifyContact(text.target.value)
-                                }
-                              />
-                            </FormGroup>
-
-                            <FormGroup style={{ marginTop: 10 }}>
-                              <Label
-                                className="form-control-label"
-                                htmlFor="input-username"
-                              >
-                                Notified by
-                              </Label>
-                              <Input
-                                className="form-control-alternative"
-                                defaultValue={notifiedBy}
-                                id="input-username"
-                                placeholder="i.e. forfiet details"
-                                type="text"
-                                onChange={(text) =>
-                                  setNotifiedBy(text.target.value)
-                                }
-                              />
-                            </FormGroup>
-                          </>
-                        )}
-                      </Col>
-                    </Row>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">asd</th>
-                  <td>Larry</td>
-                </tr>
-              </tbody>
-            </Table>
-          </div>
-          <ModalFooter>
-            <ModalFooter>
-              <Button
-                onClick={() => {
-                  onSubmit();
-                }}
-                className="my-4"
-                color="primary"
-                type="button"
-              >
-                Update Job
-              </Button>
-              <Button
-                color="primary"
-                onClick={() => {
-                  setModalUpdate(!modalUpdate);
-                }}
-              >
-                Close
-              </Button>{" "}
-            </ModalFooter>
           </ModalFooter>
         </Modal>
 

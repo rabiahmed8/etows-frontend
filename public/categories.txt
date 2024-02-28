@@ -1,0 +1,99 @@
+Law Enforcement Tow:
+- Job Id:
+- Company Id:
+- Other Number:
+- UserId:
+
+Service Request Details:
+- Service Request Date:
+- Reason For Impound
+- Reason For Tow
+- Request Type
+- Service Status
+- Held Purpose:
+
+side by side^^
+
+Service Summary:
+- Item Type Property:
+- Tow Vehicle Required:
+- Other Vehicle
+- Equipment List:
+
+- OnScene Initial Images:
+- OnScene Final Images:
+
+- Service Request Location:
+- Release Status
+- Is Release:
+- Start Date:
+- End Date:
+- Jurisdiction:
+- Mandatory Date:
+- Starting Mileage:
+- Ending Mileage:
+- Starting Location:
+- Finishing Location:
+
+- Other Contact Info
+- Is Special Task
+- Special Task
+
+- Is LE:
+- LE Tow (Police/ Bylaw):
+- LE Agency Occ. #:
+- Officer Badge #:
+- Officer Assignment:
+- Officer Name:
+- Officer Contact
+- Is Officer Incharge:
+- Is Occurrence Numbers:
+- Occurrence Numbers
+- Confirm LE Tow Reciept:
+
+- Registered Owner Notified
+- Property Forfiet:
+- Notified Owner details
+
+
+Tow Driver Details:
+- Driver Name
+- Driver Mobile
+- Driver Address
+- Driver Email
+- Tow Truck Persons:
+
+Owner Details:
+- Owner Name:
+- Owner Mobile:
+- Owner Address:
+- Owner Email:
+- Lien Name:
+- Lien Mobile:
+- Lien Address:
+- Lien Email:
+
+side by side^^
+
+Vehicle Details:
+- Licence Plate Number:
+- VIN Number:
+- Year:
+- Make:
+- Model:
+- Body Style:
+- Vehicle Type:
+- Body Type:
+- Driver Type:
+- Doors:
+
+Comments:
+- Comments:
+- Final Comments:
+- Special Comments
+
+side by side^^
+
+
+
+
