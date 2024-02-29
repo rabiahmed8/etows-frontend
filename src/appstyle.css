@@ -742,3 +742,23 @@
 .stretch{
     align-items: stretch !important;
 }
+
+.one-col td{
+  width: 60%;
+}
+
+.one-col th{
+  width: 20%;
+}
+.two-col td{
+  width: 30%;
+}
+
+.two-col th{
+  width: 20%;
+}
+.image-wrap{
+  gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}

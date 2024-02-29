@@ -10,6 +10,7 @@ import { getJobDetails } from "APIstore/apiCalls";
 import { getImagesData } from "APIstore/apiCalls";
 import ViewImageModal from "component/ViewImageModal";
 import { Constants } from "Environment";
+import image_placeholder from "assets/img/icons/img.png";
 
 const data = {
   id: 538,
@@ -130,7 +131,9 @@ const JobDetails = () => {
 
   const [imageData, setDataImage] = useState();
   const [vehiclePicture, setVehiclePicture] = useState([]);
-  const [inventoryAndDamagePicture, setInventoryAndDamagePicture] = useState([]);
+  const [inventoryAndDamagePicture, setInventoryAndDamagePicture] = useState(
+    []
+  );
   const [receiptPicture, setReceiptPicture] = useState([]);
 
   const [heldForOthersVal, setHeldForOthers] = useState(data?.heldPurpose);
@@ -175,7 +178,7 @@ const JobDetails = () => {
         if (res.sucess) {
           console.log(res.sucess);
           let item = res.sucess;
-          console.log('item id: '+item.id)
+          console.log("item id: " + item.id);
 
           loadImages(item?.id, "vehiclePicture");
           loadImages(item?.id, "inventoryAndDamagePicture");
@@ -214,7 +217,7 @@ const JobDetails = () => {
       getImagesData(obj, async (res) => {
         if (res.sucess) {
           var list = res.sucess.list;
-          console.log('res',res.sucess)
+          console.log("res", res.sucess);
           if (type == "vehiclePicture") {
             setVehiclePicture(list != null ? list : []);
           } else if (type == "inventoryAndDamagePicture") {
@@ -242,7 +245,6 @@ const JobDetails = () => {
       value: data?.id,
     }));
   };
-
 
   return (
     <div>
@@ -280,10 +282,10 @@ const JobDetails = () => {
         </div> */}
 
         {/* <div className="table-flex"> */}
-        <Row className='stretch'>
+        <Row className="stretch">
           <Col md={6}>
             <div className="table-card">
-              <Table borderless hover>
+              <Table borderless hover className={"one-col"}>
                 <thead>
                   <tr>
                     <th className="table-heading">Law Enforcement Tow</th>
@@ -313,7 +315,7 @@ const JobDetails = () => {
           </Col>
           <Col md={6}>
             <div className="table-card">
-              <Table borderless hover>
+              <Table borderless hover className={"one-col"}>
                 <thead>
                   <tr>
                     <th className="table-heading">Service Request Details</th>
@@ -333,8 +335,10 @@ const JobDetails = () => {
                       <td>{data?.reasonForImpound}</td>
                     </tr>
                   )}
-                  {(data?.requestType?.toUpperCase() == "Tow and Impound/Storage".toUpperCase() ||
-                    data?.requestType?.toUpperCase() == "Tow only".toUpperCase()) && (
+                  {(data?.requestType?.toUpperCase() ==
+                    "Tow and Impound/Storage".toUpperCase() ||
+                    data?.requestType?.toUpperCase() ==
+                      "Tow only".toUpperCase()) && (
                     <tr>
                       <th scope="row">Reason For Tow</th>
                       <td>{data?.reasonForTow}</td>
@@ -411,7 +415,7 @@ const JobDetails = () => {
           </Col>
           <Col md={12}>
             <div className="table-card">
-              <Table borderless hover>
+              <Table borderless hover className={"two-col"}>
                 <thead>
                   <tr>
                     <th className="table-heading">Service Summary</th>
@@ -450,45 +454,47 @@ const JobDetails = () => {
                   <tr>
                     <th scope="row">OnScene Initial Images: </th>
                     <td>
-                      {" "}
-                      <ul>
+                      <div className="image-wrap">
                         {(vehiclePicture || []).map((image) => {
                           return (
-                            <li>
-                              <ui
-                                onClick={() => {
-                                  ViewImage(image);
-                                }}
-                                target="_blank"
-                                style={{ cursor: "pointer" }}
-                              >
-                                {image?.name}
-                              </ui>
-                            </li>
+                            <span
+                              onClick={() => {
+                                ViewImage(image);
+                              }}
+                              target="_blank"
+                              style={{ cursor: "pointer" }}
+                            >
+                              <img
+                                width={40}
+                                src={image_placeholder}
+                                alt="img placeholder"
+                              />
+                            </span>
                           );
                         })}
-                      </ul>
+                      </div>
                     </td>
                     <th scope="row">OnScene Final Images: </th>
                     <td>
-                      {" "}
-                      <ul>
+                      <div className="image-wrap">
                         {(inventoryAndDamagePicture || []).map((image) => {
                           return (
-                            <li>
-                              <ui
-                                onClick={() => {
-                                  ViewImage(image);
-                                }}
-                                target="_blank"
-                                style={{ cursor: "pointer" }}
-                              >
-                                {image?.name}
-                              </ui>
-                            </li>
+                            <span
+                              onClick={() => {
+                                ViewImage(image);
+                              }}
+                              target="_blank"
+                              style={{ cursor: "pointer" }}
+                            >
+                              <img
+                                width={40}
+                                src={image_placeholder}
+                                alt="img placeholder"
+                              />
+                            </span>
                           );
                         })}
-                      </ul>
+                      </div>
                     </td>
                   </tr>
                   <tr>
@@ -600,23 +606,28 @@ const JobDetails = () => {
                         )}
                         <th scope="row">Confirm LE Tow Receipt: </th>
                         <td>
-                          {" "}
+
+                        <div className="image-wrap">
                           {(receiptPicture || []).map((image) => {
                             return (
-                              <li>
-                                <ui
-                                  onClick={() => {
-                                    ViewImage(image);
-                                  }}
-                                  target="_blank"
-                                  style={{ cursor: "pointer" }}
-                                >
-                                  {image?.name}
-                                </ui>
-                              </li>
+                              <span
+                              onClick={() => {
+                                ViewImage(image);
+                              }}
+                              target="_blank"
+                              style={{ cursor: "pointer" }}
+                            >
+                              <img
+                                width={40}
+                                src={image_placeholder}
+                                alt="img placeholder"
+                              />
+                            </span>
                             );
                           })}
+                          </div>
                         </td>
+
                       </tr>
                     </>
                   )}
@@ -929,18 +940,18 @@ const JobDetails = () => {
                   </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <th scope="row">Comments:</th>
-                  <td>{data?.comments}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Final Comments:</th>
-                  <td>{data?.finalComments}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Special Comments</th>
-                  <td>{data?.specialComments}</td>
-                </tr>
+                  <tr>
+                    <th scope="row">Comments:</th>
+                    <td>{data?.comments}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Final Comments:</th>
+                    <td>{data?.finalComments}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Special Comments</th>
+                    <td>{data?.specialComments}</td>
+                  </tr>
                 </tbody>
               </Table>
             </div>
@@ -948,7 +959,12 @@ const JobDetails = () => {
         </Row>
         {/* </div> */}
       </div>
-      <ViewImageModal modal={openViewImageModal} itemData={imageData} prefix={Constants.apiUrl}/>
+      <ViewImageModal
+        modal={openViewImageModal}
+        itemData={imageData}
+        prefix={Constants.apiUrl}
+        loading={true}
+      />
     </div>
   );
 };
