@@ -11,6 +11,7 @@ import { getImagesData } from "APIstore/apiCalls";
 import ViewImageModal from "component/ViewImageModal";
 import { Constants } from "Environment";
 import image_placeholder from "assets/img/icons/img.png";
+import { DispatchUserRequestUpdate } from "APIstore/apiCalls";
 
 const data = {
   id: 538,
@@ -128,6 +129,8 @@ const JobDetails = () => {
 
   const [openViewImageModal, setViewImageModal] = useState(false);
   const [data, setData] = useState({});
+  const [editableData, setEditableData] = useState({});
+  const [editing, setEditing] = useState(false);
 
   const [imageData, setDataImage] = useState();
   const [vehiclePicture, setVehiclePicture] = useState([]);
@@ -143,6 +146,7 @@ const JobDetails = () => {
   const [propertyForfietDetails, setPropertyForfietDetails] = useState(
     data?.propertyForfietDetails
   );
+
   const [notifyOwner, setNotifyOwner] = useState(data?.notifyOwner);
   const [notifyOwnerName, setNotifyOwnerName] = useState(data?.notifyOwnerName);
   const [notifyOwnerEmail, setNotifyOwnerEmail] = useState(
@@ -191,6 +195,7 @@ const JobDetails = () => {
           setNotifyOwnerEmail(item?.notifyOwnerEmail);
           setNotifiedBy(item?.notifiedBy);
           setData(item);
+          setEditableData(item);
 
           setHeldForOthers(item?.heldPurpose);
           setPropertyForfiet(item?.propertyForfiet);
@@ -246,6 +251,55 @@ const JobDetails = () => {
     }));
   };
 
+  const onChangeValue = (key, value) => {
+    setEditableData((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const onSubmit = () => {
+    // if (
+    //   (!notifyOwnerName &&
+    //     !notifiedBy  &&
+    //     notifyOwner) ||
+    //   notifyOwner == false
+    // ) {
+
+    const new_obj = {
+      ...editableData,
+      // ...{
+      //   heldPurpose: heldForOthersVal ? heldForOthersVal : data?.heldPurpose,
+      //   propertyForfiet: propertyForfietVal
+      //     ? propertyForfietVal
+      //     : data?.propertyForfiet,
+      //   propertyForfietDetails: propertyForfietDetails
+      //     ? propertyForfietDetails
+      //     : "",
+      //   notifyOwner: notifyOwner ? notifyOwner : "",
+      //   notifyOwnerName: notifyOwnerName ? notifyOwnerName : "",
+      //   notifyOwnerEmail: notifyOwnerEmail ? notifyOwnerEmail : "",
+      //   notifyContact: notifyContact ? notifyContact : "",
+      //   notifiedBy: notifiedBy ? notifiedBy : "",
+      // },
+    };
+    try {
+      DispatchUserRequestUpdate(new_obj, async (res) => {
+        if (res.sucess?.status == "failed") {
+          errorAlert(res.sucess.message);
+        } else {
+          // setModalUpdate(!modalUpdate);
+          // successAlert(res.sucess.message);
+          window.location.reload(false);
+        }
+      });
+    } catch (error) {
+      errorAlert(error);
+    }
+    // }
+    //    else errorAlert("Please enter notify owner name/notified by!");
+  };
+
   return (
     <div>
       <Header />
@@ -262,15 +316,26 @@ const JobDetails = () => {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            width: "260px",
+            width: "fit-content",
             margin: "11px 55px",
             fontSize: "x-large",
             fontWeight: "bolder",
             color: "green",
+            gap: "15px",
           }}
         >
           <div>Job Id: {data?.id}</div>
-          <Button color="primary">Update Job</Button>
+          <Button onClick={() => onSubmit()} color="primary">
+            Update Job
+          </Button>
+          <Button onClick={() => setEditing(true)} color="primary">
+            Edit
+          </Button>
+          {editing === true && (
+            <Button onClick={() => setEditing(false)} color="secondary">
+              Cancel
+            </Button>
+          )}
         </div>
 
         {/* <div
@@ -303,11 +368,25 @@ const JobDetails = () => {
 
                   <tr>
                     <th scope="row">Other Number (Call #/Club #/PO #):</th>
-                    <td>{data?.otherCompany}</td>
+                    {console.log("editing: ", editableData)}
+
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.otherCompany}
+                          onChange={(e) =>
+                            onChangeValue("otherCompany", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.otherCompany}</td>
+                    )}
                   </tr>
                   <tr>
-                    <th scope="row">UserId: </th>
-                    <td>{data?.userId} </td>
+                    <th scope="row">User: </th>
+                    <td>{data?.username} </td>
                   </tr>
                 </tbody>
               </Table>
@@ -325,9 +404,21 @@ const JobDetails = () => {
                 <tbody>
                   <tr>
                     <th scope="row">Service Request Date:</th>
-                    <td>
-                      {moment(data?.towOrImpoundDate).format("MMMM Do YYYY")}
-                    </td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.towOrImpoundDate}
+                          onChange={(e) =>
+                            onChangeValue("towOrImpoundDate", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>
+                        {moment(data?.towOrImpoundDate).format("MMMM Do YYYY")}
+                      </td>
+                    )}
                   </tr>
                   {data?.requestType == "Tow and Impound/Storage" && (
                     <tr>
@@ -442,8 +533,21 @@ const JobDetails = () => {
                   <tr>
                     <th scope="row">Is Special Task</th>
                     <td>{data?.isSpecialInstructions ? "Yes" : "No"}</td>
+
                     <th scope="row">Special Task</th>
-                    <td>{data?.specialTask}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.specialTask}
+                          onChange={(e) =>
+                            onChangeValue("specialTask", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.specialTask}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Equipment List:</th>
@@ -499,7 +603,23 @@ const JobDetails = () => {
                   </tr>
                   <tr>
                     <th scope="row">Service Request Location:</th>
-                    <td>{data?.towJobRequestLocation}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.towJobRequestLocation}
+                          onChange={(e) =>
+                            onChangeValue(
+                              "towJobRequestLocation",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.towJobRequestLocation}</td>
+                    )}
+
                     <th scope="row">Release Status</th>
                     <td>{data?.releaseStatus}</td>
                   </tr>
@@ -511,33 +631,72 @@ const JobDetails = () => {
                   </tr>
                   <tr>
                     <th scope="row">Starting Mileage:</th>
-                    <td>{data?.startingMileage}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.startingMileage
+                          }
+                          onChange={(e) =>
+                            onChangeValue("startingMileage", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.startingMileage}</td>
+                    )}
                     <th scope="row">Ending Mileage:</th>
-                    <td>{data?.endingMileage}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.endingMileage}
+                          onChange={(e) =>
+                            onChangeValue("endingMileage", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.endingMileage}</td>
+                    )}
                   </tr>
-                  <tr></tr>
                   <tr>
                     <th scope="row">Starting Location:</th>
-                    <td>{data?.startingLocation}</td>
-                    <th scope="row">Finishing Location:</th>
-                    <td>{data?.finishingLocation}</td>
+
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.startingLocation}
+                          onChange={(e) =>
+                            onChangeValue("startingLocation", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.startingLocation}</td>
+                    )}
+                    <th scope="row">Total Mileage: </th>
+
+                      <td>{data?.totalMileage}</td>
+
                   </tr>
                   {data?.requestType == "Tow and Impound/Storage" && (
                     <>
                       <tr>
-                        <th scope="row">Storage Start Date:</th>
+                        <th scope="row">Storage/Impound Start Date:</th>
                         <td>{data?.startDate}</td>
                         <th scope="row">Is Release:</th>
                         <td>{data?.isRelease ? "Yes" : "No"}</td>
                       </tr>
                       {data?.releaseStatus == "Cannot be Released" ? (
                         <tr>
-                          <th scope="row">Storage End Date:</th>
+                          <th scope="row">Storage/Impound End Date:</th>
                           <td>-</td>
                         </tr>
                       ) : (
                         <tr>
-                          <th scope="row">Storage End Date:</th>
+                          <th scope="row">Storage/Impound End Date:</th>
                           <td>{data?.startDate}</td>{" "}
                           {/*end date krni hai shayed*/}
                         </tr>
@@ -606,32 +765,44 @@ const JobDetails = () => {
                         )}
                         <th scope="row">Confirm LE Tow Receipt: </th>
                         <td>
-
-                        <div className="image-wrap">
-                          {(receiptPicture || []).map((image) => {
-                            return (
-                              <span
-                              onClick={() => {
-                                ViewImage(image);
-                              }}
-                              target="_blank"
-                              style={{ cursor: "pointer" }}
-                            >
-                              <img
-                                width={40}
-                                src={image_placeholder}
-                                alt="img placeholder"
-                              />
-                            </span>
-                            );
-                          })}
+                          <div className="image-wrap">
+                            {(receiptPicture || []).map((image) => {
+                              return (
+                                <span
+                                  onClick={() => {
+                                    ViewImage(image);
+                                  }}
+                                  target="_blank"
+                                  style={{ cursor: "pointer" }}
+                                >
+                                  <img
+                                    width={40}
+                                    src={image_placeholder}
+                                    alt="img placeholder"
+                                  />
+                                </span>
+                              );
+                            })}
                           </div>
                         </td>
-
                       </tr>
                     </>
                   )}
                   <tr>
+                  <th scope="row">Finishing Location:</th>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.finishingLocation}
+                          onChange={(e) =>
+                            onChangeValue("finishingLocation", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.finishingLocation}</td>
+                    )}
                     <th scope="row">Registered Owner Notified</th>
                     <td>{data?.registeredOwnerNotified ? "Yes" : "No"}</td>
                     {data?.registeredOwnerNotified && (
@@ -809,19 +980,67 @@ const JobDetails = () => {
                 <tbody>
                   <tr>
                     <th scope="row">Driver Name</th>
-                    <td>{data?.driverName}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.driverName}
+                          onChange={(e) =>
+                            onChangeValue("driverName", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.driverName}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Driver Mobile</th>
-                    <td>{data?.driverMobile}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.driverMobile}
+                          onChange={(e) =>
+                            onChangeValue("lienName", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.driverMobile}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Driver Address</th>
-                    <td>{data?.driverAddress}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.driverAddress}
+                          onChange={(e) =>
+                            onChangeValue("driverAddress", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.driverAddress}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Driver Email</th>
-                    <td>{data?.driverEmail}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.driverEmail}
+                          onChange={(e) =>
+                            onChangeValue("driverEmail", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.driverEmail}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Tow Truck Assistant:</th>
@@ -843,35 +1062,131 @@ const JobDetails = () => {
                 <tbody>
                   <tr>
                     <th scope="row">Owner Name:</th>
-                    <td>{data?.ownerName}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.ownerName}
+                          onChange={(e) =>
+                            onChangeValue("ownerName", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.ownerName}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Owner Mobile:</th>
-                    <td>{data?.ownerMobile}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.ownerMobile}
+                          onChange={(e) =>
+                            onChangeValue("ownerMobile", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.ownerMobile}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Owner Address:</th>
-                    <td>{data?.ownerAddress}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.ownerAddress}
+                          onChange={(e) =>
+                            onChangeValue("ownerAddress", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.ownerAddress}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Owner Email:</th>
-                    <td>{data?.ownerEmail}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.ownerEmail}
+                          onChange={(e) =>
+                            onChangeValue("ownerEmail", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.ownerEmail}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Lien Name:</th>
-                    <td>{data?.lienName}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.lienName}
+                          onChange={(e) =>
+                            onChangeValue("lienName", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.lienName}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Lien Mobile:</th>
-                    <td>{data?.lienMobile}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.lienMobile}
+                          onChange={(e) =>
+                            onChangeValue("lienMobile", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.lienMobile}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Lien Address:</th>
-                    <td>{data?.lienAddress}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.lienAddress}
+                          onChange={(e) =>
+                            onChangeValue("lienAddress", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.lienAddress}</td>
+                    )}
                   </tr>
                   <tr>
                     <th scope="row">Lien Email:</th>
-                    <td>{data?.lienEmail}</td>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.lienEmail}
+                          onChange={(e) =>
+                            onChangeValue("lienEmail", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.lienEmail}</td>
+                    )}
                   </tr>
                 </tbody>
               </Table>
