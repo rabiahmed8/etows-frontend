@@ -1016,7 +1016,7 @@ const JobDetails = () => {
                           type="text"
                           value={editableData?.driverMobile}
                           onChange={(e) =>
-                            onChangeValue("lienName", e.target.value)
+                            onChangeValue("driverMobile", e.target.value)
                           }
                         />
                       </td>
