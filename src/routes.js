@@ -223,7 +223,7 @@ var routes = [
   },
   {
     path: "/jobdetail/:id",
-    name: config.jobDetails,
+    name: "Job Details",
     icon: "ni ni-bullet-list-67 text-red",
     component: JobDetails,
     layout: "/admin",

@@ -1,7 +1,16 @@
 import Header from "components/Headers/Header";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Button, Col, FormGroup, Input, Label, Row, Table } from "reactstrap";
+import {
+  Button,
+  Col,
+  Container,
+  FormGroup,
+  Input,
+  Label,
+  Row,
+  Table,
+} from "reactstrap";
 import Select from "react-select";
 import moment from "moment";
 import { getDropDownApi } from "APIstore/apiCalls";
@@ -301,8 +310,11 @@ const JobDetails = () => {
   };
 
   return (
-    <div>
-      <Header />
+    <>
+      {/* <Header /> */}
+
+      <div style={{ height: "100px", background: "green" }}></div>
+
       <div
         style={{
           padding: "20px 40px",
@@ -324,7 +336,7 @@ const JobDetails = () => {
             gap: "15px",
           }}
         >
-          <div>Job Id: {data?.id}</div>
+          <div>Service Request #: {data?.id}</div>
           <Button onClick={() => onSubmit()} color="primary">
             Update Job
           </Button>
@@ -353,7 +365,7 @@ const JobDetails = () => {
               <Table borderless hover className={"one-col"}>
                 <thead>
                   <tr>
-                    <th className="table-heading">Law Enforcement Tow</th>
+                    <th className="table-heading">Service Request Details</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -403,7 +415,7 @@ const JobDetails = () => {
                 </thead>
                 <tbody>
                   <tr>
-                    <th scope="row">Service Request Date:</th>
+                    <th scope="row">Date of Service Request:</th>
                     {editing ? (
                       <td>
                         <Input
@@ -419,6 +431,12 @@ const JobDetails = () => {
                         {moment(data?.towOrImpoundDate).format("MMMM Do YYYY")}
                       </td>
                     )}
+                  </tr>
+                  <tr>
+                    <th scope="row">Service Status</th>
+                    <td>
+                      {data?.status == "LE Request" ? "Pending" : data?.status}
+                    </td>
                   </tr>
                   {data?.requestType == "Tow and Impound/Storage" && (
                     <tr>
@@ -439,12 +457,7 @@ const JobDetails = () => {
                     <th scope="row">Request Type</th>
                     <td>{data?.requestType}</td>
                   </tr>
-                  <tr>
-                    <th scope="row">Service Status</th>
-                    <td>
-                      {data?.status == "LE Request" ? "Pending" : data?.status}
-                    </td>
-                  </tr>
+
                   <tr>
                     <th scope="row">Held Purpose:</th>
                     <td>
@@ -509,7 +522,7 @@ const JobDetails = () => {
               <Table borderless hover className={"two-col"}>
                 <thead>
                   <tr>
-                    <th className="table-heading">Service Summary</th>
+                    <th className="table-heading">Service Request Summary</th>
                     {/* <th>Update Job</th> */}
                   </tr>
                 </thead>
@@ -626,8 +639,11 @@ const JobDetails = () => {
                   <tr>
                     <th scope="row">Jurisdiction:</th>
                     <td>{data?.jurisdiction}</td>
-                    <th scope="row">Mandatory Date:</th>
-                    <td>{data?.mandatoryDate}</td>
+                    <th scope="row">Date Service Request Entered:</th>
+
+                    <td>
+                      {moment(data?.mandatoryDate).format("MMMM Do YYYY")}
+                    </td>
                   </tr>
                   <tr>
                     <th scope="row">Starting Mileage:</th>
@@ -635,8 +651,7 @@ const JobDetails = () => {
                       <td>
                         <Input
                           type="text"
-                          value={editableData?.startingMileage
-                          }
+                          value={editableData?.startingMileage}
                           onChange={(e) =>
                             onChangeValue("startingMileage", e.target.value)
                           }
@@ -678,8 +693,7 @@ const JobDetails = () => {
                     )}
                     <th scope="row">Total Mileage: </th>
 
-                      <td>{data?.totalMileage}</td>
-
+                    <td>{data?.totalMileage}</td>
                   </tr>
                   {data?.requestType == "Tow and Impound/Storage" && (
                     <>
@@ -789,7 +803,7 @@ const JobDetails = () => {
                     </>
                   )}
                   <tr>
-                  <th scope="row">Finishing Location:</th>
+                    <th scope="row">Finishing Location:</th>
                     {editing ? (
                       <td>
                         <Input
@@ -1280,7 +1294,7 @@ const JobDetails = () => {
         prefix={Constants.apiUrl}
         loading={true}
       />
-    </div>
+    </>
   );
 };
 export default JobDetails;
