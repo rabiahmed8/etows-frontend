@@ -21,6 +21,7 @@ import ViewImageModal from "component/ViewImageModal";
 import { Constants } from "Environment";
 import image_placeholder from "assets/img/icons/img.png";
 import { DispatchUserRequestUpdate } from "APIstore/apiCalls";
+import AddressInput from "./AddressInput";
 
 const data = {
   id: 538,
@@ -369,13 +370,13 @@ const JobDetails = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
+                  {/* <tr>
                     <th scope="row">Job Id: </th>
                     <td>{data?.id} </td>
-                  </tr>
+                  </tr> */}
                   <tr>
-                    <th scope="row">Company Id: </th>
-                    <td>{data?.companyId} </td>
+                    <th scope="row">Company: </th>
+                    <td>{data?.companyName} </td>
                   </tr>
 
                   <tr>
@@ -400,6 +401,15 @@ const JobDetails = () => {
                     <th scope="row">User: </th>
                     <td>{data?.username} </td>
                   </tr>
+                  <tr>
+                    <th scope="row">Client Name:</th>
+                    <td>{data?.officerName}</td>
+                  </tr>
+
+                  <tr>
+                    <th scope="row">Client Contact</th>
+                    <td>{data?.officerContact}</td>
+                  </tr>
                 </tbody>
               </Table>
             </div>
@@ -409,7 +419,7 @@ const JobDetails = () => {
               <Table borderless hover className={"one-col"}>
                 <thead>
                   <tr>
-                    <th className="table-heading">Service Request Details</th>
+                    <th className="table-heading">Service Status</th>
                     {/* <th>Update Job</th> */}
                   </tr>
                 </thead>
@@ -438,6 +448,16 @@ const JobDetails = () => {
                       {data?.status == "LE Request" ? "Pending" : data?.status}
                     </td>
                   </tr>
+                  <tr>
+                    <th scope="row">Request Type</th>
+                    <td>{data?.requestType}</td>
+                  </tr>
+                  {data?.requestType == "Roadside Assistance" && (
+                    <tr>
+                      <th scope="row">Road Service</th>
+                      <td>{data?.roadService}</td>
+                    </tr>
+                  )}
                   {data?.requestType == "Tow and Impound/Storage" && (
                     <tr>
                       <th scope="row">Reason For Impound</th>
@@ -453,10 +473,7 @@ const JobDetails = () => {
                       <td>{data?.reasonForTow}</td>
                     </tr>
                   )}
-                  <tr>
-                    <th scope="row">Request Type</th>
-                    <td>{data?.requestType}</td>
-                  </tr>
+
 
                   <tr>
                     <th scope="row">Held Purpose:</th>
@@ -618,7 +635,16 @@ const JobDetails = () => {
                     <th scope="row">Service Request Location:</th>
                     {editing ? (
                       <td>
-                        <Input
+                        <AddressInput
+                          className="form-control-alternative form-control"
+                          id="towJobRequestLocation"
+                          placeholder="Search Address"
+                          value={editableData?.towJobRequestLocation}
+                          onChange={(value) => {
+                            onChangeValue("towJobRequestLocation", value);
+                          }}
+                        />
+                        {/* <Input
                           type="text"
                           value={editableData?.towJobRequestLocation}
                           onChange={(e) =>
@@ -627,7 +653,7 @@ const JobDetails = () => {
                               e.target.value
                             )
                           }
-                        />
+                        /> */}
                       </td>
                     ) : (
                       <td>{data?.towJobRequestLocation}</td>
@@ -680,13 +706,22 @@ const JobDetails = () => {
 
                     {editing ? (
                       <td>
-                        <Input
+                        <AddressInput
+                          className="form-control-alternative form-control"
+                          id="startingLocation"
+                          placeholder="Search Address"
+                          value={editableData?.startingLocation}
+                          onChange={(value) => {
+                            onChangeValue("startingLocation", value);
+                          }}
+                        />
+                        {/* <Input
                           type="text"
                           value={editableData?.startingLocation}
                           onChange={(e) =>
                             onChangeValue("startingLocation", e.target.value)
                           }
-                        />
+                        /> */}
                       </td>
                     ) : (
                       <td>{data?.startingLocation}</td>
@@ -806,13 +841,22 @@ const JobDetails = () => {
                     <th scope="row">Finishing Location:</th>
                     {editing ? (
                       <td>
-                        <Input
+                        <AddressInput
+                          className="form-control-alternative form-control"
+                          id="finishingLocation"
+                          placeholder="Search Address"
+                          value={editableData?.finishingLocation}
+                          onChange={(value) => {
+                            onChangeValue("finishingLocation", value);
+                          }}
+                        />
+                        {/* <Input
                           type="text"
                           value={editableData?.finishingLocation}
                           onChange={(e) =>
                             onChangeValue("finishingLocation", e.target.value)
                           }
-                        />
+                        /> */}
                       </td>
                     ) : (
                       <td>{data?.finishingLocation}</td>
@@ -982,89 +1026,6 @@ const JobDetails = () => {
               </Table>
             </div>
           </Col>
-
-          <Col md={6}>
-            <div className="table-card">
-              <Table borderless hover>
-                <thead>
-                  <tr>
-                    <th className="table-heading">Tow Driver Details</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">Driver Name</th>
-                    {editing ? (
-                      <td>
-                        <Input
-                          type="text"
-                          value={editableData?.driverName}
-                          onChange={(e) =>
-                            onChangeValue("driverName", e.target.value)
-                          }
-                        />
-                      </td>
-                    ) : (
-                      <td>{data?.driverName}</td>
-                    )}
-                  </tr>
-                  <tr>
-                    <th scope="row">Driver Mobile</th>
-                    {editing ? (
-                      <td>
-                        <Input
-                          type="text"
-                          value={editableData?.driverMobile}
-                          onChange={(e) =>
-                            onChangeValue("driverMobile", e.target.value)
-                          }
-                        />
-                      </td>
-                    ) : (
-                      <td>{data?.driverMobile}</td>
-                    )}
-                  </tr>
-                  <tr>
-                    <th scope="row">Driver Address</th>
-                    {editing ? (
-                      <td>
-                        <Input
-                          type="text"
-                          value={editableData?.driverAddress}
-                          onChange={(e) =>
-                            onChangeValue("driverAddress", e.target.value)
-                          }
-                        />
-                      </td>
-                    ) : (
-                      <td>{data?.driverAddress}</td>
-                    )}
-                  </tr>
-                  <tr>
-                    <th scope="row">Driver Email</th>
-                    {editing ? (
-                      <td>
-                        <Input
-                          type="text"
-                          value={editableData?.driverEmail}
-                          onChange={(e) =>
-                            onChangeValue("driverEmail", e.target.value)
-                          }
-                        />
-                      </td>
-                    ) : (
-                      <td>{data?.driverEmail}</td>
-                    )}
-                  </tr>
-                  <tr>
-                    <th scope="row">Tow Truck Assistant:</th>
-                    <td>{data?.towTruckPersons}</td>
-                  </tr>
-                </tbody>
-              </Table>
-            </div>
-          </Col>
-
           <Col md={6}>
             <div className="table-card">
               <Table borderless hover>
@@ -1110,13 +1071,22 @@ const JobDetails = () => {
                     <th scope="row">Owner Address:</th>
                     {editing ? (
                       <td>
-                        <Input
+                        <AddressInput
+                          className="form-control-alternative form-control"
+                          id="ownerAddress"
+                          placeholder="Search Address"
+                          value={editableData?.ownerAddress}
+                          onChange={(value) => {
+                            onChangeValue("ownerAddress", value);
+                          }}
+                        />
+                        {/* <Input
                           type="text"
                           value={editableData?.ownerAddress}
                           onChange={(e) =>
                             onChangeValue("ownerAddress", e.target.value)
                           }
-                        />
+                        /> */}
                       </td>
                     ) : (
                       <td>{data?.ownerAddress}</td>
@@ -1174,13 +1144,22 @@ const JobDetails = () => {
                     <th scope="row">Lien Address:</th>
                     {editing ? (
                       <td>
-                        <Input
+                        <AddressInput
+                          className="form-control-alternative form-control"
+                          id="lienAddress"
+                          placeholder="Search Address"
+                          value={editableData?.lienAddress}
+                          onChange={(value) => {
+                            onChangeValue("lienAddress", value);
+                          }}
+                        />
+                        {/* <Input
                           type="text"
                           value={editableData?.lienAddress}
                           onChange={(e) =>
                             onChangeValue("lienAddress", e.target.value)
                           }
-                        />
+                        /> */}
                       </td>
                     ) : (
                       <td>{data?.lienAddress}</td>
@@ -1201,6 +1180,97 @@ const JobDetails = () => {
                     ) : (
                       <td>{data?.lienEmail}</td>
                     )}
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+          </Col>
+
+          <Col md={6}>
+            <div className="table-card">
+              <Table borderless hover>
+                <thead>
+                  <tr>
+                    <th className="table-heading">Driver Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Driver Name</th>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.driverName}
+                          onChange={(e) =>
+                            onChangeValue("driverName", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.driverName}</td>
+                    )}
+                  </tr>
+                  <tr>
+                    <th scope="row">Driver Mobile</th>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.driverMobile}
+                          onChange={(e) =>
+                            onChangeValue("driverMobile", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.driverMobile}</td>
+                    )}
+                  </tr>
+                  <tr>
+                    <th scope="row">Driver Address</th>
+                    {editing ? (
+                      <td>
+                        <AddressInput
+                          className="form-control-alternative form-control"
+                          id="driverAddress"
+                          placeholder="Search Address"
+                          value={editableData?.driverAddress}
+                          onChange={(value) => {
+                            onChangeValue("driverAddress", value);
+                          }}
+                        />
+                        {/* <Input
+                          type="text"
+                          value={editableData?.driverAddress}
+                          onChange={(e) =>
+                            onChangeValue("driverAddress", e.target.value)
+                          }
+                        /> */}
+                      </td>
+                    ) : (
+                      <td>{data?.driverAddress}</td>
+                    )}
+                  </tr>
+                  <tr>
+                    <th scope="row">Driver Email</th>
+                    {editing ? (
+                      <td>
+                        <Input
+                          type="text"
+                          value={editableData?.driverEmail}
+                          onChange={(e) =>
+                            onChangeValue("driverEmail", e.target.value)
+                          }
+                        />
+                      </td>
+                    ) : (
+                      <td>{data?.driverEmail}</td>
+                    )}
+                  </tr>
+                  <tr>
+                    <th scope="row">Tow Truck Assistant:</th>
+                    <td>{data?.towTruckPersons}</td>
                   </tr>
                 </tbody>
               </Table>

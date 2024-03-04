@@ -223,7 +223,7 @@ var routes = [
   },
   {
     path: "/jobdetail/:id",
-    name: "Job Details",
+    name: "Service Request Summary Report",
     icon: "ni ni-bullet-list-67 text-red",
     component: JobDetails,
     layout: "/admin",
