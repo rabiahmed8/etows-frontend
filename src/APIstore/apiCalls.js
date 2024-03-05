@@ -379,18 +379,25 @@ export const CheckEnabledDisabled = (paylaod, myCallback) => {
 export const getLoggedinApi = (payload, myCallback) => {
   getRequestStatic("user/userinfo", myCallback);
 };
+
 export const getJobDetails = (payload, myCallback) => {
   getRequest(
     "tow/tow-job-request/" + payload,
     myCallback
   );
 };
+
 export const AllJobsApi = (payload, myCallback) => {
   getRequest(
-    "tow/v2/tow-job-requests",
+    "tow-admin/v2/tow-job-requests" + (payload === "" ? "" : "?companyId=" + payload),
     myCallback
   );
 };
+
+// export const AllJobsApi = (payload, myCallback) => {
+//   getRequest("tow-admin/tow-job-requests" + (payload === "" ? "" : "?companyId=" + payload), myCallback);
+// };
+
 export const AvailableDriversApi = (payload, myCallback) => {
   getRequest("tow-admin/available-users?active=1", myCallback);
 };

@@ -356,6 +356,7 @@ function AllJobs(props) {
         async (res) => {
           if (res.sucess) {
             console.log("res.sucess", res.sucess);
+
             let result = res.sucess;
             // if (statusData) {
             //   result = result.filter(
@@ -365,8 +366,8 @@ function AllJobs(props) {
             //   );
             // }
             // setData(result);
-            setInitialData(res.sucess);
-            ChangeStatusJob(statusData, res.sucess);
+            setInitialData(result);
+            ChangeStatusJob(statusData, result);
             setCurrentPage(1);
             setIsLoader(false);
           } else {
